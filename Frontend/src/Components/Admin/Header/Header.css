@@ -1,0 +1,141 @@
+/* Isolated Navbar Styles */
+.unique-navbar-container {
+  width: 100%;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  z-index: 10;
+  position: sticky;
+  top: 0;
+}
+
+.unique-navbar-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.unique-navbar-logo {
+  height: 2.5rem;
+  width: 2.5em;
+  color: #4f46e5;
+}
+
+.unique-navbar-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.unique-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.unique-search-container {
+  display: flex;
+  align-items: center;
+  background-color: #f3f4f6;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  width: 250px;
+}
+
+.unique-navbar-search-icon {
+  color: #6b7280;
+}
+
+.unique-navbar-search-input {
+  margin-left: 0.5rem;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #4b5563;
+  font-size: 0.875rem;
+  width: 100%;
+}
+
+.unique-navbar-icons {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.unique-navbar-notifications {
+  position: relative;
+  border: none;
+  background: none;
+}
+
+.unique-navbar-bell-icon {
+  height: 1.5rem;
+  width: 1.5rem;
+  color: #4b5563;
+}
+
+.unique-notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #f87171;
+  color: white;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  border-radius: 50%;
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.unique-navbar-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.unique-navbar-profile-pic {
+  height: 2rem;
+  width: 2rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.unique-profile-dropdown {
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 200px;
+  z-index: 20;
+}
+
+.unique-profile-dropdown-item {
+  font-size: 0.875rem;
+  color: black;
+  padding: 0.5rem 0;
+  cursor: pointer;
+}
+
+.unique-profile-dropdown-item:hover {
+  color: #4f46e5;
+}
+
+hr {
+  border: 1px solid #e5e7eb;
+  margin: 0.5rem 0;
+}
+
+.unique-profile-role-item,
+.unique-profile-email-item {
+  color: #808080;
+  font-size: 13px;
+  margin: 0; /* Remove margin to reduce spacing */
+  padding: 0.2rem 0; /* Reduce padding between position and email */
+}

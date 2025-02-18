@@ -1,0 +1,419 @@
+/* Layout and Structure */
+.training-container {
+  padding: 2rem;
+  background-color: #f9f9f9;
+}
+.detail-value-container {
+  display: flex;
+}
+.training-container .header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-icon {
+  color: #4f46e5;
+  width: 28px;
+  height: 28px;
+}
+
+.add-training-btn {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.add-training-btn:hover {
+  background-color: #4338ca;
+}
+
+.button-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Summary Cards */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+}
+
+.card-icon {
+  color: #4f46e5;
+  width: 32px;
+  height: 32px;
+  margin-top: 0.8rem;
+}
+
+.active-trainings .card-icon {
+  color: #0ea5e9;
+}
+.completed-trainings .card-icon {
+  color: #22c55e;
+}
+.total-participants .card-icon {
+  color: #eab308;
+}
+.upcoming-sessions .card-icon {
+  color: #f97316;
+}
+
+/* Training List */
+.training-list {
+  margin-top: 2rem;
+}
+
+.training-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  margin-top: 15px;
+}
+
+.training-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.training-status {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 16px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: white;
+}
+
+.status-in-progress {
+  background-color: #facc15;
+}
+.status-completed {
+  background-color: #22c55e;
+}
+.status-upcoming {
+  background-color: #6366f1;
+}
+
+/* Trainer Info */
+.trainer-info {
+  display: flex;
+  align-items: start;
+  gap: 0.5rem;
+}
+
+.trainer-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* pb1 */
+
+/* .progress-bar {
+  background-color: #e5e7eb;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  margin-top: 0.3rem;
+} */
+
+.progress-filled {
+  background-color: #4f46e5;
+  height: 100%;
+  border-radius: 4px;
+}
+
+/* Resources Section */
+.training-resources {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.resource-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #f3f4f6;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #374151;
+}
+
+.resource-link:hover {
+  background-color: #e5e7eb;
+}
+
+.certification-available {
+  background-color: #22c55e;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Participant Tooltip */
+.participant-button {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  cursor: pointer;
+  position: relative;
+}
+
+.participant-tooltip {
+  position: absolute;
+  background: white;
+  padding: 0.8rem;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 0.5rem;
+  z-index: 10;
+}
+
+/* Modal Styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 500px;
+  max-width: 90%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.modal-actions button {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.modal-actions button:first-child {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.modal-actions button:last-child {
+  background-color: #4f46e5;
+  color: white;
+}
+
+.training-details-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+
+  border-top: none;
+  border-bottom: none;
+}
+
+.training-detail-item {
+  flex: 1;
+  text-align: left;
+}
+
+.detail-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-right: 10px;
+}
+
+.trainer-info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.trainer-avatar {
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Progress Bar Container */
+.progress-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+/* Progress Bar 2*/
+.progress-bar {
+  background-color: #e5e7eb;
+  height: 84px;
+  border-radius: 4px;
+  position: relative;
+}
+
+/* Filled Progress Bar */
+.progress-filled {
+  background-color: #4f46e5; /* Fill color */
+  height: 100%;
+  border-radius: 4px;
+  width: 0%; /* This will be set dynamically */
+  transition: width 0.3s ease-in-out;
+}
+
+/* Progress Percentage */
+.progress-percentage {
+  font-size: 0.85rem;
+  color: #374151;
+  position: absolute;
+  right: -40px; /* Adjust this to create space between the bar and the text */
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* New Training Details Section */
+
+.training-details-row {
+  display: flex;
+  justify-content: flex-start; /* Align content to the start */
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.training-detail-item {
+  flex: 1;
+  text-align: left; /* Align text to the left */
+}
+
+.detail-title {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.detail-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.trainer-info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Align content to the start */
+  gap: 0.5rem;
+}
+
+.trainer-avatar {
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Progress Bar Container */
+.progress-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+/* Progress Bar */
+.progress-bar {
+  background-color: #e5e7eb;
+  height: 8px;
+  border-radius: 4px;
+  width: 90%;
+  position: relative;
+}
+
+/* Filled Progress Bar */
+.progress-filled {
+  background-color: #4f46e5; /* Fill color */
+  height: 100%;
+  border-radius: 4px;
+  width: 0%; /* This will be set dynamically */
+  transition: width 0.3s ease-in-out;
+}
+
+/* Progress Percentage */
+.progress-percentage {
+  font-size: 0.85rem;
+  color: #374151;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.training-description {
+  margin-top: 5px;
+  margin-bottom: 10px;
+}

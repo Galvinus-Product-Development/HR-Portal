@@ -1,0 +1,155 @@
+/* Sidebar container */
+.sidebar-container {
+  width: 18rem;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: fixed;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* .sidebar-logo {
+  height: 2rem;
+  width: 2rem;
+  color: #4f46e5;
+} */
+
+/* .sidebar-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #1f2937;
+} */
+
+.sidebar-nav {
+  margin-top: 1.5rem;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.05rem;
+  color: #000000;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+  color: inherit;
+}
+
+.sidebar-item:hover {
+  background-color: #efeff0;
+}
+
+/* Active Tab */
+.sidebar-item.active,
+.submenu-item.active {
+  background-color: #eef2ff;
+  color: #1d2a60;
+  border-right: 4px solid #1d2a60;
+  font-weight: 550;
+}
+
+/* Ensures all links behave like buttons */
+.sidebar-item,
+.sidebar-item a,
+.submenu-item {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Sidebar icon */
+.sidebar-icon {
+  height: 1.5rem;
+  width: 1.5rem;
+  margin-right: 0.75rem;
+}
+
+/* Submenu styles */
+.submenu {
+  background-color: #ffffff;
+  padding-left: 1.5rem;
+}
+
+.submenu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.05rem;
+  color: #000000;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.submenu-item:hover {
+  background-color: #efeff0;
+}
+
+.submenu-item.active {
+  background-color: #eef2ff;
+  color: #1d2a60;
+  border-right: 4px solid #1d2a60;
+}
+
+/* Dropdown icon */
+.dropdown-icon {
+  margin-left: auto;
+  transition: transform 0.2s ease-in-out;
+}
+
+.dropdown-icon.open {
+  transform: rotate(180deg);
+}
+
+.sidebar-footer {
+  text-align: center;
+  font-size: 1rem;
+  color: #000000;
+  padding: 1rem;
+  padding-bottom: 90px;
+}
+
+/* Attendance Tracker Styles */
+.attendance-tracker {
+  background-color: #f9fafb;
+  color: #1f2937;
+  font-weight: 500;
+  border-left: 4px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.attendance-tracker:hover {
+  background-color: #e5e7eb;
+  border-left: 4px solid #4f46e5;
+}
+
+/* Attendance Dashboard Styles */
+.attendance-dashboard {
+  background-color: #f3f4f6;
+  color: #111827;
+  font-weight: 500;
+  border-left: 4px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.attendance-dashboard:hover {
+  background-color: #e0e7ff;
+  border-left: 4px solid #4f46e5;
+}

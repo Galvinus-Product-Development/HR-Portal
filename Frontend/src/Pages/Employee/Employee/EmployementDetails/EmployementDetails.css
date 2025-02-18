@@ -1,0 +1,82 @@
+
+.employment-details-container {
+    padding: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+  
+}
+
+
+.employment-details-container h2 {
+    font-size: 28px;
+    color: black;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.employment-details-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+}
+
+@media (min-width: 768px) {
+    .employment-details-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .employment-details-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.employment-details-item {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+label {
+    font-size: 14px;
+    font-weight: 500;
+    color: black;
+    margin-bottom: 8px;
+}
+
+
+
+.employment-details-item p{
+    font-size: 15px;
+    color: black;
+    font-weight: 400;
+    margin: 0;
+}
+
+p + p {
+    margin-top: 8px;
+}
+
+.employment-details-item:nth-child(odd) {
+    background-color: #f2f5ff;
+}
+
+.employment-details-item:nth-child(even) {
+    background-color: #e5e7eb;
+}
+
+@media (min-width: 768px) {
+    .employment-details-item:nth-child(odd),
+    .employment-details-item:nth-child(even) {
+        background-color: transparent;
+    }
+}
+
+.employment-details-item label{
+    font-weight: bold;
+}

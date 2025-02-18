@@ -1,0 +1,241 @@
+/* General styles */
+.daily-attendance__container {
+  padding: 40px;
+  background-color: #f9fafb;
+  font-family: "Roboto", sans-serif;
+}
+
+.daily-attendance__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.leave-subtitle {
+  font-size: 16px;
+  color: #6b7280;
+}
+
+.daily-attendance__header-left {
+  display: flex;
+
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.daily-attendance__date {
+  font-size: 18px;
+  font-weight: 600;
+  color: black;
+}
+
+/* Stats Cards */
+.daily-attendance__summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.daily-attendance__summary-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px 20px;
+  color: black;
+  text-align: left; /* Align text to the left */
+  font-size: 18px; /* Increase font size */
+  font-weight: 500;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  min-height: 130px;
+  display: flex; /* Use flexbox for better alignment */
+  flex-direction: column;
+  justify-content: center;
+}
+
+.daily-attendance__summary-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.present {
+  background-color: #d1fae5;
+}
+
+.absent {
+  background-color: #fee2e2;
+}
+
+.half-day {
+  background-color: #fef9c3;
+}
+
+.on-leave {
+  background-color: #dbeafe;
+}
+
+.daily-attendance__filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.daily-attendance__filters label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 5px;
+}
+
+.daily-attendance__filters select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+}
+
+.daily-attendance__table-container {
+  overflow-x: auto;
+}
+
+.daily-attendance__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.daily-attendance__table th,
+.daily-attendance__table td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.daily-attendance__status {
+  padding: 5px 10px;
+  border-radius: 8px;
+}
+
+.daily-attendance__status.present {
+  background-color: #d1fae5;
+  color: black;
+  font-size: 14px;
+}
+
+.daily-attendance__status.absent {
+  background-color: #fee2e2;
+  color: black;
+  font-size: 14px;
+}
+
+.daily-attendance__status.half-day {
+  background-color: #fef9c3;
+  color: black;
+  font-size: 14px;
+}
+
+.daily-attendance__status.on-leave {
+  background-color: #dbeafe;
+  color: black;
+  font-size: 14px;
+}
+
+.daily-attendance__modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.daily-attendance__modal-content {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.daily-attendance__modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.daily-attendance__icon-close {
+  cursor: pointer;
+  color: #4f46e5;
+  font-size: 24px;
+}
+
+.daily-attendance__form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.daily-attendance__employee-info {
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+.daily-attendance__form div {
+  display: flex;
+  flex-direction: column;
+}
+
+.daily-attendance__summary-grid p {
+  font-weight: bold;
+}
+
+.daily-attendance__form div label {
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 5px;
+}
+
+.daily-attendance__form div input,
+.daily-attendance__form div select {
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.daily-attendance__form-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.daily-attendance__form-actions button {
+  padding: 10px 20px;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.daily-attendance__form-actions button:hover {
+  background-color: #3b36b0;
+}
+
+.daily-attendance__form-actions button[type="button"] {
+  background-color: #d1d5db;
+  color: black;
+}
+
+.daily-attendance__form-actions button[type="button"]:hover {
+  background-color: #9ca3af;
+}

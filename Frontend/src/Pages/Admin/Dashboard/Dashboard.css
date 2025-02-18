@@ -1,0 +1,261 @@
+.dashboard--container {
+  margin: 30px 20px 0px 20px;
+  margin-right: 30px;
+}
+.kkkk {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.kkkk .leave-details {
+  width: 300px;
+  display: flex;
+  justify-content: space-between;
+}
+.dashboard-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.stat-item {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  width: 23%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 130px;
+  margin-top: 20px;
+}
+
+.stat-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.stat-label {
+  font-size: 18px;
+  color: black;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  color: #6b7280;
+}
+
+.stat-icon {
+  font-size: 3rem;
+  color: #4f46e5;
+}
+
+.notifications {
+  margin-bottom: 40px;
+  background-color: #fff;
+  padding: 20px;
+  width: 1200px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.notifications-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.notifications-icon {
+  font-size: 2rem;
+  color: #4f46e5;
+  margin-right: 10px;
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.notification-icon .icon {
+  font-size: 2rem;
+  color: #56585a;
+}
+
+.notification-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #1f2937;
+  margin-bottom: 10px;
+}
+
+.notification-message {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.notification-timestamp {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.pending-leaves-card {
+  background-color: red;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 40px;
+}
+
+.pending-leaves-title {
+  /* font-size: 1.5rem; */
+  font-weight: bold;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+}
+
+.pending-leaves-icon {
+  font-size: 2rem;
+  color: #4f46e5;
+  margin-right: 10px;
+}
+
+.pending-leave-item {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  margin-top: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard--container .leave-header {
+  display: flex;
+  justify-content: flex-start;
+  gap: 15px;
+  align-items: start;
+}
+
+.dashboard--container .employee-avatar {
+  width: 60px;
+  height: 55px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.dashboard--container .leave-employee-name {
+  font-weight: bold;
+}
+
+.leave-type {
+  font-size: 0.9rem;
+  color: #4f46e5;
+}
+
+.leave-blue {
+  color: #3b82f6;
+}
+
+.leave-red {
+  color: #ef4444;
+}
+
+.leave-purple {
+  color: #8b5cf6;
+}
+
+.leave-department,
+.leave-duration,
+.leave-dates,
+.leave-reason {
+  /* margin-left: 80px; */
+  font-size: 0.9rem;
+  color: #6b7280;
+  padding: 0px 0px 0px 5px;
+  margin-bottom: 5px;
+}
+
+.leave-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.leave-requested-on {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.leave-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.leave-action {
+  padding: 8px;
+  border-radius: 50%;
+  border: none;
+  background-color: #e0e7ff;
+  cursor: pointer;
+}
+
+.leave-action.approve {
+  background-color: #34d399;
+}
+
+.leave-action.reject {
+  background-color: #f87171;
+}
+
+.action-icon {
+  font-size: 1.2rem;
+  color: white;
+}
+
+.dashboard-flex-container {
+  display: flex;
+}
+
+.pending-leaves {
+  margin-left: 40px;
+  margin-bottom: 50px;
+  background-color: #fff;
+  padding: 20px;
+  width: 500px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}

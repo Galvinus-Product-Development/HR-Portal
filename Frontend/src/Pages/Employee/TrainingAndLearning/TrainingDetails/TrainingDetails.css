@@ -1,0 +1,208 @@
+/* Container */
+.td-container {
+  padding: 24px;
+  gap: 24px;
+}
+
+/* Header */
+.td-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+}
+
+.td-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.td-description {
+  color: #6b7280;
+  margin-bottom: 18px;
+  margin-top: 5px;
+}
+
+/* Enroll Button */
+.td-enroll-btn {
+  padding: 8px 16px;
+  background-color: #4f46e5;
+  color: white;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+}
+
+.td-enroll-btn:hover {
+  background-color: #4338ca;
+}
+
+.td-enrolled-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #d1fae5;
+  color: #065f46;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+/* Content Grid */
+.td-content-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+/* Card */
+.td-card {
+  background-color: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+/* Section Title */
+.td-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* Info Grid */
+.td-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.td-info-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.td-info-label {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.td-info-text {
+  color: #6b7280;
+}
+
+.td-icon-gray {
+  color: #9ca3af;
+  width: 20px;
+  height: 20px;
+}
+
+.td-icon-red {
+  color: #ef4444;
+}
+
+.td-icon-blue {
+  color: #3b82f6;
+}
+
+.td-icon-green {
+  color: #10b981;
+}
+
+/* Progress Bar */
+.td-progress-section {
+  margin-top: 24px;
+}
+
+.td-progress-bar-bg {
+  background-color: #e5e7eb;
+  height: 8px;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+.td-progress-bar-fill {
+  background-color: #4f46e5;
+  height: 8px;
+  border-radius: 4px;
+}
+
+/* Resources */
+.td-resource-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.td-resource-item {
+  background-color: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.td-resource-info {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.td-resource-name {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.td-resource-type {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.td-resource-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.td-open-link {
+  color: #4f46e5;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.td-open-link:hover {
+  color: #4338ca;
+}
+
+/* Sidebar */
+.td-status-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.td-status-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.td-enrolled {
+  color: #10b981;
+}
+
+/* Notice */
+.td-notice {
+  background-color: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  padding: 16px;
+  border-radius: 8px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.td-notice-text {
+  color: #92400e;
+}

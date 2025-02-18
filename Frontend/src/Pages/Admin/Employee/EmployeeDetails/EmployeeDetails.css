@@ -1,0 +1,153 @@
+.employee-details-container {
+  margin: 20px;
+
+  font-family: "Arial", sans-serif;
+}
+
+.employee-details-container .employee-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  color: #4a4a4a;
+  cursor: pointer;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  padding: 8px 15px;
+  font-size: 14px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  color: #4a4a4a;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-button:hover {
+  background-color: #f8f8f8;
+}
+
+.icon {
+  margin-right: 8px;
+}
+
+.employee-details-container .overview-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.overview-content {
+  display: flex;
+  align-items: center;
+}
+
+.employee-avatar {
+  height: 80px;
+  width: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.employee-info {
+  flex-grow: 1;
+}
+
+.employee-details-container .employee-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
+.employee-details-container .employee-name {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+}
+
+.employee-job-title {
+  color: #777;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+}
+
+.status-badge.active {
+  background-color: #28a745;
+}
+
+.status-badge.onleave {
+  background-color: #ffc107;
+}
+
+.status-badge.inactive {
+  background-color: #dc3545;
+}
+
+.details-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.details-title {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.detail-label {
+  color: #888;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.detail-value {
+  font-weight: 500;
+  color: black;
+  font-size: 15px;
+}
+
+@media (min-width: 768px) {
+  .details-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}

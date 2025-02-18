@@ -1,0 +1,152 @@
+/* Container */
+.leave-history-container {
+  padding: 1.5rem;
+  background-color: #ffffff;
+}
+
+/* Header */
+.leave-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.leave-history-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+/* Month Selector */
+.leave-history-select-wrapper {
+  position: relative;
+}
+
+.leave-history-select {
+  appearance: none;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.5rem 2rem 0.5rem 1rem;
+  font-size: 1rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.leave-history-dropdown-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: #6b7280;
+}
+
+/* Table */
+.leave-history-table-container {
+  overflow-x: auto;
+}
+
+.leave-history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leave-history-table th,
+.leave-history-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.leave-history-table th {
+  background-color: #f9fafb;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+}
+
+.leave-history-table td {
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+/* Leave Type Badge */
+.leave-type-badge {
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Leave Type Colors */
+.leave-type-badge.cl {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.leave-type-badge.sl {
+  background-color: #ede9fe;
+  color: #6d28d9;
+}
+
+.leave-type-badge.comp-off {
+  background-color: #e0e7ff;
+  color: #4338ca;
+}
+
+/* Status Badge */
+.leave-status-badge {
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Status Colors */
+.leave-status-badge.approved {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.leave-status-badge.rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.leave-status-badge.pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* Attachments */
+.leave-history-attachment {
+  display: flex;
+  align-items: center;
+  color: #4f46e5;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.leave-history-attachment:hover {
+  text-decoration: underline;
+}
+
+.leave-history-attachment-icon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
+}
+
+.leave-history-no-attachment {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}

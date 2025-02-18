@@ -1,0 +1,14 @@
+/* Reset browser styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Apply default font family globally */
+body {
+  font-family: "Lato", Arial, Helvetica, sans-serif;
+  background-color: #f3f3f3;
+}
+
+/* f8f9fa */

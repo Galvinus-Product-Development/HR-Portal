@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Employee {
+  employee_id     String        @id @default(uuid())
+  first_name      String
+  last_name       String
+  date_of_birth   DateTime
+  gender          Gender
+  phone_number    String
+  email           String        @unique
+  address         String
+  city            String
+  state           String
+  country         String
+  postal_code     String
+  nationality     String
+  marital_status  MaritalStatus
+  profile_pic_url String
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+
+  employment        Employment?
+  bankAccounts      Bank[]
+  emergencyContacts Emergency[]
+  documents         Document[]
+  salaries          Salary[]
+}
+
+model Employment {
+  employee_id      String           @id @default(uuid()) @map("employee_id")
+  designation      String
+  department       String
+  date_of_joining  DateTime
+  employment_type  EmploymentType
+  manager_id       String?
+  work_location    String
+  status           EmploymentStatus
+  base_salary      Decimal
+  stock_bonus      Decimal
+  termination_date DateTime?
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  employee Employee @relation(fields: [employee_id], references: [employee_id])
+}
+
+model Bank {
+  bank_id        String      @id @default(uuid())
+  employee_id    String
+  bank_name      String
+  account_number String      @unique
+  ifsc_code      String
+  branch_name    String
+  account_type   AccountType
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @updatedAt
+
+  employee Employee @relation(fields: [employee_id], references: [employee_id])
+  salaries Salary[]
+}
+
+model Emergency {
+  contact_id    String   @id @default(uuid())
+  employee_id   String
+  contact_name  String
+  relationship  String
+  contact_phone String
+  contact_email String
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  employee Employee @relation(fields: [employee_id], references: [employee_id])
+}
+
+model Document {
+  document_id     String       @id @default(uuid())
+  employee_id     String
+  document_type   DocumentType
+  document_number String       @unique
+  issue_date      DateTime
+  expiry_date     DateTime?
+  document_path   String
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+
+  employee Employee @relation(fields: [employee_id], references: [employee_id])
+}
+
+model Salary {
+  transaction_id String        @id @default(uuid())
+  employee_id    String
+  salary_month   DateTime
+  basic_salary   Decimal
+  allowances     Decimal
+  deductions     Decimal
+  net_salary     Decimal
+  payment_date   DateTime
+  payment_status PaymentStatus
+  bank_id        String
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+
+  employee Employee @relation(fields: [employee_id], references: [employee_id])
+  bank     Bank     @relation(fields: [bank_id], references: [bank_id])
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERN
+}
+
+enum EmploymentStatus {
+  ACTIVE
+  TERMINATED
+  RESIGNED
+  RETIRED
+}
+
+enum AccountType {
+  SAVINGS
+  CURRENT
+}
+
+enum DocumentType {
+  PASSPORT
+  NATIONAL_ID
+  DRIVER_LICENSE
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}

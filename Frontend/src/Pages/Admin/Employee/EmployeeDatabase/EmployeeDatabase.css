@@ -1,0 +1,202 @@
+.employee-db-container {
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.employee-db-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.employee-db-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.employee-db-icon {
+  color: black;
+  width: 2rem;
+  height: 2rem;
+}
+
+.employee-db-title h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.employee-db-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.employee-db-btn,
+.employee-db-btn-add {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.employee-db-btn {
+  color: #374151;
+  background-color: #fff;
+  border: 1px solid #d1d5db;
+}
+
+.employee-db-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.employee-db-btn-add {
+  color: #fff;
+  background-color: #4f46e5;
+}
+
+.employee-db-btn-add:hover {
+  background-color: #4338ca;
+}
+
+.employee-db-btn-icon {
+  margin-right: 0.5rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.employee-db-filters {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.employee-db-search-container {
+  position: relative;
+}
+
+.employee-db-search {
+  width: 100%;
+  padding: 0.5rem 1rem 0.5rem 2.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+}
+
+.employee-db-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 0.75rem;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.employee-db-select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+}
+
+.employee-db-table-container {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.employee-db-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.employee-db-table th,
+.employee-db-table td {
+  padding: 0.75rem 1.5rem;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.employee-db-table th {
+  background-color: #f9fafb;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.employee-db-row:hover {
+  background-color: #f3f4f6;
+  cursor: pointer;
+}
+
+.employee-db-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.employee-db-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  object-fit: cover;
+}
+
+.employee-db-name {
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.employee-db-id,
+.employee-db-designation {
+  color: #6b7280;
+  font-size: 0.75rem;
+  margin-top: 5px;
+  font-size: 12px;
+}
+
+.employee-db-contact,
+.employee-db-location,
+.employee-db-join-date {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #374151;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.employee-db-contact-icon {
+  width: 1rem;
+  height: 1rem;
+  color: #6b7280;
+}
+
+.employee-db-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-active {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-on-leave {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-inactive {
+  background-color: #fee2e2;
+  color: #991b1b;
+}

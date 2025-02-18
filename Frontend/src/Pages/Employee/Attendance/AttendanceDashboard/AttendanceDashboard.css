@@ -1,0 +1,124 @@
+/* Calendar Styles */
+.attendance-calendar {
+  background-color: #f9fafb;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.attendance-calendar .calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 15px;
+  padding: 10px 0;
+}
+
+.attendance-calendar .calendar-day {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  font-size: 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+  text-align: center;
+}
+
+.attendance-calendar .calendar-day:hover {
+  background-color: #e0e7ff;
+}
+
+.attendance-calendar .calendar-day.present {
+  background-color: #d1fae5;
+}
+
+.attendance-calendar .calendar-day.absent {
+  background-color: #ffedd5;
+}
+
+.attendance-calendar .calendar-day.leave {
+  background-color: #fef3c7;
+}
+
+.attendance-calendar .calendar-day.holiday {
+  background-color: #e5e7eb;
+}
+
+.attendance-calendar .attendance-tag {
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  background-color: #4f46e5;
+  padding: 4px 8px;
+  border-radius: 5px;
+  margin-top: 8px;
+}
+
+.attendance-calendar .time-info {
+  font-size: 12px;
+  color: #1f2937;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+.attendance-calendar .calendar-day.late {
+  background-color: #ffdd00;
+  color: #000;
+}
+
+.attendance-calendar .calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.attendance-calendar .calendar-header .month-year {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.attendance-calendar .calendar-navigation button {
+  padding: 8px 15px;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.attendance-calendar .calendar-navigation button:hover {
+  background-color: #3f3ccf;
+}
+
+/* Other Styles */
+.attendance-dashboard-container {
+  width: 90%;
+  margin: auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.attendance-dashboard-header {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+  color: black;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #4f46e5;
+  padding-bottom: 10px;
+}
+
+.attendance-dashboard-footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 14px;
+  color: #6b7280;
+}

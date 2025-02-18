@@ -1,0 +1,115 @@
+/* Navbar styles */
+.navbar-container {
+  width: 100%;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Shadow effect */
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  z-index: 10;
+  position: sticky;
+
+  top: 0;
+}
+
+.navbar-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbar-logo {
+  height: 2.5rem;
+  width: 2.5em;
+  color: #4f46e5;
+}
+
+.navbar-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  background-color: #f3f4f6;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  width: 250px;
+}
+
+.navbar-search-icon {
+  color: #6b7280;
+}
+
+.navbar-search-input {
+  margin-left: 0.5rem;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #4b5563;
+  font-size: 0.875rem;
+  width: 100%;
+}
+
+.navbar-icons {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.navbar-notifications {
+  position: relative;
+  border: none; /* Remove any border */
+  background: none; /* Remove background */
+}
+
+.navbar-bell-icon {
+  height: 1.5rem;
+  width: 1.5rem;
+  color: #4b5563;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #f87171;
+  color: white;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  border-radius: 50%;
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.navbar-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navbar-profile-pic {
+  height: 2rem;
+  width: 2rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.navbar-profile-name {
+  font-size: 0.875rem;
+  font-weight: bold;
+  color: #374151;
+}
+
+.navbar-profile-role {
+  font-size: 0.75rem;
+  color: #6b7280;
+}

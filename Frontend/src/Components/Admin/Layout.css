@@ -1,0 +1,10 @@
+.main-content {
+  margin-top: 0rem;
+  padding-left: 300px; /* p-6 */
+  width: 100%;
+}
+.content-wrapper {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
