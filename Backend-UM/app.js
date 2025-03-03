@@ -9,6 +9,7 @@ const connectDB = require("./config/db");
 const session = require("./config/sessionStore");
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const rolePermissionRoutes = require("./routes/rolePermissionRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -44,7 +45,7 @@ app.use(session);
 // Route middlewares
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/admin", adminRoutes);
-
+app.use("/api/role-permissions", rolePermissionRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

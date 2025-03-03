@@ -12,6 +12,7 @@ const emergencyRoutes = require('./routes/emergencyRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const employmentRoutes = require('./routes/employmentRoutes');
 const salaryRoutes = require('./routes/salaryRoutes');
+const certificationRoutes = require('./routes/certificationRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -21,6 +22,8 @@ const app = express();
 
 // Create a write stream (in append mode) for logging to a file
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'logs', 'access.log'), { flags: 'a' });
+app.use('/uploads', express.static('uploads'));
+
 
 // Middlewares
 app.use(morgan('dev'));  // Logs to the console in 'dev' format (for development)
@@ -41,6 +44,7 @@ app.use('/api/emergencyRoutes', emergencyRoutes);
 app.use('/api/employeeRoutes', employeeRoutes);
 app.use('/api/employmentRoutes', employmentRoutes);
 app.use('/api/salaryRoutes', salaryRoutes);
+app.use('/api/certifications',certificationRoutes)
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// model Notification {
+//   id        String   @id @default(auto()) @map("_id") @db.ObjectId
+//   userId    String   @db.ObjectId  // Recipient of the notification
+//   sourceId  String?  @db.ObjectId  // Sender or source of notification
+//   sourceType SourceType? // Type of sender (User, System, Service)
+//   type      NotificationType
+//   title     String
+//   message   String
+//   status    NotificationStatus @default(UNREAD)
+//   priority  NotificationPriority @default(NORMAL)
+//   readAt    DateTime?
+//   createdAt DateTime   @default(now())
+//   updatedAt DateTime   @updatedAt
+
+//   @@map("notifications") // Explicitly map to MongoDB collection "notifications"
+// }
+
+
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   // 🔥 Change from `@db.ObjectId` to a regular `String`
+  sourceId  String?  @db.ObjectId  // Keep this if `sourceId` is an ObjectId
+  sourceType SourceType? // Type of sender (User, System, Service)
+  type      NotificationType
+  title     String
+  message   String
+  status    NotificationStatus @default(UNREAD)
+  priority  NotificationPriority @default(NORMAL)
+  readAt    DateTime?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("notifications") // Explicitly map to MongoDB collection "notifications"
+}
+
+
+
+enum SourceType {
+  USER
+  SYSTEM
+  SERVICE
+}
+
+enum NotificationType {
+  AUTO
+  MANUAL
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+}

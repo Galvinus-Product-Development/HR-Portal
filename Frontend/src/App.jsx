@@ -22,6 +22,10 @@ import PrivateRoute from "./components/Admin/PrivateRoute";
 import LoginPage from "./pages/Admin/auth/LoginPage";
 import ResetPassword from "./Pages/Admin/auth/ResetPassword";
 import NewPassword from "./Pages/Admin/auth/NewPassword";
+import RolePermissions from "./Pages/Admin/RoleManagement/RolePermission";
+import RegisterPage from "./Pages/Admin/auth/RegisterPage";
+import NotificationPage from "./Pages/Admin/Notification/NotificationPage";
+
 
 //Employee
 import EmpLayout from './components/Employee/layout';
@@ -42,6 +46,8 @@ import EmpAttendanceTracker from './Pages/Employee/Attendance/AttendanceTracker/
 import EmpAttendanceDashboard from './Pages/Employee/Attendance/AttendanceDashboard/AttendanceDashboard';
 import EmpTrainingDetails from './Pages/Employee/TrainingAndLearning/TrainingDetails/TrainingDetails';
 import EmpAddBankDetails from './Pages/Employee/Test/BankDetails';
+import CompleteRegistration from "./Pages/Employee/CompleteRegistration";
+
 // import Auth from './Pages/Auth/Auth';
 
 function App() {
@@ -57,7 +63,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/reset-password/:token" element={<NewPassword />} />
-
+          <Route path="/complete-registration/:token" element={<CompleteRegistration />} />
           {/* Admin Routes */}
           <Route
             path="/admin"
@@ -85,6 +91,7 @@ function App() {
             />
 
             <Route path="employee" element={<EmployeeDatabase />} />
+            <Route path="role-permission" element={<RolePermissions />} />
             <Route path="employees/:id" element={<EmployeeDetails />} />
             <Route path="attendance/daily" element={<DailyAttendance />} />
             <Route
@@ -93,11 +100,12 @@ function App() {
             />
             <Route path="training" element={<TrainingAndLearning />} />
             <Route path="certification" element={<Certification />} />
+            <Route path="register-page" element={<RegisterPage />} />
+            <Route path="notification-page" element={<NotificationPage />} />
           </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
 
-          <Route path="/" element={<Navigate to="/login" replace />} />
-
+          {/* <Route path="/" element={<Navigate to="/login" replace />} /> */}
 
 
           {/* Employee Routes */}

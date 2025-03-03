@@ -59,3 +59,76 @@ exports.assignRolePermission = async (roleName, permissionName) => {
 
   return `Permission '${permissionName}' assigned to role '${roleName}'`;
 };
+
+
+
+
+/**
+ * Create a new role
+ */
+exports.createRole = async (name, description) => {
+  return await prisma.role.create({
+    data: {
+      name,
+      description,
+    },
+  });
+};
+
+/**
+ * Delete a role by ID
+ */
+exports.deleteRole = async (roleId) => {
+  try {
+    // Fetch the role details first
+    const role = await prisma.role.findUnique({
+      where: { id: roleId },
+    });
+
+    if (!role) {
+      throw new Error("Role not found.");
+    }
+
+    // Prevent deletion of Super Admin role
+    if (role.name.toLowerCase() === "super_admin") {
+      throw new Error("Super Admin role cannot be deleted.");
+    }
+
+    // First, delete role permissions associated with this role
+    await prisma.rolePermission.deleteMany({
+      where: { roleId: roleId },
+    });
+
+    // Then, delete the role itself
+    const deletedRole = await prisma.role.delete({
+      where: { id: roleId },
+    });
+
+    return deletedRole;
+  } catch (error) {
+    console.error("Error deleting role:", error);
+    throw new Error(error.message || "Failed to delete role. Ensure it has no dependencies.");
+  }
+};
+
+
+/**
+ * Create a new permission
+ */
+exports.createPermission = async (name, description) => {
+  return await prisma.permission.create({
+    data: {
+      name,
+      description,
+    },
+  });
+};
+
+/**
+ * Delete a permission by ID
+ */
+exports.deletePermission = async (permissionId) => {
+  return await prisma.permission.delete({
+    where: { id: permissionId },
+  });
+};

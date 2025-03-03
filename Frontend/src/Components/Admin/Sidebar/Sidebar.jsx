@@ -45,6 +45,9 @@ const Sidebar = () => {
     },
     { name: "Training and Learning", icon: GraduationCap, path: "/admin/training" },
     { name: "Certification and Badges", icon: Award, path: "/admin/certification" },
+    { name: "Role Permissions", icon: Award, path: "/admin/role-permission" },
+    { name: "User Registration", icon: Award, path: "/admin/register-page" },
+    { name: "Notifications", icon: Award, path: "/admin/notification-page" }
   ];
 
   return (

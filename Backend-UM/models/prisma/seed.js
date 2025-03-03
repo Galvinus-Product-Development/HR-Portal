@@ -4,34 +4,40 @@ const bcrypt = require("bcrypt");
 const prisma = new PrismaClient();
 
 const seedDatabase = async () => {
-  try {
-    console.log("Seeding database...");
+  // try {
+  //   console.log("Seeding database...");
 
-    // Create roles dynamically
-    const roles = [
-      { name: "SUPER_ADMIN", description: "Has full access" },
-      { name: "ADMIN", description: "Can manage employees" },
-      { name: "EMPLOYEE", description: "Regular employee with limited access" },
-    ];
+  //   // Create roles dynamically
+  //   const roles = [
+  //     { name: "SUPER_ADMIN", description: "Has full access" },
+  //     { name: "ADMIN", description: "Can manage employees" },
+  //     { name: "EMPLOYEE", description: "Regular employee with limited access" },
+  //   ];
 
-    const roleRecords = await Promise.all(
-      roles.map((role) =>
-        prisma.role.upsert({
-          where: { name: role.name },
-          update: {},
-          create: role,
-        })
-      )
-    );
+  //   const roleRecords = await Promise.all(
+  //     roles.map((role) =>
+  //       prisma.role.upsert({
+  //         where: { name: role.name },
+  //         update: {},
+  //         create: role,
+  //       })
+  //     )
+  //   );
 
-    console.log("Roles seeded:", roleRecords.map((r) => r.name));
+  //   console.log("Roles seeded:", roleRecords.map((r) => r.name));
 
     // Create permissions
     const permissions = [
-      { name: "manage_employees", description: "Can add, edit, and delete employees" },
       { name: "view_employee_details", description: "Can view employee profiles" },
       { name: "edit_employee_details", description: "Can edit employee details" },
-      { name: "reset_employee_password", description: "Can reset employee passwords" },
+      { name: "approve_employee_details", description: "Can approve employee details" },
+      { name: "register_user", description: "Can register a user" },
+      { name: "delete_user", description: "Can delere a user" },
+      { name: "create_role", description: "Can create a role" },
+      { name: "delete_role", description: "Can delete a role" },
+      { name: "assign_role", description: "Can assign role to a user" },
+      { name: "assign_role_permission", description: "Can assign permission to a role" },
+      { name: "remove_role_permission", description: "Can remove permission from a role" },
     ];
 
     const permissionRecords = await Promise.all(
@@ -46,32 +52,32 @@ const seedDatabase = async () => {
 
     console.log("Permissions seeded:", permissionRecords.map((p) => p.name));
 
-    // Assign permissions to roles dynamically
-    const rolePermissions = [
-      { role: "ADMIN", permission: "manage_employees" },
-      { role: "ADMIN", permission: "view_employee_details" },
-      { role: "ADMIN", permission: "edit_employee_details" },
-      { role: "ADMIN", permission: "reset_employee_password" },
-      { role: "EMPLOYEE", permission: "view_employee_details" },
-    ];
+  //   // Assign permissions to roles dynamically
+  //   const rolePermissions = [
+  //     { role: "ADMIN", permission: "manage_employees" },
+  //     { role: "ADMIN", permission: "view_employee_details" },
+  //     { role: "ADMIN", permission: "edit_employee_details" },
+  //     { role: "ADMIN", permission: "reset_employee_password" },
+  //     { role: "EMPLOYEE", permission: "view_employee_details" },
+  //   ];
 
-    for (const rp of rolePermissions) {
-      const role = await prisma.role.findUnique({ where: { name: rp.role } });
-      const permission = await prisma.permission.findUnique({ where: { name: rp.permission } });
+  //   for (const rp of rolePermissions) {
+  //     const role = await prisma.role.findUnique({ where: { name: rp.role } });
+  //     const permission = await prisma.permission.findUnique({ where: { name: rp.permission } });
 
-      if (role && permission) {
-        await prisma.rolePermission.upsert({
-          where: { roleId_permissionId: { roleId: role.id, permissionId: permission.id } },
-          update: {},
-          create: { roleId: role.id, permissionId: permission.id },
-        });
-      }
-    }
+  //     if (role && permission) {
+  //       await prisma.rolePermission.upsert({
+  //         where: { roleId_permissionId: { roleId: role.id, permissionId: permission.id } },
+  //         update: {},
+  //         create: { roleId: role.id, permissionId: permission.id },
+  //       });
+  //     }
+  //   }
 
-    console.log("Role-Permission mapping completed.");
-  } catch (error) {
-    console.error("Error seeding database:", error);
-  }
+  //   console.log("Role-Permission mapping completed.");
+  // } catch (error) {
+  //   console.error("Error seeding database:", error);
+  // }
 };
 
 const seedSuperAdmin = async () => {
@@ -157,8 +163,8 @@ const seedEmployees = async () => {
 // Execute all functions sequentially
 const seed = async () => {
   await seedDatabase();
-  await seedSuperAdmin();
-  await seedEmployees();
+  // await seedSuperAdmin();
+  // await seedEmployees();
   console.log("Seeding process completed.");
   await prisma.$disconnect();
 };

@@ -8,33 +8,38 @@ datasource db {
 }
 
 model Employee {
-  employee_id     String        @id @default(uuid())
-  first_name      String
-  last_name       String
-  date_of_birth   DateTime
-  gender          Gender
-  phone_number    String
-  email           String        @unique
-  address         String
-  city            String
-  state           String
-  country         String
-  postal_code     String
-  nationality     String
-  marital_status  MaritalStatus
-  profile_pic_url String
-  created_at      DateTime      @default(now())
-  updated_at      DateTime      @updatedAt
+  employee_id            String         @id @default(uuid())
+  first_name             String
+  last_name              String
+  date_of_birth          DateTime
+  gender                 Gender
+  phone_number           String
+  alternate_phone_number String? // Added alternate phone number
+  email                  String         @unique
+  current_address        String // Separated current address
+  permanent_address      String // Separated permanent address
+  city                   String
+  state                  String
+  country                String
+  postal_code            String
+  nationality            String
+  marital_status         MaritalStatus
+  blood_group            String? // Added blood group
+  profile_pic_url        String
+  approval_status        ApprovalStatus @default(PENDING) // Approval status added
+  created_at             DateTime       @default(now())
+  updated_at             DateTime       @updatedAt
 
   employment        Employment?
   bankAccounts      Bank[]
   emergencyContacts Emergency[]
   documents         Document[]
   salaries          Salary[]
+  Certificates      Certification[]
 }
 
 model Employment {
-  employee_id      String           @id @default(uuid()) @map("employee_id")
+  employee_id      String           @id @map("employee_id")
   designation      String
   department       String
   date_of_joining  DateTime
@@ -45,50 +50,55 @@ model Employment {
   base_salary      Decimal
   stock_bonus      Decimal
   termination_date DateTime?
-  created_at       DateTime         @default(now())
-  updated_at       DateTime         @updatedAt
+
+  official_email String   @unique
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
 
   employee Employee @relation(fields: [employee_id], references: [employee_id])
 }
 
 model Bank {
-  bank_id        String      @id @default(uuid())
-  employee_id    String
-  bank_name      String
-  account_number String      @unique
-  ifsc_code      String
-  branch_name    String
-  account_type   AccountType
-  created_at     DateTime    @default(now())
-  updated_at     DateTime    @updatedAt
+  bank_id             String      @id @default(uuid())
+  employee_id         String
+  bank_name           String
+  account_number      String      @unique
+  ifsc_code           String
+  branch_name         String
+  account_type        AccountType
+  account_holder_name String
+  created_at          DateTime    @default(now())
+  updated_at          DateTime    @updatedAt
 
   employee Employee @relation(fields: [employee_id], references: [employee_id])
   salaries Salary[]
 }
 
 model Emergency {
-  contact_id    String   @id @default(uuid())
-  employee_id   String
-  contact_name  String
-  relationship  String
-  contact_phone String
-  contact_email String
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  contact_id      String         @id @default(uuid())
+  employee_id     String
+  contact_name    String
+  relationship    String
+  contact_phone   String
+  contact_email   String
+  approval_status ApprovalStatus @default(PENDING) // Approval status added
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
 
   employee Employee @relation(fields: [employee_id], references: [employee_id])
 }
 
 model Document {
-  document_id     String       @id @default(uuid())
+  document_id     String         @id @default(uuid())
   employee_id     String
   document_type   DocumentType
-  document_number String       @unique
+  document_number String         @unique
   issue_date      DateTime
   expiry_date     DateTime?
   document_path   String
-  created_at      DateTime     @default(now())
-  updated_at      DateTime     @updatedAt
+  approval_status ApprovalStatus @default(PENDING) // Approval status added
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
 
   employee Employee @relation(fields: [employee_id], references: [employee_id])
 }
@@ -109,6 +119,22 @@ model Salary {
 
   employee Employee @relation(fields: [employee_id], references: [employee_id])
   bank     Bank     @relation(fields: [bank_id], references: [bank_id])
+}
+
+model Certification {
+  certification_id  String         @id @default(uuid())
+  employee_id       String
+  certificate_name  String
+  issuing_authority String
+  issue_date        DateTime
+  expiry_date       DateTime?
+  certificate_path  String
+  badge_visibility  Boolean        @default(true)
+  approval_status   ApprovalStatus @default(PENDING)
+  created_at        DateTime       @default(now())
+  updated_at        DateTime       @updatedAt
+
+  employee Employee @relation(fields: [employee_id], references: [employee_id])
 }
 
 enum Gender {
@@ -147,10 +173,21 @@ enum DocumentType {
   PASSPORT
   NATIONAL_ID
   DRIVER_LICENSE
+  AADHAAR
+  PAN
+  PF
+  UAN
+  ESIC
 }
 
 enum PaymentStatus {
   PENDING
   COMPLETED
   FAILED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

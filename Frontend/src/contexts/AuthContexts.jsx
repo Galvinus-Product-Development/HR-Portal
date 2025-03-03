@@ -7,7 +7,6 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-
   useEffect(() => {
     try {
       const storedUser = localStorage.getItem("user");
@@ -50,15 +49,17 @@ export function AuthProvider({ children }) {
 
       const data = await response.json();
       setUser(data.roleName);
-      console.log(data.roleName)
       console.log(data);
+      
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
       localStorage.setItem("user", data.roleName);
-      if(data.roleName=="EMPLOYEE"){
+      localStorage.setItem("userId", data.userId); // Store userId
+      localStorage.setItem("signedUserId", data.signedUserId); // Store signedUserId
+      
+      if (data.roleName === "EMPLOYEE") {
         navigate("/employee", { replace: true });
-      }
-      else{
+      } else {
         navigate("/admin", { replace: true });
       }
     } catch (error) {
@@ -124,12 +125,14 @@ export function AuthProvider({ children }) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("deviceId");
+      localStorage.removeItem("userId"); // Remove userId
+      localStorage.removeItem("signedUserId"); // Remove signedUserId
     }
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, resetPassword, isLoading , setUser}}
+      value={{ user, login, logout, resetPassword, isLoading, setUser }}
     >
       {children}
     </AuthContext.Provider>

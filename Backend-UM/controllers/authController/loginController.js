@@ -29,11 +29,11 @@ const login = [
 
     try {
       // Call the service to handle the login logic
-      const { accessToken, refreshToken, device,roleName } = await loginService(email, password, deviceId, userAgent, ipAddress);
+      const { accessToken, refreshToken, device,roleName,signedUserId,userId } = await loginService(email, password, deviceId, userAgent, ipAddress);
 
       // Send the tokens and device info to the client
       console.log("Entered>>>>>>>>>>>>>>",roleName)
-      res.status(200).json({ accessToken, refreshToken, device,roleName });
+      res.status(200).json({ accessToken, refreshToken, device,roleName,signedUserId,userId });
     } catch (err) {
       console.error("Error during login:", err.message);
       res.status(500).json({ error: err.message });
