@@ -58,10 +58,10 @@ exports.deleteEmployee = async (req, res) => {
 
 exports.getFormattedEmployees = async (req, res) => {
   try {
-    console.log("asdhfkjashkfahfkdskfkahd");
     const employees = await employeeService.getFormattedEmployees();
     res.status(200).json({ success: true, data: employees });
   } catch (error) {
+    console.log("I am here.....",error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

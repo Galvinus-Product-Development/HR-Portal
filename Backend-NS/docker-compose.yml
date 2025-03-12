@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  notification-service:
+    build: .
+    ports:
+      - "5002:5002"
+    depends_on:
+      - kafka
+      - redis
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=mongodb+srv://debswarnadeep85:DdQDRf0y1MccQjoz@cluster0.fn5df.mongodb.net/HR-Notification-Management-db?retryWrites=true&w=majority&appName=Cluster0
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKER=kafka:9092
+
+  kafka:
+    image: confluentinc/cp-kafka
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+
+  zookeeper:
+    image: zookeeper
+    ports:
+      - "2181:2181"
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"

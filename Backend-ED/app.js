@@ -31,10 +31,12 @@ app.use(morgan('combined', { stream: accessLogStream }));  // Logs to a file in 
 
 // Set additional middlewares
 app.use(helmet());
-app.use(cors({
-  origin: ['http://localhost:5173'],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './NotificationPage.css';
 
+
+const API_BASE_URL_NS = import.meta.env.VITE_API_BASE_URL_NS;
+
+console.log("Ns base url:-",API_BASE_URL_NS);
+const API_BASE_URL_ED = import.meta.env.VITE_API_BASE_URL_ED;
+console.log("Ed base url:-", API_BASE_URL_ED);
 const NotificationPage = () => {
     const [employees, setEmployees] = useState([]);
     const [selectedEmployees, setSelectedEmployees] = useState([]);
@@ -19,7 +25,7 @@ const NotificationPage = () => {
         const fetchEmployees = async () => {
             setLoadingEmployees(true);
             try {
-                const response = await fetch('http://localhost:5001/api/employeeRoutes/formatted');
+                const response = await fetch(`${API_BASE_URL_ED}/api/employeeRoutes/formatted`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch employees');
                 }
@@ -77,7 +83,7 @@ const NotificationPage = () => {
         setError('');
         console.log("Selected Employees:", JSON.stringify(selectedEmployees));
         try {
-            const response = await fetch('http://localhost:5002/api/notifications', { 
+            const response = await fetch(`${API_BASE_URL_NS}/api/notifications`, { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

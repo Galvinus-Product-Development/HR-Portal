@@ -18,20 +18,17 @@
 
 .leave-policy-subtitle {
   font-size: 16px;
+  margin-top: 4px;
   color: #6b7280;
 }
 
-.upload-button:hover {
-  background-color: #4338ca;
-}
-
-.policy-category-grid {
+.policy-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
 }
 
-.policy-category-card {
+.policy-card {
   background-color: #ffffff;
   padding: 20px;
   border-radius: 12px;
@@ -39,81 +36,46 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.policy-category-card:hover {
+.policy-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
-.policy-category-header {
+.policy-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
 }
 
-.policy-category-name {
+.policy-card-title {
   font-size: 20px;
   font-weight: 600;
   color: #1f2937;
 }
 
-.policy-category-description {
-  font-size: 14px;
-  color: #6b7280;
-  margin-top: 4px;
-}
-
-.policy-category-icon {
+.policy-card-icon {
   font-size: 24px;
   color: #4f46e5;
 }
 
-.policy-document {
-  border: 1px solid #e5e7eb;
-  padding: 16px;
-  border-radius: 8px;
+.policy-card-body {
   margin-bottom: 12px;
-  transition: background-color 0.2s ease;
-  margin-top: 10px;
 }
 
-.policy-document:hover {
-  background-color: #f9fafb;
-}
-
-.policy-document-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.policy-document-title {
-  font-size: 16px;
-  font-weight: 500;
-  color: #1f2937;
-}
-
-.policy-document-description {
+.policy-card-description {
   font-size: 12px;
   color: #6b7280;
   margin-top: 4px;
   margin-bottom: 5px;
 }
 
-.policy-document-meta {
+.policy-card-footer {
   display: flex;
-  gap: 10px;
-  font-size: 12px;
-  color: #6b7280;
-  margin-top: 8px;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.policy-document-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.delete-button,
 .download-button {
   display: flex;
   align-items: center;
@@ -121,108 +83,58 @@
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-}
-
-.delete-button {
-  color: #dc2626;
-}
-
-.delete-button:hover {
-  background-color: #fee2e2;
-}
-
-.download-button {
   color: #4f46e5;
+  background-color: #f9fafb;
+  border: none;
 }
 
 .download-button:hover {
   background-color: #e0e7ff;
 }
 
-.upload-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-}
-
-.upload-modal {
-  background-color: #ffffff;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 500px;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.upload-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.upload-modal-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.close-modal-button {
-  color: #9ca3af;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.close-modal-button:hover {
+.upload-date {
+  font-size: 12px;
   color: #6b7280;
+  margin-left: 10px;
 }
 
-.upload-form-group {
-  margin-bottom: 16px;
+/* Loading & Error states */
+.loading-container {
+  text-align: center;
+  padding: 20px;
 }
 
-.upload-form-label {
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 6px;
+.spinner {
+  animation: spin 1s linear infinite;
 }
 
-.upload-form-input,
-.upload-form-textarea,
-.upload-form-select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.upload-form-input:focus,
-.upload-form-textarea:focus,
-.upload-form-select:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
-  outline: none;
+.error-container {
+  text-align: center;
+  padding: 20px;
+  color: #dc2626;
 }
 
-.upload-submit-button {
-  width: 100%;
-  padding: 12px;
+.retry-button {
+  padding: 10px 20px;
   background-color: #4f46e5;
-  color: #ffffff;
-  border-radius: 8px;
-  font-weight: 600;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  margin-top: 10px;
 }
 
-.upload-submit-button:hover {
+.retry-button:hover {
   background-color: #4338ca;
+}
+
+.no-policies {
+  text-align: center;
+  padding: 20px;
+  color: #6b7280;
 }

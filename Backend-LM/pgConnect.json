@@ -1,0 +1,13 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "Leave Management DB",
+            "Group": "Leave Management",
+            "Host": "hr-portal-leave-management-royrohan386-project1.i.aivencloud.com",
+            "Port": 17122,
+            "MaintenanceDB": "defaultdb",
+            "Username": "avnadmin",
+            "SSLMode": "require"
+        }
+    }
+}

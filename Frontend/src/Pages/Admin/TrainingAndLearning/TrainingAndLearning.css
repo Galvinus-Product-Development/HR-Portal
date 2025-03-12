@@ -136,18 +136,6 @@
   object-fit: cover;
 }
 
-/* pb1 */
-
-/* .progress-bar {
-  background-color: #e5e7eb;
-  height: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-  width: 100%;
-  position: relative;
-  margin-top: 0.3rem;
-} */
-
 .progress-filled {
   background-color: #4f46e5;
   height: 100%;
@@ -223,8 +211,9 @@
   background: white;
   padding: 2rem;
   border-radius: 12px;
-  width: 500px;
+  width: 1000px;
   max-width: 90%;
+  margin: 0 auto;
 }
 
 .modal-header {
@@ -416,4 +405,318 @@
 .training-description {
   margin-top: 5px;
   margin-bottom: 10px;
+}
+
+/* Form Styling */
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+/* Form Field Styling */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  width: 48%; /* Reduced width for better form control */
+}
+
+.form-field label {
+  font-size: 0.9rem; /* Reduced font size */
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.3rem; /* Reduced margin */
+}
+
+/* Input Styling */
+input,
+select,
+textarea {
+  padding: 0.75rem; /* Reduced padding */
+  font-size: 0.9rem; /* Reduced font size */
+  color: #333;
+  background-color: #f9f9f9;
+  border: 1px solid #e1e1e1;
+  border-radius: 6px;
+  transition: border 0.3s ease;
+  width: 100%;
+}
+
+/* Textarea Consistency */
+textarea {
+  resize: none;
+  height: 60px; /* Match height of other inputs */
+  font-size: 0.9rem; /* Same font size as inputs */
+  margin-top: 0.3rem; /* Reduced margin */
+}
+
+/* Focus Effect */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #4f46e5;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+/* File Input Styling */
+input[type="file"] {
+  padding: 0.5rem; /* Reduced padding */
+  background-color: #fafafa;
+  font-size: 0.9rem; /* Reduced font size */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 100%;
+  margin-top: 0.3rem; /* Reduced margin */
+}
+
+input[type="file"]::file-selector-button {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem; /* Reduced font size */
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background-color: #4338ca;
+}
+
+/* Aligning File Inputs Vertically in a Single Column */
+.file-input-group {
+  display: flex;
+  flex-direction: column; /* Align vertically */
+  gap: 1rem;
+  width: 100%;
+}
+
+.file-input-group .form-field {
+  width: 100%; /* Ensuring full width for file fields */
+}
+
+/* Duration Fields */
+.duration-fields {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.duration-fields input {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #e1e1e1;
+  font-size: 0.9rem; /* Reduced font size */
+}
+
+/* Checkbox Styling */
+.form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-checkbox input {
+  margin-top: 0.2rem;
+}
+
+/* Button Styling */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.modal-actions button {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem; /* Reduced padding */
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 48%;
+}
+
+.modal-actions button:hover {
+  background-color: #4338ca;
+}
+
+.modal-actions button:first-child {
+  background-color: #e5e7eb;
+  color: #333;
+}
+
+.modal-actions button:first-child:hover {
+  background-color: #d1d5db;
+}
+
+/* Action buttons for edit/delete */
+.training-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.action-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: scale(1.05);
+}
+
+.edit-button {
+  color: #4a6cf7;
+}
+
+.delete-button {
+  color: #ff4d4f;
+}
+
+/* Delete confirmation modal */
+.delete-modal {
+  max-width: 480px;
+}
+
+.delete-confirmation-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 16px;
+}
+
+.delete-warning-icon {
+  color: #ff4d4f;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+.delete-warning {
+  color: #ff4d4f;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+.delete-confirm-btn {
+  background-color: #ff4d4f;
+  color: white;
+}
+
+.delete-confirm-btn:hover {
+  background-color: #ff7875;
+}
+
+/* Date range picker styles */
+.date-range-container {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.date-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.date-field label {
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+  color: #555;
+}
+
+.date-field input[type="date"] {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 0.9rem;
+}
+
+.date-field input[type="date"]:focus {
+  border-color: #4a6cf7;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.2);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .date-range-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.training-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.training-stat-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.3s ease;
+}
+
+.training-stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.training-stat-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.training-stat-label {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.training-stat-value {
+  margin-top: 8px;
+  font-size: 32px;
+  font-weight: bold;
+  color: #4f46e5;
+}
+
+.training-icon-wrapper {
+  padding: 12px;
+  border-radius: 8px;
+  background: #eef2ff;
+}
+
+.training-list-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 30px;
+  padding: 20px;
 }

@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 const AuthContext = createContext(undefined);
+
+// const API_BASE_URL = process.env.REACT_APP_API_URL 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+console.log(API_BASE_URL);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -27,6 +33,9 @@ export function AuthProvider({ children }) {
   };
 
   const login = async (email, password) => {
+
+    console.log("this is api base url",API_BASE_URL);
+    console.log("........................................ojoj............... NEWNEWNEW");
     setIsLoading(true);
 
     const deviceId = localStorage.getItem("deviceId") || generateDeviceId();
@@ -35,11 +44,11 @@ export function AuthProvider({ children }) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("accessToken") || ""}`,
       "x-refresh-token": localStorage.getItem("refreshToken") || "",
-      "x-device-id": deviceId,  // Send deviceId in headers
-      "user-agent": userAgent,   // Send user agent in headers
+      "x-device-id": deviceId,
+      "user-agent": userAgent,
     };
     try {
-      const response = await fetch("http://localhost:5000/api/v1/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
         method: "POST",
         headers,
         body: JSON.stringify({ email, password, deviceId, userAgent }),
@@ -54,14 +63,17 @@ export function AuthProvider({ children }) {
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
       localStorage.setItem("user", data.roleName);
-      localStorage.setItem("userId", data.userId); // Store userId
-      localStorage.setItem("signedUserId", data.signedUserId); // Store signedUserId
+      localStorage.setItem("userId", data.userId);
+      localStorage.setItem("signedUserId", data.signedUserId);
       
+      // navigate(data.roleName === "EMPLOYEE" ? "/employee" : "/admin", { replace: true });
+
       if (data.roleName === "EMPLOYEE") {
         navigate("/employee", { replace: true });
       } else {
         navigate("/admin", { replace: true });
       }
+
     } catch (error) {
       console.error("Login error:", error.message);
     } finally {
@@ -71,14 +83,11 @@ export function AuthProvider({ children }) {
 
   const resetPassword = async (email) => {
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/v1/auth/password-reset/request",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/password-reset/request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
       if (!response.ok) throw new Error("Failed to send password reset email");
 
@@ -102,11 +111,11 @@ export function AuthProvider({ children }) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("accessToken") || ""}`,
       "x-refresh-token": localStorage.getItem("refreshToken") || "",
-      "x-device-id": deviceId,  // Send deviceId in headers
-      "user-agent": userAgent,   // Send user agent in headers
+      "x-device-id": deviceId,
+      "user-agent": userAgent,
     };
     try {
-      const response = await fetch("http://localhost:5000/api/v1/auth/logout", {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/logout`, {
         method: "POST",
         headers,
         body: JSON.stringify({ refreshToken }),
@@ -125,15 +134,13 @@ export function AuthProvider({ children }) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("deviceId");
-      localStorage.removeItem("userId"); // Remove userId
-      localStorage.removeItem("signedUserId"); // Remove signedUserId
+      localStorage.removeItem("userId");
+      localStorage.removeItem("signedUserId");
     }
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, login, logout, resetPassword, isLoading, setUser }}
-    >
+    <AuthContext.Provider value={{ user, login, logout, resetPassword, isLoading, setUser }}>
       {children}
     </AuthContext.Provider>
   );

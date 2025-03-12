@@ -1,0 +1,118 @@
+// // Prisma Schema Definition for Attendance Tracker
+// generator client {
+// 	provider = "prisma-client-js"
+// }
+
+// datasource db {
+// 	provider = "mongodb"
+// 	url      = env("DATABASE_URL")
+// }
+
+// model Employee {
+// 	id         String       @id @default(auto()) @map("_id") @db.ObjectId
+// 	name       String
+// 	jobTitle   String
+// 	department Department   @default(null)
+// 	location   String
+// 	phone      String       @unique
+// 	attendance Attendance[]
+// }
+
+// model Attendance {
+// 	id               String    @id @default(auto()) @map("_id") @db.ObjectId
+// 	employeeId       String    @map("employeeId") @db.ObjectId
+// 	date             DateTime  @default(now())
+// 	punchInTime      DateTime?
+// 	punchOutTime     DateTime?
+// 	attendanceStatus Status    @default(null)
+// 	punchInMethod    String?
+// 	punchOutMethod   String?
+// 	presentDays      Int
+// 	lateDays         Int?
+// 	overtime         Int?
+// 	lateComing       Int?
+// 	workingHours     Int?      @default(0)
+// 	employee         Employee  @relation(fields: [employeeId], references: [id])
+// }
+
+// enum Department {
+// 	null
+// 	HR
+// 	Engineering
+// 	Finance
+// 	Marketing
+// }
+
+// enum Status {
+// 	null
+// 	Present
+// 	Absent
+// 	Half_Day
+// 	On_Leave
+// }
+
+
+generator client {
+	provider = "prisma-client-js"
+}
+
+datasource db {
+	provider = "mongodb"
+	url      = env("DATABASE_URL")
+}
+
+// model Employee {
+// 	id         String       @id @default(auto()) @map("_id") @db.ObjectId
+// 	name       String
+// 	jobTitle   String
+// 	departmentId String?     @db.ObjectId
+// 	location   String
+// 	phone      String       @unique
+// 	department Department?  @relation(fields: [departmentId], references: [id])
+// 	attendance Attendance[]
+// 	attendanceStats MonthlyAttendanceStats[] // Linking attendance summary
+// }
+
+model Attendance {
+	id               String    @id @default(auto()) @map("_id") @db.ObjectId
+	employeeId       String    @map("employeeId") @db.ObjectId
+	date             DateTime  @default(now())
+	punchInTime      DateTime?
+	punchOutTime     DateTime?
+	attendanceStatus Status    @default(Absent)
+	punchInMethod    String
+	punchOutMethod   String?
+	workingHours     Int?      @default(0)
+	// employee         Employee  @relation(fields: [employeeId], references: [id])
+}
+
+model MonthlyAttendanceStats {
+	id             String  @id @default(auto()) @map("_id") @db.ObjectId
+	employeeId     String  @db.ObjectId
+	monthYear      String  // e.g., "2025-03"
+	workingDays    Int     @default(22)
+	presentDays    Int     @default(0)
+	absentDays     Int     @default(0)
+	halfDays       Int     @default(0)
+	lateDays       Int     @default(0)
+	overtimeHours  Int     @default(0)
+	// employee       Employee @relation(fields: [employeeId], references: [id])
+}
+
+model Department {
+	id       String  @id @default(auto()) @map("_id") @db.ObjectId
+	name     String  @unique
+}
+
+enum Status {
+	Present
+	Absent
+	Half_Day
+	On_Leave
+}
+
+enum PunchMethod {
+	Biometric
+	Manual
+	MobileApp
+}

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContexts";
-import "./PrivateRoute.css"; // Import the external CSS
+import "./PrivateRoute.css"; 
 import { useNavigate } from 'react-router-dom';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const PrivateRoute = ({ children }) => {
   const { user, isLoading, setUser ,logout} = useAuth();
   const [authChecked, setAuthChecked] = useState(false);
@@ -27,7 +28,7 @@ const PrivateRoute = ({ children }) => {
         return;
       }
       try {
-        const response = await fetch("http://localhost:5000/api/v1/auth/login", {
+        const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
           method: "POST",
           headers,
         });
@@ -48,14 +49,6 @@ const PrivateRoute = ({ children }) => {
         else{
           navigate("/admin", { replace: true });
         }
-
-        // if (!response.ok) throw new Error("Invalid credentials");
-  
-        // const data = await response.json();
-        // setUser(data.roleName);
-        // localStorage.setItem("accessToken", data.accessToken);
-        // localStorage.setItem("refreshToken", data.refreshToken);
-        // localStorage.setItem("user", data.roleName);
       } catch (error) {
         console.error("Login error:", error.message);
         logout();

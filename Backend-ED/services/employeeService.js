@@ -48,7 +48,7 @@ exports.getFormattedEmployees = async () => {
       location: emp.employment?.work_location || "N/A",
       joinDate: emp.employment?.date_of_joining.toISOString().split("T")[0], // Format date as YYYY-MM-DD
       avatar: emp.profile_pic_url,
-      status: emp.employment?.status || "N/A",
+      status: emp.employment?.status || "PENDING",
       approvalStatus: emp.approval_status || "PENDING", // Include approval status if needed
     }));
   } catch (error) {
@@ -907,12 +907,13 @@ exports.updateApprovalStatus = async (id, approvalStatus) => {
   try {
     if (approvalStatus === "REJECTED") {
       // Delete all related entries first
+
       await prisma.salary.deleteMany({ where: { employee_id: id } });
       await prisma.bank.deleteMany({ where: { employee_id: id } });
       await prisma.emergency.deleteMany({ where: { employee_id: id } });
       await prisma.document.deleteMany({ where: { employee_id: id } });
       await prisma.employment.deleteMany({ where: { employee_id: id } });
-
+      await prisma.certification.deleteMany({ where: { employee_id: id } });
       // Finally, delete the employee record
       await prisma.employee.delete({ where: { employee_id: id } });
 

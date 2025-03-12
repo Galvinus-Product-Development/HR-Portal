@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  user-management-service:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=mongodb+srv://debswarnadeep85:DdQDRf0y1MccQjoz@cluster0.fn5df.mongodb.net/HR-User-Management-db?retryWrites=true&w=majority&appName=Cluster0
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"

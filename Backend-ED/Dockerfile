@@ -16,11 +16,11 @@ RUN npm rebuild bcrypt --build-from-source
 # Copy the rest of the application code
 COPY . .
 
-# Ensure Prisma client is generated (if applicable)
-RUN npm run prisma:generate || echo "Skipping Prisma generation"
+# Ensure Prisma client is generated (Only if schema.prisma exists)
+RUN if [ -f "prisma/schema.prisma" ]; then npm run prisma:generate; else echo "Skipping Prisma generation"; fi
 
 # Expose the port the backend uses
-EXPOSE 5000
+EXPOSE 5002
 
 # Start the application
 CMD ["npm", "start"]

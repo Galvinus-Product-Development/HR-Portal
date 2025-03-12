@@ -9,7 +9,8 @@ console.log('Kafka Broker:', process.env.KAFKA_BROKER); // Debug log to check br
 const kafka = new Kafka({
   clientId: 'notification-service',
   // brokers: process.env.KAFKA_BROKER ? process.env.KAFKA_BROKER.split(',') : ['brave_bardeen:9092'],
-  brokers:["192.168.29.199:9092"],
+  // brokers:["192.168.29.199:9092"],
+  brokers:[process.env.KAFKA_BROKER],
   createPartitioner: Partitioners.LegacyPartitioner, // Fix partitioner warning
   retry: {
     retries: 7, // Increase retry count

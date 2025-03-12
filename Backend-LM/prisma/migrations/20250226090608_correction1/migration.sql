@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "LeaveHistory" ADD COLUMN     "paidLeave" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "unpaidLeave" INTEGER NOT NULL DEFAULT 0;

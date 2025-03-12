@@ -56,6 +56,7 @@
 import React, { useEffect, useState } from "react";
 import "./BankDetails.css"; 
 
+const API_BASE_URL_ED = import.meta.env.VITE_API_BASE_URL_ED;
 const BankDetails = () => {
     const [bankDetails, setBankDetails] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -71,7 +72,7 @@ const BankDetails = () => {
                   setLoading(false);
                   return;
                 }
-                const response = await fetch(`http://localhost:5001/api/employeeRoutes/bank-details/${signedUserId}`);
+                const response = await fetch(`${API_BASE_URL_ED}/api/employeeRoutes/bank-details/${signedUserId}`);
                 if (!response.ok) {
                     throw new Error("Failed to fetch bank details");
                 }

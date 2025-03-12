@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-management
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-management
+  template:
+    metadata:
+      labels:
+        app: user-management
+    spec:
+      containers:
+        - name: user-management
+          image: swarnadeep85/backend-um:latest
+          ports:
+            - containerPort: 5000
+          env:
+            # 🔹 Load values from ConfigMap (Non-Sensitive)
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: user-management-config
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: user-management-config
+                  key: REDIS_PORT
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: user-management-config
+                  key: NODE_ENV
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: user-management-config
+                  key: GOOGLE_CLIENT_ID
+            - name: SMTP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: user-management-config
+                  key: SMTP_HOST
+            - name: SMTP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: user-management-config
+                  key: SMTP_PORT
+
+            # 🔹 Load values from Secrets (Sensitive Data)
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: user-management-secret
+                  key: DATABASE_URL
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: user-management-secret
+                  key: MONGO_URI
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: user-management-secret
+                  key: SESSION_SECRET
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: user-management-secret
+                  key: JWT_SECRET
+            - name: JWT_SECRET_REFRESH
+              valueFrom:
+                secretKeyRef:
+                  name: user-management-secret
+                  key: JWT_SECRET_REFRESH
+            - name: SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: user-management-secret
+                  key: SMTP_USER
+            - name: SMTP_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: user-management-secret
+                  key: SMTP_PASS
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-management-service
+spec:
+  selector:
+    app: user-management
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+      nodePort: 30001  # Must be in range 30000-32767
+  type: NodePort

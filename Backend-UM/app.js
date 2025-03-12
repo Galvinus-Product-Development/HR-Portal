@@ -34,7 +34,7 @@ app.use(morgan("combined", { stream: accessLogStream })); // Logs to a file in '
 app.use(helmet());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://192.168.29.199:5173/my-account"],
+    origin: "*",
     credentials: true,
   })
 );
@@ -57,7 +57,7 @@ app.use((err, req, res, next) => {
 // Start server after Apollo Server is set up
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}....`);
 });
 
 // Graceful shutdown

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { UserCircle, Briefcase, CreditCard } from "lucide-react";
-
+const API_BASE_URL_ED = import.meta.env.VITE_API_BASE_URL_ED;
 const EmployeeModal = ({ employee, onClose, handleSave }) => {
   const [editedEmployee, setEditedEmployee] = useState({
     personalDetails: {},
@@ -36,7 +36,7 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
       };
       try {
         const response = await fetch(
-          "http://localhost:5001/api/employeeRoutes/formatted",
+          `${API_BASE_URL_ED}/api/employeeRoutes/formatted`,
           {
             method: "GET",
             headers,

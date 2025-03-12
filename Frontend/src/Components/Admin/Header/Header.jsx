@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Bell, Search ,LogOut} from "lucide-react";
-import "./header.css";
+import "./Header.css";
 import gal_logo from "../../../assets/gal_logo.png";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../../../contexts/AuthContexts";
@@ -17,6 +17,9 @@ const Header = ({ pendingRequests }) => {
     logout();
     navigate('/login');
   };
+  const handleEmployeeRoute=()=>{
+    navigate('/employee');
+  }
   return (
     <header className="unique-navbar-container">
       <div className="unique-navbar-header">
@@ -25,14 +28,14 @@ const Header = ({ pendingRequests }) => {
       </div>
 
       <div className="unique-navbar-right">
-        <div className="unique-search-container">
+        {/* <div className="unique-search-container">
           <Search className="unique-navbar-search-icon" />
           <input
             type="text"
             placeholder="Search..."
             className="unique-navbar-search-input"
           />
-        </div>
+        </div> */}
 
         <div className="unique-navbar-icons">
           <button className="unique-navbar-notifications">
@@ -68,6 +71,13 @@ const Header = ({ pendingRequests }) => {
                 title="Logout"
               >
                 <LogOut size={20} />
+              </button>
+              <button
+                onClick={handleEmployeeRoute}
+                className="icon-button"
+                title="Logout"
+              >
+                Go to Employee Dashboard
               </button>
             </div>
           )}

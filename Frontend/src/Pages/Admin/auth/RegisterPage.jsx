@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Shield, AlertCircle, CheckCircle, Trash2 } from "lucide-react";
 import "./RegisterPage.css"; // Import external CSS
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export default function AdminManagement() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -22,7 +24,7 @@ export default function AdminManagement() {
         Authorization: `Bearer ${localStorage.getItem("accessToken") || ""}`,
         "x-refresh-token": localStorage.getItem("refreshToken") || "",
       };
-      const response = await fetch("http://localhost:5000/api/v1/admin/send-registration-link", {
+      const response = await fetch(`${API_BASE_URL}/api/v1/admin/send-registration-link`, {
         method: "POST",
         headers,
         body: JSON.stringify({ email }),
@@ -53,7 +55,7 @@ export default function AdminManagement() {
       "x-refresh-token": localStorage.getItem("refreshToken") || "",
     };
     try {
-      const response = await fetch("http://localhost:5000/api/v1/admin/delete-user", {
+      const response = await fetch(`${API_BASE_URL}/api/v1/admin/delete-user`, {
         method: "DELETE",
         headers,
         body: JSON.stringify({ email }),
@@ -136,3 +138,4 @@ export default function AdminManagement() {
     </div>
   );
 }
+

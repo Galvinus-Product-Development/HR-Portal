@@ -293,3 +293,77 @@
   font-size: 1.25rem;
   color: #4f46e5;
 }
+
+/* New CSS */
+
+/* Add these styles to your Dashboard.css file */
+
+.time-alerts {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.late-alert {
+  color: #dc3545;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.ontime-alert {
+  color: #28a745;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.alert-icon {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+}
+
+.modal-overlay {
+margin-top: 15px;
+}
+
+.modal-title {
+font-size: 20px;
+padding: 2px 0;
+}
+
+.modal-message {
+color: #C7D2FE;
+padding: 2px 0;
+}
+
+.modal-buttons {
+margin-top: 10px;
+}
+
+.modal-button {
+display: inline-block;
+margin-right: 5px;
+width: 75px;
+font-weight: 500;
+}
+
+.modal-button.yes-button {
+background-color: #28a745;
+transition: background-color 0.2s;
+}
+
+.modal-button.yes-button:hover {
+background-color: #218838;
+}
+
+.modal-button.no-button {
+background-color: #ef4444;
+transition: background-color 0.2s;
+}
+
+.modal-button.no-button:hover {
+background-color: #dc2626;
+}

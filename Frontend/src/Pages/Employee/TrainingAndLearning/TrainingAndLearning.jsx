@@ -1,53 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Play,
+  CheckCircle,
+  Users,
+  Monitor,
+  Calendar,
+  Clock,
+  ArrowRight,
+  BookOpen,
+  Award
+} from 'lucide-react';
 import './TrainingAndLearning.css';
-import { Play, CheckCircle, Users, Monitor, Calendar, Clock, ArrowRight } from 'lucide-react';
 
 export default function TrainingAndLearning() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('active');
+  const [trainings, setTrainings] = useState([]);
+  const [summary, setSummary] = useState({
+    activeTrainings: 0,
+    completedTrainings: 0,
+    upcomingSessions: 0
+  });
 
-  const trainingPrograms = [
-    {
-      id: '1',
-      name: 'React Best Practices and Advanced Patterns',
-      trainer: 'Team Lead',
-      // mode: 'Online',
-      startDate: '2024-03-15',
-      endDate: '2024-04-15',
-      duration: '30 days',
-      sessionTiming: 'Flexible',
-      status: 'In Progress',
-      progress: 50,
-      description: 'Learn advanced React patterns and best practices for building scalable applications'
-    },
-    {
-      id: '2',
-      name: 'Cloud Architecture Fundamentals',
-      trainer: 'Team Lead',
-      // mode: 'Online',
-      startDate: '2024-03-20',
-      endDate: '2024-04-20',
-      duration: '30 days',
-      sessionTiming: 'Flexible',
-      status: 'Not Started',
-      progress: 0,
-      description: 'Understanding cloud architecture principles and best practices'
-    },
-    {
-      id: '3',
-      name: 'Agile Development Workshop',
-      trainer: 'Team Lead',
-      // mode: 'Online',
-      startDate: '2024-02-01',
-      endDate: '2024-02-28',
-      duration: '28 days',
-      sessionTiming: 'Flexible',
-      status: 'Completed',
-      progress: 100,
-      description: 'Master Agile methodologies and Scrum practices'
+  useEffect(() => {
+    fetchTrainingData();
+  }, []);
+
+  const fetchTrainingData = async () => {
+    try {
+      const response = await fetch('http://localhost:5004/trainings/FormattedTrainings');
+      if (!response.ok) throw new Error('Failed to fetch');
+      const data = await response.json();
+
+      // Transform the admin training data to match employee portal format
+      const transformedTrainings = data.trainings.map(training => ({
+        id: training.id,
+        name: training.title,
+        trainer: training.trainer.name,
+        startDate: training.startDate,
+        endDate: training.endDate,
+        duration: `${training.duration} weeks`,
+        sessionTiming: 'Flexible',
+        status: training.status,
+        progress: training.progress || 0,
+        description: training.description,
+        resources: training.resources || [],
+        certificationAvailable: training.certificationAvailable,
+        mode: 'Online'
+      }));
+
+      setTrainings(transformedTrainings);
+      setSummary({
+        activeTrainings: data.summary.activeTrainings,
+        completedTrainings: data.summary.completedTrainings,
+        upcomingSessions: data.summary.upcomingSessions
+      });
+    } catch (error) {
+      console.error('Error fetching training data:', error);
     }
-  ];
+  };
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -60,11 +72,18 @@ export default function TrainingAndLearning() {
     }
   };
 
-  const filteredPrograms = trainingPrograms.filter(program =>
-    activeTab === 'active'
-      ? program.status !== 'Completed'
-      : program.status === 'Completed'
-  );
+  const filteredPrograms = trainings.filter(program => {
+    switch (activeTab) {
+      case 'active':
+        return program.status === 'In Progress';
+      case 'completed':
+        return program.status === 'Completed';
+      case 'upcoming':
+        return program.status === 'Upcoming';
+      default:
+        return true;
+    }
+  });
 
   return (
     <div className="training-container">
@@ -78,12 +97,10 @@ export default function TrainingAndLearning() {
           <div className="training-stat-content">
             <div>
               <p className="training-stat-label">Active Trainings</p>
-              <p className="training-stat-value">
-                {trainingPrograms.filter(p => p.status === 'In Progress').length}
-              </p>
+              <p className="training-stat-value">{summary.activeTrainings}</p>
             </div>
             <div className="training-icon-wrapper active-icon">
-              <Play className="training-icon" />
+              <BookOpen className="training-icon" />
             </div>
           </div>
         </div>
@@ -92,16 +109,35 @@ export default function TrainingAndLearning() {
           <div className="training-stat-content">
             <div>
               <p className="training-stat-label">Completed Trainings</p>
-              <p className="training-stat-value">
-                {trainingPrograms.filter(p => p.status === 'Completed').length}
-              </p>
+              <p className="training-stat-value">{summary.completedTrainings}</p>
             </div>
             <div className="training-icon-wrapper completed-icon">
               <CheckCircle className="training-icon" />
             </div>
           </div>
         </div>
+
+        <div className="training-stat-card">
+          <div className="training-stat-content">
+            <div>
+              <p className="training-stat-label">Upcoming Trainings</p>
+              <p className="training-stat-value">{summary.upcomingSessions}</p>
+            </div>
+            <div className="training-icon-wrapper upcoming-icon">
+              <Clock className="training-icon" />
+            </div>
+          </div>
+        </div>
       </div>
+
+
+
+
+
+
+
+
+
 
       <div className="training-list-container">
         <div className="training-tabs">
@@ -117,6 +153,12 @@ export default function TrainingAndLearning() {
           >
             Completed Trainings
           </button>
+          <button
+            onClick={() => setActiveTab('upcoming')}
+            className={`training-tab-btn ${activeTab === 'upcoming' ? 'active' : ''}`}
+          >
+            Upcoming Trainings
+          </button>
         </div>
 
         <div className="training-program-list">
@@ -124,7 +166,7 @@ export default function TrainingAndLearning() {
             <div
               key={program.id}
               className="training-program-card"
-              onClick={() => navigate(`/training/${program.id}`)}
+              onClick={() => navigate(`${program.id}`)}
             >
               <div className="training-program-header">
                 <h3 className="program-name">{program.name}</h3>
@@ -144,7 +186,8 @@ export default function TrainingAndLearning() {
                 </div>
                 <div className="training-detail-item">
                   <Calendar className="detail-icon" />
-                  <span>{program.duration}</span>
+                  <span>{program.startDate}</span>
+                  <span>{program.endDate}</span>
                 </div>
                 <div className="training-detail-item">
                   <Clock className="detail-icon" />
@@ -152,7 +195,7 @@ export default function TrainingAndLearning() {
                 </div>
               </div>
 
-              {program.status !== 'Not Started' && (
+              {program.status !== 'Upcoming' && (
                 <div className="training-progress-section">
                   <div className="progress-labels">
                     <span>Progress</span>
@@ -164,6 +207,13 @@ export default function TrainingAndLearning() {
                       style={{ width: `${program.progress}%` }}
                     />
                   </div>
+                </div>
+              )}
+
+              {program.certificationAvailable && (
+                <div className="certification-badge">
+                  <Award className="certification-icon" />
+                  <span>Certification Available</span>
                 </div>
               )}
 

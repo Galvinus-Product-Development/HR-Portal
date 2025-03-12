@@ -9,6 +9,9 @@
 .attendance-dashboard-header {
   text-align: left;
   margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .attendance-dashboard-subtitle {
@@ -21,6 +24,15 @@
   color: #000;
   font-size: 2.2rem;
   font-weight: 600;
+}
+
+.attendance-dashboard-header button {
+  background-color: #4f46e5;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 .attendance-dashboard-filters {
@@ -86,10 +98,31 @@
   background-color: #3742fa;
 }
 
+.table-responsive-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+/* Optional: Add these styles to improve table appearance when scrolling */
+.attendance-dashboard-table {
+  width: 100%;
+  min-width: 1200px; /* Adjust based on your total columns width */
+}
+
 .attendance-dashboard-table {
   width: 100%;
   border-radius: 8px;
   border-collapse: collapse;
+}
+
+/* Optional: Make the table header sticky when scrolling */
+.attendance-dashboard-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #f9fafb; /* Keep consistent with your current styling */
 }
 
 .attendance-dashboard-table th,

@@ -19,7 +19,7 @@ import {
 import "./EmployeeDetails.css";
 import EmployeeDetailsModal from "./EmployeeDetailsModal"; // Import the modal component
 import "./EmployeeDetailsModal.css";
-
+const API_BASE_URL_ED = import.meta.env.VITE_API_BASE_URL_ED;
 const EmployeeDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ const EmployeeDetails = () => {
       };
       try {
         const response = await fetch(
-          `http://localhost:5001/api/employeeRoutes/fetchEmployeeDetailsById/${id}`,
+          `${API_BASE_URL_ED}/api/employeeRoutes/fetchEmployeeDetailsById/${id}`,
           {
             method: "GET",
             headers,
@@ -94,7 +94,7 @@ const EmployeeDetails = () => {
         "user-agent": userAgent, // Send user agent in headers
       };
       const response = await fetch(
-        `http://localhost:5001/api/employeeRoutes/fetchEmployeeDetailsById/${id}`,
+        `${API_BASE_URL_ED}/api/employeeRoutes/fetchEmployeeDetailsById/${id}`,
         {
           method: "GET",
           headers,
@@ -126,7 +126,7 @@ const EmployeeDetails = () => {
       };
       console.log("This is edited employee Data:-", updatedEmployee);
       const response = await fetch(
-        `http://localhost:5001/api/employeeRoutes/update-all/${id}`,
+        `${API_BASE_URL_ED}/api/employeeRoutes/update-all/${id}`,
         {
           method: "PUT",
           headers,
@@ -159,7 +159,7 @@ const EmployeeDetails = () => {
         "user-agent": userAgent, // Send user agent in headers
       };
       const response = await fetch(
-        `http://localhost:5001/api/employeeRoutes/approval-status/${id}`,
+        `${API_BASE_URL_ED}/api/employeeRoutes/approval-status/${id}`,
         {
           method: "PUT",
           headers,

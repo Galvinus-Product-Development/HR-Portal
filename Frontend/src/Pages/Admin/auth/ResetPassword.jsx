@@ -25,22 +25,6 @@ const ResetPassword = () => {
   };
 
   return (
-    // <div className="auth-container">
-    //   <h2>Reset Password</h2>
-    //   <form onSubmit={handleReset}>
-    //     <input
-    //       type="email"
-    //       placeholder="Enter your email"
-    //       value={email}
-    //       onChange={(e) => setEmail(e.target.value)}
-    //       required
-    //     />
-    //     <button type="submit">Send Reset Link</button>
-    //   </form>
-    // {message && <p className="success-message">{message}</p>}
-    // {error && <p className="error-message">{error}</p>}
-    //   <button onClick={() => navigate("/login")}>Back to Login</button>
-    // </div>
 
     <div className="login-container">
       <div className="login-box">

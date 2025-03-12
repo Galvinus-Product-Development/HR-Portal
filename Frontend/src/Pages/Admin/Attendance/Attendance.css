@@ -1,0 +1,61 @@
+/* General Styles for the Attendance Page */
+.attendance-container {
+  padding: 24px;
+  font-family: Arial, sans-serif;
+}
+
+.attendance-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: black;
+}
+
+.attendance-description {
+  font-size: 16px;
+  color: #6b7280;
+  margin-top: 5px;
+}
+
+.tabs-container {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.tabs-nav {
+  display: flex;
+  gap: 20px;
+  border-bottom: 2px solid #f3f4f6;
+  padding: 16px;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.3s ease, border-bottom 0.3s ease;
+}
+
+.tab-item:hover {
+  color: #4f46e5;
+}
+
+.tab-item .icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+}
+
+.tab-active {
+  color: #4f46e5;
+  border-bottom: 2px solid #4f46e5;
+}
+
+.tabs-content {
+  padding: 24px;
+}

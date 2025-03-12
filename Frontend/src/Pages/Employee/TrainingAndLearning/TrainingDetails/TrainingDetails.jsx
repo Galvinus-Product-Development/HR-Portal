@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     Users,
@@ -17,29 +17,65 @@ import './TrainingDetails.css';
 
 export default function TrainingDetails() {
     const { id } = useParams();
+    const [training, setTraining] = useState(null);
     const [isEnrolled, setIsEnrolled] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const training = {
-        id,
-        name: 'React Best Practices and Advanced Patterns',
-        description: 'Learn advanced React patterns and best practices for building scalable applications',
-        trainer: 'Dino Singha',
-        mode: 'Online',
-        startDate: '2024-03-15',
-        endDate: '2024-04-15',
-        duration: '30 days',
-        sessionTiming: 'Flexible',
-        status: 'In Progress',
-        progress: 50,
-        resources: [
-            { id: '1', name: 'Introduction to Advanced React Patterns', type: 'video', url: 'https://youtube.com/watch?v=example1', completed: true },
-            { id: '2', name: 'React Best Practices Documentation', type: 'document', url: 'https://docs.example.com/react-best-practices', completed: true },
-            { id: '3', name: 'Live Session: Q&A and Code Review', type: 'meeting', url: 'https://meet.google.com/example', completed: false },
-            { id: '4', name: 'Advanced State Management Patterns', type: 'video', url: 'https://youtube.com/watch?v=example2', completed: false }
-        ]
+    useEffect(() => {
+        const fetchTrainingDetails = async () => {
+            try {
+                const response = await fetch(`http://localhost:5004/trainings/${id}`);
+                if (!response.ok) throw new Error('Failed to fetch training details');
+                const data = await response.json();
+                console.log(data);
+                setTraining(data);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTrainingDetails();
+    }, [id]);
+
+
+    useEffect(() => {
+        training?.participants?.map((participant) => {
+            if (participant.id == "67beb5b51beef89a9cc9b565") {
+                setIsEnrolled(true);
+            }
+        })
+    }, [training])
+
+
+    // const handleEnroll = () => setIsEnrolled(true);
+
+    const handleEnroll = async () => {
+        try {
+            const participantEmail = 'johndoe@example.com'; // Replace with dynamic email if available
+
+            const response = await fetch(`http://localhost:5004/enroll`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ trainingId: id, participantEmail }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to enroll');
+            }
+
+            // Update state after successful enrollment
+            setIsEnrolled(true);
+        } catch (error) {
+            console.error('Enrollment Error:', error);
+        }
     };
 
-    const handleEnroll = () => setIsEnrolled(true);
 
     const getResourceIcon = (type) => {
         switch (type) {
@@ -58,6 +94,9 @@ export default function TrainingDetails() {
             default: return '';
         }
     };
+
+    if (loading) return <p>Loading training details...</p>;
+    if (error) return <p>Error: {error}</p>;
 
     return (
         <div className="td-container">

@@ -48,33 +48,15 @@ export const createNotification = async (userIds, type="MANUAL", title, message,
   }
 };
 
-// export const getNotifications = async (userId) => {
-//   try {
-//     const objectId = new ObjectId(userId); // Ensure correct ObjectId format
-
-//     // Check Redis cache first
-//     const cached = await redisClient.lRange(`notifications:${userId}`, 0, -1);
-//     if (cached.length) return cached.map(JSON.parse);
-
-//     // Fetch from MongoDB if not found in cache
-//     return await prisma.notification.findMany({
-//       where: { userId: objectId },
-//       orderBy: { createdAt: 'desc' },
-//     });
-
-//   } catch (error) {
-//     console.error("Error fetching notifications:", error);
-//     throw error;
-//   }
-// };
-
 
 export const getNotifications = async (userId) => {
   try {
     // Check Redis cache first
     const cached = await redisClient.lRange(`notifications:${userId}`, 0, -1);
-    if (cached.length) return cached.map(JSON.parse);
-
+    if (cached.length) {
+      console.log("Responding from the redis");
+      return cached.map(JSON.parse);
+    }
     // Fetch from MongoDB using `userId` as a string (NO ObjectId conversion)
     return await prisma.notification.findMany({
       where: { userId }, // ✅ Use `userId` directly as a string

@@ -1,0 +1,101 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Trainer {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String    @unique
+  phone     String
+  expertise String
+  createdAt DateTime  @default(now()) @map("created_at")
+  trainings Training[]
+}
+
+
+
+model Training {
+  id                     String               @id @default(auto()) @map("_id") @db.ObjectId
+  title                  String
+  description            String
+  trainerId              String?              @db.ObjectId
+  startDate              DateTime             @map("start_date")
+  endDate                DateTime             @map("end_date")
+  courseProgress         Float
+  certificationAvailable Boolean
+  totalParticipants      Int
+  upcomingSessions       Int
+  activeTraining         Boolean
+  createdAt              DateTime             @default(now()) @map("created_at")
+  updatedAt              DateTime             @default(now()) @updatedAt @map("updated_at")
+  trainer                Trainer?             @relation(fields: [trainerId], references: [id])
+  participants           Participant[]
+  sessions               Session[]
+  materialFiles          CourseMaterial[]
+  lectureFiles           VideoLecture[]
+  resourceFiles          AdditionalResource[]
+}
+
+
+model Participant {
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId     String?    @db.ObjectId // Made optional
+  trainingId     String     @db.ObjectId
+  enrollmentDate DateTime   @default(now()) @map("enrollment_date")
+  progress       Float
+  status         String   
+  employee       Employee?  @relation(fields: [employeeId], references: [id]) // Made optional
+  training       Training   @relation(fields: [trainingId], references: [id])
+}
+
+
+model Session {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  trainingId  String   @db.ObjectId
+  sessionDate DateTime @map("session_date")
+  isCompleted Boolean
+  createdAt   DateTime @default(now()) @map("created_at")
+  training    Training @relation(fields: [trainingId], references: [id])
+}
+
+model CourseMaterial {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  trainingId String   @db.ObjectId
+  type       String  
+  title      String
+  fileUrl    String   @map("file_url")
+  createdAt  DateTime @default(now()) @map("created_at")
+  training   Training @relation(fields: [trainingId], references: [id])
+}
+
+model VideoLecture {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  trainingId String   @db.ObjectId
+  title      String
+  videoUrl   String   @map("video_url")
+  duration   Int
+  uploadedAt DateTime @map("uploaded_at")
+  training   Training @relation(fields: [trainingId], references: [id])
+}
+
+model AdditionalResource {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  trainingId String   @db.ObjectId
+  title      String
+  resourceUrl String  @map("resource_url")
+  uploadedAt DateTime @map("uploaded_at")
+  training   Training @relation(fields: [trainingId], references: [id])
+}
+
+model Employee {
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String       @unique
+  department   String
+  participants Participant[]
+}

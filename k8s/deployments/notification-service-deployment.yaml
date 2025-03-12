@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+      - name: backend-ns
+        image: swarnadeep85/backend-ns:latest  # Replace with your Docker Hub image
+        ports:
+        - containerPort: 5002
+        env:
+        - name: PORT
+          value: "5002"
+        - name: NODE_ENV
+          value: "production"
+        - name: DATABASE_URL 
+          valueFrom:
+            secretKeyRef:
+              name: backend-secret
+              key: DATABASE_URL 
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: backend-secret
+              key: REDIS_URL
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: backend-secret
+              key: JWT_SECRET
+        - name: KAFKA_BROKER
+          valueFrom:
+            secretKeyRef:
+              name: backend-secret
+              key: KAFKA_BROKER
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+spec:
+  selector:
+    app: notification-service
+  ports:
+    - protocol: TCP
+      port: 5002
+      targetPort: 5002
+  type: LoadBalancer

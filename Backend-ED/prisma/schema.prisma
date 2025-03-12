@@ -162,6 +162,9 @@ enum EmploymentStatus {
   TERMINATED
   RESIGNED
   RETIRED
+  // delete
+  // deactivted
+  // dropdown
 }
 
 enum AccountType {

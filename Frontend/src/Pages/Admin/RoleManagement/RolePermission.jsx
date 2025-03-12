@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Shield, Info, Search, UserCog, Plus, Trash2 } from "lucide-react";
 import "./RolePermission.css";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const RolePermissions = () => {
   const [selectedRole, setSelectedRole] = useState("Super Admin");
@@ -29,10 +30,19 @@ const RolePermissions = () => {
     fetchPermissions();
   }, []);
 
+
+  const formatToTitleCase = (str) => {
+    return str
+      .split('_') // Split by underscore
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize first letter
+      .join(' '); // Join back with space
+  };
+
+
   const fetchEmployees = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/role-permissions/employees"
+        `${API_BASE_URL}/api/role-permissions/employees`
       );
       const data = await response.json();
       console.log("Employees ", data);
@@ -45,7 +55,7 @@ const RolePermissions = () => {
   const fetchRoles = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/role-permissions/roles"
+        `${API_BASE_URL}/api/role-permissions/roles`
       );
       const data = await response.json();
       console.log("Roles & Permission", data);
@@ -59,7 +69,7 @@ const RolePermissions = () => {
   const fetchPermissions = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/role-permissions/permissions"
+        `${API_BASE_URL}/api/role-permissions/permissions`
       );
       const data = await response.json();
       console.log("Permission", data);
@@ -77,7 +87,7 @@ const RolePermissions = () => {
         Authorization: `Bearer ${localStorage.getItem("accessToken") || ""}`,
         "x-refresh-token": localStorage.getItem("refreshToken") || "",
       };
-      const response = await fetch("http://localhost:5000/api/v1/admin/roles", {
+      const response = await fetch( `${API_BASE_URL}/api/v1/admin/roles`, {
         method: "POST",
         headers,
         body: JSON.stringify({ name: roleName, description: roleDescription }),
@@ -106,7 +116,7 @@ const RolePermissions = () => {
       console.log("Here.........", localStorage.getItem("accessToken"));
 
       const response = await fetch(
-        `http://localhost:5000/api/v1/admin/roles/${roleToDelete}`,
+        `${API_BASE_URL}/api/v1/admin/roles/${roleToDelete}`,
         {
           method: "DELETE",
           headers,  // <-- Correct placement of headers inside options
@@ -133,7 +143,7 @@ const RolePermissions = () => {
       };
 
       const response = await fetch(
-        "http://localhost:5000/api/v1/admin/assign-role",
+        `${API_BASE_URL}/api/v1/admin/assign-role`,
         {
           method: "POST",
           headers,
@@ -172,7 +182,7 @@ const RolePermissions = () => {
     console.log(selectedRoleForPermission, selectedPermission);
     try {
       const response = await fetch(
-        "http://localhost:5000/api/v1/admin/assign-role-permission",
+        `${API_BASE_URL}/api/v1/admin/assign-role-permission`,
         {
           method: "POST",
           headers,
@@ -203,7 +213,7 @@ const RolePermissions = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/v1/admin/remove-role-permission",
+        `${API_BASE_URL}/api/v1/admin/remove-role-permission`,
         {
           method: "POST",
           headers,
@@ -278,7 +288,7 @@ const RolePermissions = () => {
                 >
                   {Object.keys(rolePermissions).map((role) => (
                     <option key={role} value={role}>
-                      {role}
+                      {formatToTitleCase(role)}
                     </option>
                   ))}
                 </select>
@@ -376,7 +386,7 @@ const RolePermissions = () => {
               <option value="">Select Role to Delete</option>
               {Object.values(rolePermissions).map(({ role, roleId }) => (
                 <option key={roleId} value={roleId}>
-                  {role}
+                  {formatToTitleCase(role)}
                 </option>
               ))}
             </select>
@@ -398,7 +408,7 @@ const RolePermissions = () => {
           {Object.entries(rolePermissions).map(([role, data]) => (
             <div key={role} className="rolemgmt-module-card">
               <div className="rolemgmt-module-header">
-                <h3 className="rolemgmt-module-title">{role}</h3>
+                <h3 className="rolemgmt-module-title">{formatToTitleCase(role)}</h3>
                 <button
                   className="rolemgmt-assign-roles-btn"
                   onClick={() => handleOpenPermissionModal(role)}
@@ -415,7 +425,7 @@ const RolePermissions = () => {
                       key={permission.id}
                     >
                       <span className="rolemgmt-permission-name">
-                        {permission.name}
+                        {formatToTitleCase(permission.name)}
                       </span>
                       <button
                         className="rolemgmt-remove-permission-btn"
@@ -461,7 +471,7 @@ const RolePermissions = () => {
               <option value="">Select a permission</option>
               {availablePermissions.map((perm) => (
                 <option key={perm.id} value={perm.name}>
-                  {perm.name}
+                  {formatToTitleCase(perm.name)}
                 </option>
               ))}
             </select>

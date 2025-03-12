@@ -1,0 +1,76 @@
+generator client {
+	provider = "prisma-client-js"
+}
+
+datasource db {
+	provider = "postgresql"
+	url      = env("DATABASE_URL")
+}
+
+model Employee {
+	id            String         @id @default(uuid()) @map("id")
+	name          String
+	employeeId    String         @unique
+	jobTitle      String
+	department    String
+	location      String
+	phone         String         @unique
+	leaveRequests LeaveRequest[]
+	leaveHistory  LeaveHistory[]
+}
+
+model LeaveRequest {
+	id             String        @id @default(uuid()) @map("id")
+	employeeId     String        @map("employeeId")
+	leaveType      LeaveType
+	startDate      DateTime
+	endDate        DateTime
+	reason         String
+	supportingDocs String? // URL of uploaded document
+	leaveDuration  LeaveDuration
+	status         LeaveStatus   @default(PENDING) // Default as Pending for admin approval
+	appliedOn      DateTime      @default(now())
+	decisionAt     DateTime? // New field: when a decision was made (approved or rejected)
+	adminRemarks   String? // Admin remarks in case of rejection
+	employee       Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model LeaveHistory {
+	id             String      @id @default(uuid()) @map("id")
+	employeeId     String      @map("employeeId")
+	leaveType      LeaveType
+	duration       Int
+	appliedOn      DateTime
+	status         LeaveStatus
+	adminRemarks   String?
+	supportingDocs String?
+	paidLeave      Int         @default(0)
+	unpaidLeave    Int         @default(0)
+	employee       Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model LeavePolicy {
+	id             String         @id @default(uuid()) @map("id")
+	policyName     String
+	policyCategory String
+	documentUrl    String // URL of uploaded policy document
+	createdAt      DateTime       @default(now())
+}
+
+enum LeaveType {
+	CASUAL
+	SICK
+	COMPENSATORY
+}
+
+enum LeaveDuration {
+	FULL_DAY
+	HALF_DAY
+}
+
+enum LeaveStatus {
+	PENDING
+	APPROVED
+	REJECTED
+	ON_HOLD
+}

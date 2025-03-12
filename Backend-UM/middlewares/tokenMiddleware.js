@@ -133,6 +133,7 @@ const verifyTokens = async (req, res, next) => {
         refreshToken,
         roleName: decodedToken.roleName, // Extract role from token
         permissions: decodedToken.permissions, // Include permissions
+        signedUserId:decodedToken.userId
       });
     } catch (err) {
       if (err.name === 'TokenExpiredError' && refreshToken) {
@@ -182,6 +183,7 @@ const verifyTokens = async (req, res, next) => {
             refreshToken: refreshToken, // Keep the same refresh token
             roleName,
             permissions,
+            signedUserId:decoded.userId
           });
         } catch (refreshErr) {
           console.log("Refresh token is invalid or expired.");

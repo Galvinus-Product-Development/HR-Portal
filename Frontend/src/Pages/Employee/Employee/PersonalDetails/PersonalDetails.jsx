@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Save } from "lucide-react";
 import "./PersonalDetails.css";
-
+const API_BASE_URL_ED = import.meta.env.VITE_API_BASE_URL_ED;
 export default function PersonalDetails() {
     const [formData, setFormData] = useState({
         name: "",
@@ -132,7 +132,7 @@ export default function PersonalDetails() {
                 console.log(signedUserId);
                 const requestData = { ...formData, signedUserId };
                 console.log(requestData)
-                const response = await fetch("http://localhost:5001/api/employeeRoutes/personal-details", {
+                const response = await fetch(`${API_BASE_URL_ED}/api/employeeRoutes/personal-details`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(requestData),

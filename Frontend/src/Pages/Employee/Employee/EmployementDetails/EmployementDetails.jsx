@@ -107,6 +107,7 @@
 // export default EmploymentDetails;
 import React, { useEffect, useState } from "react";
 import "./EmployementDetails.css";
+const API_BASE_URL_ED = import.meta.env.VITE_API_BASE_URL_ED;
 
 const EmploymentDetails = () => {
   const [formData, setFormData] = useState(null);
@@ -125,7 +126,7 @@ const EmploymentDetails = () => {
         }
 
         const response = await fetch(
-          `http://localhost:5001/api/employeeRoutes/employment/${signedUserId}`,
+          `${API_BASE_URL_ED}/api/employeeRoutes/employment/${signedUserId}`,
           {
             method: "GET",
             headers: {

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hr-portal-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hr-portal-frontend
+  template:
+    metadata:
+      labels:
+        app: hr-portal-frontend
+    spec:
+      containers:
+        - name: hr-portal-frontend
+          image: swarnadeep85/hr-portal-frontend:latest  # Ensure this image is pushed to Docker Hub
+          imagePullPolicy: Always  # ✅ This forces Kubernetes to always pull the latest image
+          ports:
+            - containerPort: 80
+          env:
+            - name: VITE_API_BASE_URL
+              value: "http://user-management-service:5000"  # Set the correct backend service URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hr-portal-frontend-service
+spec:
+  selector:
+    app: hr-portal-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30002  # Minikube NodePort range 30000-32767
+  type: NodePort

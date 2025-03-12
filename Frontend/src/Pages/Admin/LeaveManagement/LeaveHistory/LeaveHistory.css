@@ -112,6 +112,7 @@
   padding: 4px 8px;
   font-size: 12px;
   border-radius: 9999px;
+  font-weight: bold;
 }
 
 .approved-status {
@@ -132,7 +133,7 @@
 .employee--info {
   display: flex;
   align-items: center;
-  border-radius: none;
+  gap: 8px;
 }
 
 .user-icon {

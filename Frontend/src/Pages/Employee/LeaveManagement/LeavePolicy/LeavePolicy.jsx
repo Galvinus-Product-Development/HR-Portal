@@ -1,125 +1,155 @@
-import React from 'react';
-import { FaFileAlt, FaDownload } from 'react-icons/fa';
-import './LeavePolicy.css';
+import React, { useState, useEffect } from "react";
+import { FaFileAlt, FaDownload, FaSpinner } from "react-icons/fa";
+import "./LeavePolicy.css";
 
 const LeavePolicy = () => {
-  const policies = [
-    {
-      id: 1,
-      name: 'Casual Leave',
-      description: 'Policies related to casual leave entitlements.',
-      documents: [
-        {
-          id: 1,
-          title: 'Casual Leave Policy 2025',
-          description: 'Guidelines for casual leave.',
-          uploadedBy: 'Admin',
-          date: '2024-01-15',
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: 'Sick Leave',
-      description: 'Policies for sick leave.',
-      documents: [
-        {
-          id: 2,
-          title: 'Sick Leave Policy 2025',
-          description: 'Rules for sick leave application.',
-          uploadedBy: 'Admin',
-          date: '2024-01-20',
-        },
-      ],
-    },
-    {
-      id: 3,
-      name: 'Maternity Leave',
-      description: 'Policies for maternity leave entitlements.',
-      documents: [
-        {
-          id: 3,
-          title: 'Maternity Leave Policy 2025',
-          description: 'Details of maternity leave benefits.',
-          uploadedBy: 'HR',
-          date: '2024-02-05',
-        },
-      ],
-    },
-    {
-      id: 4,
-      name: 'Paternity Leave',
-      description: 'Policies related to paternity leave.',
-      documents: [
-        {
-          id: 4,
-          title: 'Paternity Leave Policy 2025',
-          description: 'Guidelines for paternity leave.',
-          uploadedBy: 'HR',
-          date: '2024-02-10',
-        },
-      ],
-    },
-    {
-      id: 6,
-      name: 'Unpaid Leave',
-      description: 'Policies for unpaid leave.',
-      documents: [
-        {
-          id: 6,
-          title: 'Unpaid Leave Policy 2025',
-          description: 'Rules for taking unpaid leave.',
-          uploadedBy: 'Finance',
-          date: '2024-03-10',
-        },
-      ],
-    },
-  ];
+    const [policies, setPolicies] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [downloadLoading, setDownloadLoading] = useState(null);
 
-  return (
-    <div className="leave-policy-container">
-      <div className="leave-policy-header">
-        <div>
-          <h2 className="leave-policy-title">Leave Policies</h2>
-          <p className="leave-policy-subtitle">View and manage leave policy documents.</p>
-        </div>
-      </div>
+    useEffect(() => {
+        fetchPolicies();
+    }, []);
 
-      <div className="policy-category-grid">
-        {policies.map((policy) => (
-          <div className="policy-category-card" key={policy.id}>
-            <div className="policy-category-header">
-              <h2 className="policy-category-name">{policy.name}</h2>
-              <div className="policy-category-icon">
-                <FaFileAlt />
-              </div>
+    const fetchPolicies = async () => {
+        try {
+            setLoading(true);
+            // Updated endpoint to use port 5000
+            const response = await fetch(
+                "http://localhost:5005/api/leave-policies"
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch policies");
+            }
+
+            const data = await response.json();
+            // Set policies directly without grouping
+            setPolicies(data);
+        } catch (err) {
+            setError("Error loading leave policies");
+            console.error("Error fetching policies:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Generic helper function to format category names if needed in the card body
+    const formatCategoryName = (category) => {
+        return category
+            .replace(/_/g, " ")
+            .toLowerCase()
+            .replace(/\b\w/g, (l) => l.toUpperCase());
+    };
+
+    // Download handler remains the same, using the download endpoint
+    const handleDownload = async (policy) => {
+        try {
+            setDownloadLoading(policy.id);
+            const response = await fetch(
+                `http://localhost:5005/api/leave-policies/${policy.id}/download`
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to download document");
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", `${policy.policyName}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            setError("Error downloading document");
+            console.error("Error downloading document:", err);
+        } finally {
+            setDownloadLoading(null);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="loading-container">
+                <FaSpinner className="spinner" />
+                <p>Loading policies...</p>
             </div>
-            <p className="policy-category-description">{policy.description}</p>
+        );
+    }
 
-            {policy.documents.map((doc) => (
-              <div className="policy-document" key={doc.id}>
-                <div className="policy-document-header">
-                  <div>
-                    <h3 className="policy-document-title">{doc.title}</h3>
-                    <p className="policy-document-description">{doc.description}</p>
-                  </div>
-                  <div className="policy-document-actions">
-                    <button className="download-button">
-                      <FaDownload />
-                    </button>
-                  </div>
+    if (error) {
+        return (
+            <div className="error-container">
+                <p className="error-message">{error}</p>
+                <button className="retry-button" onClick={fetchPolicies}>
+                    Retry
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="leave-policy-container">
+            <div className="leave-policy-header">
+                <div>
+                    <h2 className="leave-policy-title">Leave Policies</h2>
+                    <p className="leave-policy-subtitle">
+                        View and manage leave policy documents.
+                    </p>
                 </div>
-                <div className="policy-document-footer">
-                  <p className="uploaded-by">Uploaded by: {doc.uploadedBy}</p>
-                  <p className="upload-date">Date: {doc.date}</p>
+            </div>
+
+            <div className="policy-grid">
+                {policies.map((policy) => (
+                    <div className="policy-card" key={policy.id}>
+                        <div className="policy-card-header">
+                            <h2 className="policy-card-title">
+                                {policy.policyName}
+                            </h2>
+                            <div className="policy-card-icon">
+                                <FaFileAlt />
+                            </div>
+                        </div>
+                        <div className="policy-card-body">
+                            <p className="policy-card-description">
+                                Category:{" "}
+                                {formatCategoryName(policy.policyCategory)}
+                            </p>
+                        </div>
+                        <div className="policy-card-footer">
+                            <button
+                                className="download-button"
+                                onClick={() => handleDownload(policy)}
+                                disabled={downloadLoading === policy.id}
+                            >
+                                {downloadLoading === policy.id ? (
+                                    <FaSpinner className="spinner" />
+                                ) : (
+                                    <FaDownload />
+                                )}
+                            </button>
+                            <p className="upload-date">
+                                Created:{" "}
+                                {new Date(
+                                    policy.createdAt
+                                ).toLocaleDateString()}
+                            </p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {policies.length === 0 && (
+                <div className="no-policies">
+                    <p>No leave policies found.</p>
                 </div>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+            )}
+        </div>
+    );
 };
 
 export default LeavePolicy;

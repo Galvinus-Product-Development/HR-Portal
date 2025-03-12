@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import "./EmployeeDatabase.css";
 
+const API_BASE_URL_ED = import.meta.env.VITE_API_BASE_URL_ED;
+console.log("Ed base url:-", API_BASE_URL_ED);
 const EmployeeDatabase = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,6 +31,7 @@ const EmployeeDatabase = () => {
     localStorage.setItem("deviceId", deviceId);
     return deviceId;
   };
+
   useEffect(() => {
     const fetchEmployees = async () => {
       const deviceId = localStorage.getItem("deviceId") || generateDeviceId();
@@ -41,8 +44,9 @@ const EmployeeDatabase = () => {
         "user-agent": userAgent, // Send user agent in headers
       };
       try {
+        console.log("Here....");
         const response = await fetch(
-          "http://localhost:5001/api/employeeRoutes/formatted",
+          `${API_BASE_URL_ED}/api/employeeRoutes/formatted`,
           {
             method: "GET",
             headers,
@@ -64,7 +68,10 @@ const EmployeeDatabase = () => {
     new Set(employees.map((emp) => emp.department))
   );
   const locations = Array.from(new Set(employees.map((emp) => emp.location)));
-  const statuses = ["Active", "On Leave", "Inactive"];
+  const statuses = [  "ACTIVE",
+    "TERMINATED",
+    "RESIGNED",
+    "RETIRED"];
 
   const filteredEmployees = employees.filter((employee) => {
     const matchesSearch =
@@ -79,6 +86,24 @@ const EmployeeDatabase = () => {
 
     return matchesSearch && matchesFilters;
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const employeesPerPage = 5;
+
+  // Compute the index range for the current page
+  const indexOfLastEmployee = currentPage * employeesPerPage;
+  const indexOfFirstEmployee = indexOfLastEmployee - employeesPerPage;
+  const paginatedEmployees = filteredEmployees.slice(
+    indexOfFirstEmployee,
+    indexOfLastEmployee
+  );
+
+  // Handle pagination navigation
+  const totalPages = Math.ceil(filteredEmployees.length / employeesPerPage);
+
+  const nextPage = () =>
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -106,12 +131,6 @@ const EmployeeDatabase = () => {
         <div className="employee-db-buttons">
           <button className="employee-db-btn">
             <Download className="employee-db-btn-icon" /> Export
-          </button>
-          <button className="employee-db-btn">
-            <Upload className="employee-db-btn-icon" /> Import
-          </button>
-          <button className="employee-db-btn-add">
-            <Plus className="employee-db-btn-icon" /> Add Employee
           </button>
         </div>
       </div>
@@ -153,6 +172,19 @@ const EmployeeDatabase = () => {
             </option>
           ))}
         </select>
+
+        <select
+          value={filters.status}
+          onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+          className="employee-db-select"
+        >
+          <option value="">All Statuses</option>
+          {statuses.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="employee-db-table-container">
@@ -168,7 +200,7 @@ const EmployeeDatabase = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredEmployees.map((employee) => (
+            {paginatedEmployees.map((employee) => (
               <tr
                 key={employee.id}
                 className="employee-db-row"
@@ -228,6 +260,17 @@ const EmployeeDatabase = () => {
             ))}
           </tbody>
         </table>
+        <div className="pagination-controls">
+          <button onClick={prevPage} disabled={currentPage === 1}>
+            Previous
+          </button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button onClick={nextPage} disabled={currentPage === totalPages}>
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );

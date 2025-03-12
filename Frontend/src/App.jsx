@@ -5,7 +5,7 @@ import { Navigate } from "react-router-dom";
 import { AuthProvider } from "../src/contexts/AuthContexts";
 
 // Admin
-import Layout from "./components/Admin/Layout";
+import Layout from "./Components/Admin/Layout";
 import Attendance from "./Pages/Admin/Attendance/Attendance";
 import DailyAttendance from "./Pages/Admin/Attendance/DailyAttendance/DailyAttendance";
 import AttendanceDashboard from "./Pages/Admin/Attendance/AttendanceDashboard/AttendanceDashboard";
@@ -15,20 +15,21 @@ import Dashboard from "./Pages/Admin/Dashboard/Dashboard";
 import EmployeeDatabase from "./Pages/Admin/Employee/EmployeeDatabase/EmployeeDatabase";
 import EmployeeDetails from "./Pages/Admin/Employee/EmployeeDetails/EmployeeDetails";
 import LeaveManagement from "./Pages/Admin/LeaveManagement/LeaveManagement";
-import LeaveRequests from "./Pages/Admin/LeaveManagement/LeaveRequest/LeaveRequest";
+import LeaveRequests from "./Pages/Admin/LeaveManagement/PendingLeaveRequest/PendingLeaveRequest";
 import LeaveHistory from "./Pages/Admin/LeaveManagement/LeaveHistory/LeaveHistory";
 import LeavePolicy from "./Pages/Admin/LeaveManagement/LeavePolicy/LeavePolicy";
-import PrivateRoute from "./components/Admin/PrivateRoute";
-import LoginPage from "./pages/Admin/auth/LoginPage";
+import PrivateRoute from "./Components/Admin/PrivateRoute";
+import LoginPage from "./Pages/Admin/auth/LoginPage";
 import ResetPassword from "./Pages/Admin/auth/ResetPassword";
 import NewPassword from "./Pages/Admin/auth/NewPassword";
 import RolePermissions from "./Pages/Admin/RoleManagement/RolePermission";
 import RegisterPage from "./Pages/Admin/auth/RegisterPage";
 import NotificationPage from "./Pages/Admin/Notification/NotificationPage";
+import TrainingDetails from "./Pages/Admin/TrainingAndLearning/TrainingDetails/TrainingDetails";
 
 
 //Employee
-import EmpLayout from './components/Employee/layout';
+import EmpLayout from './Components/Employee/layout';
 import EmpDashboard from './Pages/Employee/Dashboard/Dashboard';
 import EmpLeaveManagement from './Pages/Employee/LeaveManagement/LeaveManagement';
 import EmpAttendance from './Pages/Employee/Attendance/Attendance';
@@ -99,6 +100,7 @@ function App() {
               element={<AttendanceDashboard />}
             />
             <Route path="training" element={<TrainingAndLearning />} />
+            <Route path="training/:id" element={<TrainingDetails />} />
             <Route path="certification" element={<Certification />} />
             <Route path="register-page" element={<RegisterPage />} />
             <Route path="notification-page" element={<NotificationPage />} />

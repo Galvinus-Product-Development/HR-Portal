@@ -1,110 +1,102 @@
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import './AttendanceTracker.css';
 
 export default function AttendanceTracker() {
-  const [selectedMonth, setSelectedMonth] = useState(new Date());
+	const [selectedMonth, setSelectedMonth] = useState(new Date());
+	const [attendanceRecords, setAttendanceRecords] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
 
-  const handlePreviousMonth = () => {
-    setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1));
-  };
+	useEffect(() => {
+		fetchAttendanceData();
+	}, [selectedMonth]);
 
-  const handleNextMonth = () => {
-    setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1));
-  };
+	const fetchAttendanceData = async () => {
+		setLoading(true);
+		setError(null);
+		
+		const monthYear = selectedMonth.toISOString().slice(0, 7); // Format: YYYY-MM
+		const employeeId = localStorage.getItem("signedUserId");  // Get employeeId from local storage
+		try {
+			// Modified URL to fetch attendance records only for the specific employee
+			const response = await fetch(`http://localhost:5003/api/attendance/employee/${employeeId}/monthly/${monthYear}`);
+			if (!response.ok) {
+				throw new Error('Failed to fetch attendance data');
+			}
+			const data = await response.json();
+			setAttendanceRecords(data);
+		} catch (error) {
+			setError(error.message);
+		} finally {
+			setLoading(false);
+		}
+	};
 
-  const generateAttendanceRecords = () => {
-    const records = [];
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+	const handlePreviousMonth = () => {
+		setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1));
+	};
 
-    for (let i = 1; i <= daysInMonth; i++) {
-      const date = new Date(year, month, i);
-      if (date.getDay() !== 0 && date.getDay() !== 6) {
-        const isLate = Math.random() > 0.7;
-        const checkInTime = isLate
-          ? `${10 + Math.floor(Math.random() * 2)}:${35 + Math.floor(Math.random() * 25)} AM`
-          : `${10}:${Math.floor(Math.random() * 5) + 25} AM`;
+	const handleNextMonth = () => {
+		setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1));
+	};
 
-        records.push({
-          date: date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
-          checkIn: checkInTime,
-          checkOut: `${7 + Math.floor(Math.random() * 2)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')} PM`,
-          status: isLate ? 'late' : 'on-time',
-          workingHours: '9h 30m',
-        });
-      }
-    }
-    return records;
-  };
+	// Format minutes to hours and minutes
+	const formatWorkingHours = (minutes) => {
+		if (!minutes) return '-';
+		const hours = Math.floor(minutes / 60);
+		const mins = minutes % 60;
+		return `${hours}h ${mins.toString().padStart(2, '0')}m`;
+	};
 
-  const attendanceRecords = generateAttendanceRecords();
+	return (
+		<div className="attendance-tracker-container">
+			<div className="attendance-tracker-header">
+				<div className="attendance-tracker-nav">
+					<button onClick={handlePreviousMonth} className="attendance-tracker-nav-btn">
+						<ChevronLeft className="attendance-tracker-icon" />
+					</button>
+					<span className="attendance-tracker-month">
+						{selectedMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
+					</span>
+					<button onClick={handleNextMonth} className="attendance-tracker-nav-btn">
+						<ChevronRight className="attendance-tracker-icon" />
+					</button>
+				</div>
+			</div>
 
-  const handleDownloadReport = () => {
-    let csvContent = 'Date,Status,Check In,Check Out,Working Hours,Overtime\n';
-    attendanceRecords.forEach(record => {
-      csvContent += `${record.date},${record.status === 'on-time' ? 'On Time' : 'Late'},${record.checkIn},${record.checkOut},${record.workingHours},${Math.random() > 0.7 ? '1h 30m' : '-'}\n`;
-    });
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `Attendance_Report_${selectedMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}.csv`;
-    link.click();
-  };
-
-  return (
-    <div className="attendance-tracker-container">
-      <div className="attendance-tracker-header">
-        <div className="attendance-tracker-nav">
-          <button onClick={handlePreviousMonth} className="attendance-tracker-nav-btn">
-            <ChevronLeft className="attendance-tracker-icon" />
-          </button>
-          <span className="attendance-tracker-month">
-            {selectedMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
-          </span>
-          <button onClick={handleNextMonth} className="attendance-tracker-nav-btn">
-            <ChevronRight className="attendance-tracker-icon" />
-          </button>
-        </div>
-        {/* <button className="attendance-tracker-download-btn" onClick={handleDownloadReport}>
-          <Download className="attendance-tracker-download-icon" />
-          Download Report
-        </button> */}
-      </div>
-
-      <div className="attendance-tracker-table-wrapper">
-        <table className="attendance-tracker-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Status</th>
-              <th>Check In</th>
-              <th>Check Out</th>
-              <th>Working Hours</th>
-              <th>Overtime</th>
-            </tr>
-          </thead>
-          <tbody>
-            {attendanceRecords.map((record, index) => (
-              <tr key={index}>
-                <td>{record.date}</td>
-                <td>
-                  <span className={`attendance-tracker-status ${record.status === 'on-time' ? 'on-time' : 'late'}`}>
-                    {record.status === 'on-time' ? 'On Time' : 'Late'}
-                  </span>
-                </td>
-                <td>{record.checkIn}</td>
-                <td>{record.checkOut}</td>
-                <td>{record.workingHours}</td>
-                <td>{Math.random() > 0.7 ? '1h 30m' : '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+			<div className="attendance-tracker-table-wrapper">
+				{loading ? (
+					<p>Loading attendance records...</p>
+				) : error ? (
+					<p className="error-message">{error}</p>
+				) : (
+					<table className="attendance-tracker-table">
+						<thead>
+							<tr>
+								<th>Date</th>
+								<th>Status</th>
+								<th>Check In</th>
+								<th>Check Out</th>
+								<th>Working Hours</th>
+								<th>Overtime</th>
+							</tr>
+						</thead>
+						<tbody>
+							{attendanceRecords.map((record, index) => (
+								<tr key={index}>
+									<td>{new Date(record.date).toLocaleDateString()}</td>
+									<td>{record.attendanceStatus}</td>
+									<td>{record.punchInTime ? new Date(record.punchInTime).toLocaleTimeString() : '-'}</td>
+									<td>{record.punchOutTime ? new Date(record.punchOutTime).toLocaleTimeString() : '-'}</td>
+									<td>{formatWorkingHours(record.workingHours)}</td>
+									<td>{record.overtime ? formatWorkingHours(record.overtime) : '-'}</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				)}
+			</div>
+		</div>
+	);
 }

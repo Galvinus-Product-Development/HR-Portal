@@ -36,7 +36,7 @@
 .section-title {
   font-size: 1.25rem;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .leave-form {
@@ -141,8 +141,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.25rem;
-  padding-bottom: 1rem;
+  margin-bottom: 10px;
   border-bottom: 1px solid #f3f4f6;
 }
 
@@ -200,7 +199,7 @@
 }
 
 .status.pending {
-  background-color: #f59e0b;
+  background-color: #1f2937;
   color: white;
   margin-top: 15px;
 }
@@ -214,6 +213,16 @@
 .status.rejected {
   background-color: #ef4444;
   color: white;
+  margin-top: 15px;
+}
+
+.status.on_hold {
+  background-color: #92400e;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: bold;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
   margin-top: 15px;
 }
 

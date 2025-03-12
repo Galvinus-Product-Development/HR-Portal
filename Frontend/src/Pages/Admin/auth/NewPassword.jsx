@@ -4,6 +4,8 @@ import "./NewPassword.css"; // Import external CSS
 
 import { Shield, AlertCircle } from "lucide-react";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const NewPassword = () => {
   const { token } = useParams();
   const [password, setPassword] = useState("");
@@ -13,7 +15,6 @@ const NewPassword = () => {
   const navigate = useNavigate();
 
   const handleResetPassword = async (e) => {
-    console.log(token,password);
     e.preventDefault();
     setMessage("");
     setError("");
@@ -25,7 +26,7 @@ const NewPassword = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/v1/auth/password-reset/complete",
+        `${API_BASE_URL}/api/v1/auth/password-reset/complete`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -63,11 +64,11 @@ const NewPassword = () => {
           {message && <p className="success-message">{message}</p>}
           <form onSubmit={handleResetPassword} className="login-form">
             <div className="input-group">
-              <label htmlFor="email" className="input-label">
+              <label htmlFor="password" className="input-label">
                 New Password
               </label>
               <input
-                id="email"
+                id="password"
                 className="input-field"
                 placeholder="Enter new password"
                 type="password"
@@ -78,11 +79,11 @@ const NewPassword = () => {
             </div>
 
             <div className="input-group">
-              <label htmlFor="password" className="input-label">
+              <label htmlFor="confirmPassword" className="input-label">
                 Confirm Password
               </label>
               <input
-                id="password"
+                id="confirmPassword"
                 type="password"
                 className="input-field"
                 placeholder="Confirm new password"
@@ -103,3 +104,4 @@ const NewPassword = () => {
 };
 
 export default NewPassword;
+

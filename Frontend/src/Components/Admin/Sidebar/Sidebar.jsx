@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./sidebar.css";
+import "./Sidebar.css";
 import {
   BarChart3,
   Calendar,

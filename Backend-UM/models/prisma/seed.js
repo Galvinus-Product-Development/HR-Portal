@@ -162,9 +162,11 @@ const seedEmployees = async () => {
 
 // Execute all functions sequentially
 const seed = async () => {
-  await seedDatabase();
+  // await seedDatabase();
   // await seedSuperAdmin();
   // await seedEmployees();
+  await prisma.refreshToken.deleteMany();
+  await prisma.device.deleteMany();
   console.log("Seeding process completed.");
   await prisma.$disconnect();
 };
