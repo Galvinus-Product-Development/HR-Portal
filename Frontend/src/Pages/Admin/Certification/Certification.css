@@ -4,15 +4,15 @@
   display: flex;
   flex-direction: column;
   padding: 20px;
-  background-color: #f9fafb;
+  /* background-color: #f9fafb; */
 }
 
 /* Make the certifications container full screen */
 .certifications-container {
   flex: 1;
-  background-color: white;
+  /* background-color: white; */
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); */
   padding: 20px;
   overflow: auto;
 }

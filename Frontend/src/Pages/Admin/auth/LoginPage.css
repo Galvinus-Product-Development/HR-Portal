@@ -97,6 +97,9 @@
   }
   
   .login-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     padding: 10px;
     background-color: #2563eb;
@@ -166,3 +169,7 @@
     margin-top: 5px;
   }
   
+  .reset-password p{
+    cursor: pointer;
+    color: rgb(57, 57, 205);
+  }

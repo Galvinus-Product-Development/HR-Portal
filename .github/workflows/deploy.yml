@@ -1,44 +1,116 @@
-name: Deploy Microservices to ECR
+name: Deploy to Amazon ECR
 
 on:
   push:
+    paths:
+      - "Backend-AS/**"
+      - "Backend-ED/**"
+      - "Backend-LM/**"
+      - "Backend-NS/**"
+      - "Backend-TL/**"
+      - "Backend-UM/**"
+      - "Frontend/**"
     branches:
-      - main  # Change if needed
+      - master
 
 jobs:
   deploy:
-    name: Build and Push to ECR
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: us-east-1 # Change this to your AWS region
 
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build and Push Microservices
+      - name: Determine Changed Services
+        id: changed-files
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            Backend-AS:
+              - "Backend-AS/**"
+            Backend-ED:
+              - "Backend-ED/**"
+            Backend-LM:
+              - "Backend-LM/**"
+            Backend-NS:
+              - "Backend-NS/**"
+            Backend-TL:
+              - "Backend-TL/**"
+            Backend-UM:
+              - "Backend-UM/**"
+            Frontend:
+              - "Frontend/**"
+
+      - name: Build & Push Docker Image for Backend-AS
+        if: steps.changed-files.outputs.Backend-AS == 'true'
         env:
-          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          SERVICES=("user-service" "notification-service" "employee-service") # Add your microservices
-          
-          for SERVICE in "${SERVICES[@]}"; do
-            IMAGE_TAG=$(git rev-parse --short HEAD)
-            ECR_REPOSITORY="$ECR_REGISTRY/$SERVICE"
+          docker build -t $ECR_REGISTRY/backend-as:$IMAGE_TAG -f Backend-AS/Dockerfile Backend-AS
+          docker push $ECR_REGISTRY/backend-as:$IMAGE_TAG
 
-            echo "Building and pushing $SERVICE..."
-            docker build -t "$SERVICE:$IMAGE_TAG" "./$SERVICE"
-            docker tag "$SERVICE:$IMAGE_TAG" "$ECR_REPOSITORY:$IMAGE_TAG"
-            docker push "$ECR_REPOSITORY:$IMAGE_TAG"
+      - name: Build & Push Docker Image for Backend-ED
+        if: steps.changed-files.outputs.Backend-ED == 'true'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/backend-ed:$IMAGE_TAG -f Backend-ED/Dockerfile Backend-ED
+          docker push $ECR_REGISTRY/backend-ed:$IMAGE_TAG
 
-            echo "$SERVICE deployed to ECR as $ECR_REPOSITORY:$IMAGE_TAG"
-          done
+      - name: Build & Push Docker Image for Backend-LM
+        if: steps.changed-files.outputs.Backend-LM == 'true'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/backend-lm:$IMAGE_TAG -f Backend-LM/Dockerfile Backend-LM
+          docker push $ECR_REGISTRY/backend-lm:$IMAGE_TAG
+
+      - name: Build & Push Docker Image for Backend-NS
+        if: steps.changed-files.outputs.Backend-NS == 'true'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/backend-ns:$IMAGE_TAG -f Backend-NS/Dockerfile Backend-NS
+          docker push $ECR_REGISTRY/backend-ns:$IMAGE_TAG
+
+      - name: Build & Push Docker Image for Backend-TL
+        if: steps.changed-files.outputs.Backend-TL == 'true'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/backend-tl:$IMAGE_TAG -f Backend-TL/Dockerfile Backend-TL
+          docker push $ECR_REGISTRY/backend-tl:$IMAGE_TAG
+
+      - name: Build & Push Docker Image for Backend-UM
+        if: steps.changed-files.outputs.Backend-UM == 'true'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/backend-um:$IMAGE_TAG -f Backend-UM/Dockerfile Backend-UM
+          docker push $ECR_REGISTRY/backend-um:$IMAGE_TAG
+
+      - name: Build & Push Docker Image for Frontend
+        if: steps.changed-files.outputs.Frontend == 'true'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/frontend:$IMAGE_TAG -f Frontend/Dockerfile Frontend
+          docker push $ECR_REGISTRY/frontend:$IMAGE_TAG

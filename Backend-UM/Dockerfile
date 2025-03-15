@@ -8,9 +8,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm install 
 
-# Rebuild bcrypt for compatibility
+# Rebuild bcrypt for compatibility (if needed)
 RUN npm rebuild bcrypt --build-from-source
 
 # Copy the rest of the application code
@@ -18,9 +18,11 @@ COPY . .
 
 # Ensure Prisma client is generated (if applicable)
 RUN npm run prisma:generate || echo "Skipping Prisma generation"
-
 # Expose the port the backend uses
 EXPOSE 5000
+
+# Set environment variables (optional but good practice)
+ENV NODE_ENV=production
 
 # Start the application
 CMD ["npm", "start"]

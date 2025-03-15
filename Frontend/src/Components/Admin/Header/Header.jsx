@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Bell, Search ,LogOut} from "lucide-react";
+import { Bell, Search, LogOut } from "lucide-react";
 import "./Header.css";
 import gal_logo from "../../../assets/gal_logo.png";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContexts";
 
 const Header = ({ pendingRequests }) => {
@@ -15,11 +15,11 @@ const Header = ({ pendingRequests }) => {
   };
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
-  const handleEmployeeRoute=()=>{
-    navigate('/employee');
-  }
+  const handleEmployeeRoute = () => {
+    navigate("/employee");
+  };
   return (
     <header className="unique-navbar-container">
       <div className="unique-navbar-header">
@@ -55,16 +55,17 @@ const Header = ({ pendingRequests }) => {
           </div>
           {showDropdown && (
             <div className="unique-profile-dropdown">
-              <p className="unique-profile-dropdown-item">Subham Roy</p>
+              <p className="unique-profile-dropdown-item">
+                {localStorage.getItem("name") || "User"}
+              </p>
               <p className="unique-profile-dropdown-item unique-profile-role-item">
-                HR Administrator
+                {localStorage.getItem("user") || "Employee"}
               </p>
               <p className="unique-profile-dropdown-item unique-profile-email-item">
-                subham.roy@galvinus.com
+                {localStorage.getItem("email") || "user@example.com"}
               </p>
               <hr />
-              <p className="unique-profile-dropdown-item">Reset Password</p>
-              {/* <p className="unique-profile-dropdown-item">Logout</p> */}
+              {/* <p className="unique-profile-dropdown-item">Reset Password</p> */}
               <button
                 onClick={handleLogout}
                 className="icon-button"
@@ -75,7 +76,7 @@ const Header = ({ pendingRequests }) => {
               <button
                 onClick={handleEmployeeRoute}
                 className="icon-button"
-                title="Logout"
+                title="Go to Employee Dashboard"
               >
                 Go to Employee Dashboard
               </button>

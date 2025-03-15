@@ -65,6 +65,8 @@ export function AuthProvider({ children }) {
       localStorage.setItem("user", data.roleName);
       localStorage.setItem("userId", data.userId);
       localStorage.setItem("signedUserId", data.signedUserId);
+      localStorage.setItem("name", data.name);
+      localStorage.setItem("email", data.email);
       
       // navigate(data.roleName === "EMPLOYEE" ? "/employee" : "/admin", { replace: true });
 
@@ -76,6 +78,7 @@ export function AuthProvider({ children }) {
 
     } catch (error) {
       console.error("Login error:", error.message);
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -136,6 +139,8 @@ export function AuthProvider({ children }) {
       localStorage.removeItem("deviceId");
       localStorage.removeItem("userId");
       localStorage.removeItem("signedUserId");
+      localStorage.removeItem("name");
+      localStorage.removeItem("email");
     }
   };
 

@@ -5,7 +5,7 @@ import {
     FileText, Video, Link as LinkIcon, CheckCircle, BookOpen
 } from 'lucide-react';
 import './TrainingDetails.css';
-
+import { differenceInDays } from "date-fns";
 const TrainingDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -53,14 +53,37 @@ const TrainingDetails = () => {
             default: return 'training-details-status-default';
         }
     };
-
+    const calculateProgress = (startDate, endDate) => {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const today = new Date();
+    
+        if (today < start) return 0; // Before the training starts
+        if (today > end) return 100; // Training completed
+    
+        const totalDuration = end - start;
+        const completedDuration = today - start;
+    
+        return Math.round((completedDuration / totalDuration) * 100);
+      };
+      const getTrainingStatus = (startDate, endDate) => {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const today = new Date();
+      
+        if (today < start) return "Upcoming"; // Before training starts
+        if (today >= start && today <= end) return "In Progress"; // During training
+        if (today > end) return "Completed"; // After training ends
+      
+        return "Unknown"; // Fallback case
+      };
     return (
         <div className="training-details-container">
             <div className="training-details-header">
-                <button onClick={() => navigate('/training')} className="training-details-back-button">
+                {/* <button onClick={() => navigate('/training')} className="training-details-back-button">
                     <ArrowLeft className="training-details-icon" />
                     Back to Training List
-                </button>
+                </button> */}
             </div>
 
             <div className="training-details-overview">
@@ -69,8 +92,8 @@ const TrainingDetails = () => {
                         <h1 className="training-details-title">{training?.title}</h1>
                         <p className="training-details-description">{training?.description}</p>
                     </div>
-                    <span className={`training-details-status ${getStatusColor(training?.status)}`}>
-                        {training?.status}
+                    <span className={`training-details-status ${getStatusColor(getTrainingStatus(training?.startDate,training?.endDate))}`}>
+                        {getTrainingStatus(training?.startDate,training?.endDate)}
                     </span>
                 </div>
 
@@ -93,9 +116,7 @@ const TrainingDetails = () => {
                     <div className="training-details-duration">
                         <p className="training-details-label">Duration</p>
                         <div className="training-details-info">
-                            <Clock className="training-details-icon" />
-                            <p>{training.startDate}</p>
-                            <p>{training.endDate}</p>
+                        <p>{differenceInDays(new Date(training.endDate), new Date(training.startDate))} days</p>
                         </div>
                     </div>
 
@@ -112,12 +133,15 @@ const TrainingDetails = () => {
 
                     <div className="training-details-progress">
                         <p className="training-details-label">Progress</p>
-                        <div className="training-details-progress-bar-container">
-                            <div className="training-details-progress-bar">
-                                <div className="training-details-progress-fill" style={{ width: `${training.progress}%` }} />
-                            </div>
-                            <p className="training-details-progress-text">{training.progress}% Complete</p>
-                        </div>
+                        <div className="progress-bar-container">
+                  <div className="progress-bar">
+                    <div
+                      className="progress-filled"
+                      style={{ width: `${calculateProgress(training.startDate, training.endDate)}%` }}
+                    />
+                  </div>
+                  <p className="progress-percentage">{calculateProgress(training.startDate, training.endDate)}%</p>
+                </div>
                     </div>
                 </div>
             </div>

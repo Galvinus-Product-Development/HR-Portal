@@ -1,7 +1,7 @@
 /* Login Page Styles */
 .login-container {
-    min-height: 100vh;
-    background-color: #f3f4f6;
+    min-height: 90vh;
+    /* background-color: #f3f4f6; */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -97,6 +97,7 @@
   }
   
   .login-button {
+    text-align: center;
     width: 100%;
     padding: 10px;
     background-color: #2563eb;
@@ -123,5 +124,47 @@
     font-size: 14px;
     color: #6b7280;
     margin-top: 16px;
+  }
+  
+
+
+  .delete-user-section {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    
+  }
+  
+  .delete-user-section .delete-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #d9534f; /* Red color */
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 100%;
+  }
+  
+  .delete-user-section .delete-button:hover {
+    background-color: #c9302c;
+    transform: scale(1.05);
+  }
+  
+  .delete-user-section .delete-button:disabled {
+    background-color: #b5b5b5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .delete-user-section .delete-icon {
+    width: 18px;
+    height: 18px;
   }
   

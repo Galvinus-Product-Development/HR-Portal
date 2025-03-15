@@ -1,6 +1,6 @@
 .employee-db-container {
   padding: 1.5rem;
-  background-color: #f9fafb;
+  /* background-color: #f9fafb; */
   border-radius: 0.5rem;
 }
 
@@ -199,4 +199,33 @@
 .status-inactive {
   background-color: #fee2e2;
   color: #991b1b;
+}
+
+
+
+.pagination-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination-controls button {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  background-color: white;
+  cursor: pointer;
+}
+
+.pagination-controls button.active-page {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+}
+
+.pagination-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: black;
 }

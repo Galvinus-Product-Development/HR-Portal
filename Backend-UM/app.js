@@ -42,10 +42,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session);
 
+
+app.get("/", (req, res) => {
+  res.status(200).json({ status: "ok", message: "It's user management micro service" });
+});
+// Health check route
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Service is healthy" });
+});
+
+
+
 // Route middlewares
-app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/admin", adminRoutes);
-app.use("/api/role-permissions", rolePermissionRoutes);
+app.use("/um/api/v1/auth", authRoutes);
+app.use("/um/api/v1/admin", adminRoutes);
+app.use("/um/api/role-permissions", rolePermissionRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

@@ -133,7 +133,9 @@ const verifyTokens = async (req, res, next) => {
         refreshToken,
         roleName: decodedToken.roleName, // Extract role from token
         permissions: decodedToken.permissions, // Include permissions
-        signedUserId:decodedToken.userId
+        signedUserId:decodedToken.signedUserId,
+        name:decodedToken.name,
+        email:decodedToken.email
       });
     } catch (err) {
       if (err.name === 'TokenExpiredError' && refreshToken) {
@@ -171,7 +173,7 @@ const verifyTokens = async (req, res, next) => {
 
           // Generate new access token
           const newAccessToken = jwt.sign(
-            { userId: user.id, roleName, permissions },
+            { userId: user.id, roleName, permissions ,name:user.name,email:user.email},
             process.env.JWT_SECRET,
             { expiresIn: '15m' } // Set to 15 minutes
           );
@@ -183,7 +185,9 @@ const verifyTokens = async (req, res, next) => {
             refreshToken: refreshToken, // Keep the same refresh token
             roleName,
             permissions,
-            signedUserId:decoded.userId
+            signedUserId:decoded.signedUserId,
+            name:user.name,
+            email:user.email
           });
         } catch (refreshErr) {
           console.log("Refresh token is invalid or expired.");

@@ -175,6 +175,9 @@ exports.createTraining = async (data) => {
 
 exports.updateTraining = async (id, data) => {
   try {
+    console.log(
+      "This is user Idgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg"
+    );
     const { id: _, ...updateData } = data;
     console.log("This is user Id", id);
     console.log("This is updated data", updateData);
@@ -203,6 +206,7 @@ exports.updateTraining = async (id, data) => {
       }
     }
 
+    const dummyFileUrl = "https://example.com/dummy-file.pdf";
     return await prisma.training.update({
       where: {
         id,
@@ -215,12 +219,36 @@ exports.updateTraining = async (id, data) => {
         }, // ✅ Fixed trainerId
         // duration: isNaN(parseInt(duration)) ? null : `${duration} weeks`, // ✅ Ensure valid duration
         courseProgress: 55,
-        certificationAvailable: false,
+
+        certificationAvailable: updateData.certificationAvailable,
         totalParticipants: 1,
         upcomingSessions: 0,
         activeTraining: true,
         startDate: new Date(updateData.startDate), // ✅ Example start date
         endDate: new Date(updateData.endDate), // ✅ Example end date
+
+        materialFiles: {
+          create: (updateData.materialFiles || []).map(() => ({
+            title: "Dummy Material",
+            type: "PDF",
+            fileUrl: dummyFileUrl,
+          })),
+        },
+        lectureFiles: {
+          create: (updateData.lectureFiles || []).map(() => ({
+            title: "Dummy Lecture",
+            videoUrl: dummyFileUrl,
+            duration: 60, // Dummy duration in minutes
+            uploadedAt: new Date(),
+          })),
+        },
+        resourceFiles: {
+          create: (updateData.resourceFiles || []).map(() => ({
+            title: "Dummy Resource",
+            resourceUrl: dummyFileUrl,
+            uploadedAt: new Date(),
+          })),
+        },
       },
       include: {
         trainer: true,

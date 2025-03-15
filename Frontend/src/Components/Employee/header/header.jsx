@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Bell, Search, Building2,LogOut } from 'lucide-react';
-import './Header.css';
-import gal_logo from '../../../assets/gal_logo.png';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { Bell, Search, Building2, LogOut } from "lucide-react";
+import "./Header.css";
+import gal_logo from "../../../assets/gal_logo.png";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContexts";
 const Header = ({ pendingRequests }) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -14,21 +14,20 @@ const Header = ({ pendingRequests }) => {
   };
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
-  const handleEmployeeRoute=()=>{
-    navigate('/admin');
-  }
+  const handleEmployeeRoute = () => {
+    navigate("/admin");
+  };
   return (
     <header className="navbar-container">
       <div className="navbar-header">
         {/* <Building2 className="navbar-logo" /> */}
-        <img src={gal_logo} className='navbar-logo' />
+        <img src={gal_logo} className="navbar-logo" />
         <span className="navbar-title">Galvinus Employee Portal</span>
       </div>
 
       <div className="navbar-right">
-
         <div className="navbar-icons">
           <button className="navbar-notifications">
             <Bell className="navbar-bell-icon" />
@@ -50,15 +49,17 @@ const Header = ({ pendingRequests }) => {
 
           {showDropdown && (
             <div className="unique-profile-dropdown">
-              <p className="unique-profile-dropdown-item">Subham Roy</p>
+              <p className="unique-profile-dropdown-item">
+                {localStorage.getItem("name") || "User"}
+              </p>
               <p className="unique-profile-dropdown-item unique-profile-role-item">
-                HR Administrator
+                {localStorage.getItem("user") || "Employee"}
               </p>
               <p className="unique-profile-dropdown-item unique-profile-email-item">
-                subham.roy@galvinus.com
+                {localStorage.getItem("email") || "user@example.com"}
               </p>
               <hr />
-              <p className="unique-profile-dropdown-item">Reset Password</p>
+              {/* <p className="unique-profile-dropdown-item">Reset Password</p> */}
               {/* <p className="unique-profile-dropdown-item">Logout</p> */}
               <button
                 onClick={handleLogout}

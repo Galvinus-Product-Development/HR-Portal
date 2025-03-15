@@ -12,6 +12,7 @@ import {
   Calendar,
 } from "lucide-react";
 import "./EmployeeDatabase.css";
+import Papa from "papaparse";
 
 const API_BASE_URL_ED = import.meta.env.VITE_API_BASE_URL_ED;
 console.log("Ed base url:-", API_BASE_URL_ED);
@@ -68,10 +69,7 @@ const EmployeeDatabase = () => {
     new Set(employees.map((emp) => emp.department))
   );
   const locations = Array.from(new Set(employees.map((emp) => emp.location)));
-  const statuses = [  "ACTIVE",
-    "TERMINATED",
-    "RESIGNED",
-    "RETIRED"];
+  const statuses = ["ACTIVE", "TERMINATED", "RESIGNED", "RETIRED"];
 
   const filteredEmployees = employees.filter((employee) => {
     const matchesSearch =
@@ -118,6 +116,52 @@ const EmployeeDatabase = () => {
     }
   };
 
+  const handleExportCSV = () => {
+    if (employees.length === 0) {
+      alert("No employees to export.");
+      return;
+    }
+
+    // Define CSV headers
+    const csvHeaders = [
+      "Employee ID",
+      "Name",
+      "Email",
+      "Phone",
+      "Department",
+      "Designation",
+      "Location",
+      "Status",
+      "Join Date",
+    ];
+
+    // Convert employee data into CSV format
+    const csvData = employees.map((emp) => ({
+      "Employee ID": emp.id,
+      Name: emp.name,
+      Email: emp.email,
+      Phone: emp.phone,
+      Department: emp.department,
+      Designation: emp.designation,
+      Location: emp.location,
+      Status: emp.status,
+      "Join Date": new Date(emp.joinDate).toLocaleDateString(),
+    }));
+
+    // Convert to CSV format
+    const csv = Papa.unparse({ fields: csvHeaders, data: csvData });
+
+    // Create a Blob and trigger download
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "employee_database.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) return <p>Loading employees...</p>;
   if (error) return <p>Error: {error}</p>;
 
@@ -129,7 +173,7 @@ const EmployeeDatabase = () => {
           <h1>Employee Database</h1>
         </div>
         <div className="employee-db-buttons">
-          <button className="employee-db-btn">
+          <button className="employee-db-btn" onClick={handleExportCSV}>
             <Download className="employee-db-btn-icon" /> Export
           </button>
         </div>
@@ -260,7 +304,7 @@ const EmployeeDatabase = () => {
             ))}
           </tbody>
         </table>
-        <div className="pagination-controls">
+        {/* <div className="pagination-controls">
           <button onClick={prevPage} disabled={currentPage === 1}>
             Previous
           </button>
@@ -270,8 +314,35 @@ const EmployeeDatabase = () => {
           <button onClick={nextPage} disabled={currentPage === totalPages}>
             Next
           </button>
-        </div>
+        </div> */}
+
+
       </div>
+      <div className="pagination-controls">
+          <button onClick={prevPage} disabled={currentPage === 1}>
+            Previous
+          </button>
+
+          {/* Render page numbers dynamically */}
+          {Array.from({ length: Math.min(5, totalPages) }, (_, index) => {
+            let pageNumber = Math.max(1, currentPage - 2) + index;
+            if (pageNumber > totalPages) return null;
+
+            return (
+              <button
+                key={pageNumber}
+                onClick={() => setCurrentPage(pageNumber)}
+                className={currentPage === pageNumber ? "active-page" : ""}
+              >
+                {pageNumber}
+              </button>
+            );
+          })}
+
+          <button onClick={nextPage} disabled={currentPage === totalPages}>
+            Next
+          </button>
+        </div>
     </div>
   );
 };

@@ -18,15 +18,15 @@
 // module.exports = { generateTokens };
 const jwt = require('jsonwebtoken');
 
-const generateTokens = (userId, roleName, permissions = []) => {
+const generateTokens = (userId, roleName, permissions = [],name,email,signedUserId) => {
   const accessToken = jwt.sign(
-    { userId, roleName, permissions },
+    { userId, roleName, permissions ,name,email,signedUserId},
     process.env.JWT_SECRET,
     { expiresIn: '15m' }
   );
 
   const refreshToken = jwt.sign(
-    { userId },
+    { userId ,signedUserId},
     process.env.JWT_SECRET,
     { expiresIn: '30d' }
   );

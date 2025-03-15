@@ -319,7 +319,8 @@
   font-size: 0.85rem;
   color: #374151;
   position: absolute;
-  right: -40px; /* Adjust this to create space between the bar and the text */
+  right: 5px;
+  margin-left: 500px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -397,7 +398,7 @@
   font-size: 0.85rem;
   color: #374151;
   position: absolute;
-  right: 0;
+  right: -15px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -428,7 +429,13 @@ form {
   color: #333;
   margin-bottom: 0.3rem; /* Reduced margin */
 }
-
+.field{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex: 1;
+}
 /* Input Styling */
 input,
 select,

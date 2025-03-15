@@ -86,6 +86,7 @@ export default function TrainingAndLearning() {
   });
 
   return (
+    <div className='emp'>
     <div className="training-container">
       <div className="training-header">
         <h1 className="training-title">Training & Learning</h1>
@@ -129,16 +130,6 @@ export default function TrainingAndLearning() {
           </div>
         </div>
       </div>
-
-
-
-
-
-
-
-
-
-
       <div className="training-list-container">
         <div className="training-tabs">
           <button
@@ -224,6 +215,7 @@ export default function TrainingAndLearning() {
           ))}
         </div>
       </div>
+    </div>
     </div>
   );
 }

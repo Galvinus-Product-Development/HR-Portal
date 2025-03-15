@@ -18,26 +18,30 @@ const RolePermissions = () => {
   const [roleDescription, setRoleDescription] = useState("");
   const [roleToDelete, setRoleToDelete] = useState("");
   const [showPermissionModal, setShowPermissionModal] = useState(false);
-  const [showDeletePermissionModal, setShowDeletePermissionModal] = useState(false);
+  const [showDeletePermissionModal, setShowDeletePermissionModal] =
+    useState(false);
   const [selectedRoleForPermission, setSelectedRoleForPermission] =
     useState(null);
   const [selectedPermission, setSelectedPermission] = useState("");
-  const [selectedRoleForPermissionDeletion,setSelectedRoleForPermissionDeletion]=useState("");
-
+  const [
+    selectedRoleForPermissionDeletion,
+    setSelectedRoleForPermissionDeletion,
+  ] = useState("");
+  const [roleNameError, setRoleNameError] = useState("");
+  const [roleDescriptionError, setRoleDescriptionError] = useState("");
+  
   useEffect(() => {
     fetchEmployees();
     fetchRoles();
     fetchPermissions();
   }, []);
 
-
   const formatToTitleCase = (str) => {
     return str
-      .split('_') // Split by underscore
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize first letter
-      .join(' '); // Join back with space
+      .split("_") // Split by underscore
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize first letter
+      .join(" "); // Join back with space
   };
-
 
   const fetchEmployees = async () => {
     try {
@@ -81,13 +85,26 @@ const RolePermissions = () => {
 
   const handleCreateRole = async () => {
     if (!roleName.trim()) return alert("Role name is required!");
+
+    setRoleNameError("");
+    setRoleDescriptionError("");
+  
+    if (roleName.trim().length < 3) {
+      setRoleNameError("Role name must be at least 3 characters long.");
+      return;
+    }
+  
+    if (roleDescription.trim().length < 10) {
+      setRoleDescriptionError("Role description must be at least 10 characters long.");
+      return;
+    }
     try {
       const headers = {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("accessToken") || ""}`,
         "x-refresh-token": localStorage.getItem("refreshToken") || "",
       };
-      const response = await fetch( `${API_BASE_URL}/api/v1/admin/roles`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/admin/roles`, {
         method: "POST",
         headers,
         body: JSON.stringify({ name: roleName, description: roleDescription }),
@@ -119,7 +136,7 @@ const RolePermissions = () => {
         `${API_BASE_URL}/api/v1/admin/roles/${roleToDelete}`,
         {
           method: "DELETE",
-          headers,  // <-- Correct placement of headers inside options
+          headers, // <-- Correct placement of headers inside options
         }
       );
 
@@ -131,8 +148,7 @@ const RolePermissions = () => {
     } catch (error) {
       console.error("Error deleting role:", error);
     }
-};
-
+  };
 
   const handleUpdateEmployeeRole = async (employeeId, newRole) => {
     try {
@@ -142,14 +158,11 @@ const RolePermissions = () => {
         "x-refresh-token": localStorage.getItem("refreshToken") || "",
       };
 
-      const response = await fetch(
-        `${API_BASE_URL}/api/v1/admin/assign-role`,
-        {
-          method: "POST",
-          headers,
-          body: JSON.stringify({ userId: employeeId, roleName: newRole }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/v1/admin/assign-role`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ userId: employeeId, roleName: newRole }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -333,7 +346,7 @@ const RolePermissions = () => {
       </div>
 
       {/* Create Role Modal */}
-      {showCreateRole && (
+      {/* {showCreateRole && (
         <div className="rolemgmt-modal-overlay">
           <div className="rolemgmt-modal-container">
             <div className="rolemgmt-modal-header">
@@ -356,6 +369,48 @@ const RolePermissions = () => {
               value={roleDescription}
               onChange={(e) => setRoleDescription(e.target.value)}
             />
+            <button
+              onClick={handleCreateRole}
+              className="rolemgmt-assign-roles-btn"
+            >
+              Create Role
+            </button>
+          </div>
+        </div>
+      )} */}
+
+      {showCreateRole && (
+        <div className="rolemgmt-modal-overlay">
+          <div className="rolemgmt-modal-container">
+            <div className="rolemgmt-modal-header">
+              <h3>Create New Role</h3>
+              <button
+                className="rolemgmt-close-btn"
+                onClick={() => setShowCreateRole(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <input
+              type="text"
+              placeholder="Role Name"
+              value={roleName}
+              onChange={(e) => setRoleName(e.target.value)}
+              className={roleNameError ? "error-input" : ""}
+            />
+            {roleNameError && <p className="error-text">{roleNameError}</p>}
+
+            <textarea
+              placeholder="Role Description"
+              value={roleDescription}
+              onChange={(e) => setRoleDescription(e.target.value)}
+              className={roleDescriptionError ? "error-input" : ""}
+            />
+            {roleDescriptionError && (
+              <p className="error-text">{roleDescriptionError}</p>
+            )}
+
             <button
               onClick={handleCreateRole}
               className="rolemgmt-assign-roles-btn"
@@ -408,7 +463,9 @@ const RolePermissions = () => {
           {Object.entries(rolePermissions).map(([role, data]) => (
             <div key={role} className="rolemgmt-module-card">
               <div className="rolemgmt-module-header">
-                <h3 className="rolemgmt-module-title">{formatToTitleCase(role)}</h3>
+                <h3 className="rolemgmt-module-title">
+                  {formatToTitleCase(role)}
+                </h3>
                 <button
                   className="rolemgmt-assign-roles-btn"
                   onClick={() => handleOpenPermissionModal(role)}
@@ -417,7 +474,6 @@ const RolePermissions = () => {
                 </button>
               </div>
               <div className="rolemgmt-permissions-list">
-
                 {data.permissions.map((permission) => {
                   return (
                     <div
@@ -429,14 +485,13 @@ const RolePermissions = () => {
                       </span>
                       <button
                         className="rolemgmt-remove-permission-btn"
-                        onClick={() =>{
+                        onClick={() => {
                           console.log(data);
                           // setShowPermissionModal(true) ||
                           setShowDeletePermissionModal(true) ||
-                          setSelectedPermission(permission)
+                            setSelectedPermission(permission);
                           setSelectedRoleForPermissionDeletion(data);
-                        }
-                        }
+                        }}
                       >
                         <Trash2 className="rolemgmt-remove-icon" />
                       </button>
