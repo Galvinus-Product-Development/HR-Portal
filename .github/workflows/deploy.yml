@@ -5,9 +5,7 @@ on:
     paths:
       - "Backend-AS/**"
       - "Backend-ED/**"
-      - "Backend-LM/**"
       - "Backend-NS/**"
-      - "Backend-TL/**"
       - "Backend-UM/**"
       - "Frontend/**"
     branches:
