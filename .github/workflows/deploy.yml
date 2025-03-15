@@ -11,7 +11,7 @@ on:
     branches:
       - master
 
-  workflow_dispatch: # 🔹 Added manual trigger support
+  workflow_dispatch: # 🔹 Allows manual triggering
 
 jobs:
   deploy:
@@ -48,17 +48,47 @@ jobs:
             Frontend:
               - "Frontend/**"
 
-      - name: Build & Push Docker Images
+      - name: Build & Push Docker Image for Backend-AS
+        if: steps.changed-files.outputs.Backend-AS == 'true'
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          for SERVICE in Backend-AS Backend-ED Backend-NS Backend-UM Frontend; do
-            SERVICE_VAR=$(echo $SERVICE | tr '-' '_')
-            CHANGED_VAR="steps.changed-files.outputs.$SERVICE_VAR"
-            if [[ "${{ fromJSON(env.CHANGED_VAR) }}" == 'true' ]]; then
-              echo "Building and pushing image for $SERVICE..."
-              docker build -t $ECR_REGISTRY/$(echo $SERVICE | tr '[:upper:]' '[:lower:]'):$IMAGE_TAG -f $SERVICE/Dockerfile $SERVICE
-              docker push $ECR_REGISTRY/$(echo $SERVICE | tr '[:upper:]' '[:lower:]'):$IMAGE_TAG
-            fi
-          done
+          docker build -t $ECR_REGISTRY/backend-as:$IMAGE_TAG -f Backend-AS/Dockerfile Backend-AS
+          docker push $ECR_REGISTRY/backend-as:$IMAGE_TAG
+
+      - name: Build & Push Docker Image for Backend-ED
+        if: steps.changed-files.outputs.Backend-ED == 'true'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/backend-ed:$IMAGE_TAG -f Backend-ED/Dockerfile Backend-ED
+          docker push $ECR_REGISTRY/backend-ed:$IMAGE_TAG
+
+      - name: Build & Push Docker Image for Backend-NS
+        if: steps.changed-files.outputs.Backend-NS == 'true'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/backend-ns:$IMAGE_TAG -f Backend-NS/Dockerfile Backend-NS
+          docker push $ECR_REGISTRY/backend-ns:$IMAGE_TAG
+
+      - name: Build & Push Docker Image for Backend-UM
+        if: steps.changed-files.outputs.Backend-UM == 'true'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/backend-um:$IMAGE_TAG -f Backend-UM/Dockerfile Backend-UM
+          docker push $ECR_REGISTRY/backend-um:$IMAGE_TAG
+
+      - name: Build & Push Docker Image for Frontend
+        if: steps.changed-files.outputs.Frontend == 'true'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/frontend:$IMAGE_TAG -f Frontend/Dockerfile Frontend
+          docker push $ECR_REGISTRY/frontend:$IMAGE_TAG
