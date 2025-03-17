@@ -45,6 +45,12 @@ jobs:
             Frontend:
               - "Frontend/**"
 
+      - name: Ensure ECR Repository Exists for Backend-ED
+        if: steps.changed-files.outputs.Backend-ED == 'true'
+        run: |
+          aws ecr describe-repositories --repository-names backend-ed || \
+          aws ecr create-repository --repository-name backend-ed
+
       - name: Build & Push Docker Image for Backend-ED
         if: steps.changed-files.outputs.Backend-ED == 'true'
         env:
@@ -53,6 +59,12 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/backend-ed:$IMAGE_TAG -f Backend-ED/Dockerfile Backend-ED
           docker push $ECR_REGISTRY/backend-ed:$IMAGE_TAG
+
+      - name: Ensure ECR Repository Exists for Backend-NS
+        if: steps.changed-files.outputs.Backend-NS == 'true'
+        run: |
+          aws ecr describe-repositories --repository-names backend-ns || \
+          aws ecr create-repository --repository-name backend-ns
 
       - name: Build & Push Docker Image for Backend-NS
         if: steps.changed-files.outputs.Backend-NS == 'true'
@@ -63,6 +75,12 @@ jobs:
           docker build -t $ECR_REGISTRY/backend-ns:$IMAGE_TAG -f Backend-NS/Dockerfile Backend-NS
           docker push $ECR_REGISTRY/backend-ns:$IMAGE_TAG
 
+      - name: Ensure ECR Repository Exists for Backend-UM
+        if: steps.changed-files.outputs.Backend-UM == 'true'
+        run: |
+          aws ecr describe-repositories --repository-names backend-um || \
+          aws ecr create-repository --repository-name backend-um
+
       - name: Build & Push Docker Image for Backend-UM
         if: steps.changed-files.outputs.Backend-UM == 'true'
         env:
@@ -71,6 +89,12 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/backend-um:$IMAGE_TAG -f Backend-UM/Dockerfile Backend-UM
           docker push $ECR_REGISTRY/backend-um:$IMAGE_TAG
+
+      - name: Ensure ECR Repository Exists for Frontend
+        if: steps.changed-files.outputs.Frontend == 'true'
+        run: |
+          aws ecr describe-repositories --repository-names frontend || \
+          aws ecr create-repository --repository-name frontend
 
       - name: Build & Push Docker Image for Frontend
         if: steps.changed-files.outputs.Frontend == 'true'
