@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import redisClient from '../config/redis.js';
-import { producer } from '../config/kafka.js';
+// import { producer } from '../config/kafka.js';
 import { ObjectId } from 'mongodb';
 
 const prisma = new PrismaClient();
@@ -34,10 +34,10 @@ export const createNotification = async (userIds, type="MANUAL", title, message,
     ));
 
     // Publish to Kafka
-    await producer.send({
-      topic: 'notification_events',
-      messages: notificationsData.map(notification => ({ value: JSON.stringify(notification) }))
-    });
+    // await producer.send({
+    //   topic: 'notification_events',
+    //   messages: notificationsData.map(notification => ({ value: JSON.stringify(notification) }))
+    // });
 
     console.log("Notifications created successfully.");
     return notificationsData;

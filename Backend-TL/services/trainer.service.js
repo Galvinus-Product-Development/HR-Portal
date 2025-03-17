@@ -12,8 +12,17 @@ exports.getTrainerById = async (id) => {
   });
 };
 
-exports.createTrainer = async (data) => {
-  return await prisma.trainer.create({ data });
+exports.createTrainer = async (dataa) => {
+  trainer = await prisma.trainer.create({
+    data: {
+      id: dataa.trainerId,
+      name: dataa.trainerName || "Unknown Trainer",
+      email: dataa.trainerEmail || `trainer@${trainerId}example.com`,
+      phone: dataa.trainerPhone || "0000000000",
+      expertise: dataa.trainerExpertise || "Unknown",
+    },
+  });
+  return trainer;
 };
 
 exports.updateTrainer = async (id, data) => {

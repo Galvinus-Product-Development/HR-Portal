@@ -279,11 +279,16 @@ async function main() {
   console.log("Seeding completed!");
 }
 
-main()
-  .catch((e) => {
-    console.error("Error seeding database", e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+// main()
+//   .catch((e) => {
+//     console.error("Error seeding database", e);
+//     process.exit(1);
+//   })
+//   .finally(async () => {
+//     await prisma.$disconnect();
+//   });
+
+// (async()=>{await prisma.trainer.deleteMany();})()
+(async()=>{const data=await prisma.training.deleteMany({});
+  console.log(data);
+})()

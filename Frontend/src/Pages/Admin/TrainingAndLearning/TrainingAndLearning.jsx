@@ -24,13 +24,15 @@ import "./TrainingAndLearning.css";
 
 import { differenceInDays } from "date-fns";
 
+const API_BASE_URL_ED = import.meta.env.VITE_API_BASE_URL_ED;
+
 const TrainingAndLearning = () => {
   const [showAddTraining, setShowAddTraining] = useState(false);
   const [showEditTraining, setShowEditTraining] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [trainings, setTrainings] = useState([]);
   const [currentTraining, setCurrentTraining] = useState(null);
-
+  const [employees, setEmployees] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -47,24 +49,76 @@ const TrainingAndLearning = () => {
     startDate: "",
     endDate: "",
   });
+  const [trainers,setTrainers]=useState();
   const navigate = useNavigate();
   useEffect(() => {
-    fetchTrainingData();
+    fetchTrainingAndTrainerData();
+    console.log("Trainers Data in State:", trainers);
+
   }, []);
 
-  const fetchTrainingData = async () => {
+  useEffect(() => {
+    console.log("Trainers Data in State:", trainers);
+
+  }, [trainers]);
+
+
+  const fetchTrainingAndTrainerData = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:5004/trainings/FormattedTrainings"
-      );
-      if (!response.ok) throw new Error("Failed to fetch", response);
-      const data = await response.json();
-      console.log("this is trainings data ", data);
-      setTrainings(data.trainings);
+      const [trainingsResponse, trainersResponse] = await Promise.all([
+        fetch("http://localhost:5004/trainings/FormattedTrainings"),
+        fetch("http://localhost:5004/trainers"),
+      ]);
+  
+      if (!trainingsResponse.ok || !trainersResponse.ok) {
+        throw new Error("Failed to fetch data");
+      }
+  
+      const trainingsData = await trainingsResponse.json();
+      const trainersData = await trainersResponse.json();
+  
+      console.log("Trainings API Response:", trainingsData);
+      console.log("Trainers API Response:", trainersData);
+  
+      // if (!trainersData || !Array.isArray(trainersData.trainers)) {
+      //   console.error("Invalid trainers data format:", trainersData);
+      //   return;
+      // }
+  
+      setTrainings(trainingsData.trainings);
+      setTrainers(trainersData); 
     } catch (error) {
-      console.error("Error fetching training data:", error);
+      console.error("Error fetching training and trainer data:", error);
     }
   };
+  
+  
+
+  // Fetch employees from backend
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      console.log("Here....................................................");
+      // setLoadingEmployees(true);
+      try {
+        const response = await fetch(
+          `${API_BASE_URL_ED}/api/employeeRoutes/formatted`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch employees");
+        }
+        const data = await response.json();
+        setEmployees(data.data);
+        console.log("fetched employee dataaaaaaaaaaaaaaaaaaa:-", data.data);
+      } catch (err) {
+        setError(err.message);
+        console.error("Error fetching employees:", err);
+      } finally {
+        // setLoadingEmployees(false);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -103,7 +157,7 @@ const TrainingAndLearning = () => {
 
       // Close modal and refresh data
       setShowAddTraining(false);
-      fetchTrainingData();
+      fetchTrainingAndTrainerData();
     } catch (error) {
       console.error("Error creating training:", error);
       alert(`Failed to create training: ${error.message}`);
@@ -138,7 +192,7 @@ const TrainingAndLearning = () => {
       // Close modal and refresh data
       setShowEditTraining(false);
       setCurrentTraining(null);
-      fetchTrainingData();
+      fetchTrainingAndTrainerData();
     } catch (error) {
       console.error("Error updating training:", error);
       alert(`Failed to update training: ${error.message}`);
@@ -162,7 +216,7 @@ const TrainingAndLearning = () => {
       // Close modal and refresh data
       setShowDeleteConfirm(false);
       setCurrentTraining(null);
-      fetchTrainingData();
+      fetchTrainingAndTrainerData();
     } catch (error) {
       console.error("Error deleting training:", error);
       alert(`Failed to delete training: ${error.message}`);
@@ -357,6 +411,58 @@ const TrainingAndLearning = () => {
   // Assume `trainings` is an array of training objects
   const summary = calculateTrainingSummary(trainings);
 
+  const [showAddTrainer, setShowAddTrainer] = useState(false);
+
+  const [trainerFormData, setTrainerFormData] = useState({
+    trainerId: "",
+    trainerExpertise: "",
+  });
+
+  const handleTrainerInputChange = (e) => {
+    const { name, value } = e.target;
+    setTrainerFormData({ ...trainerFormData, [name]: value });
+  };
+
+  const handleSubmitTrainer = async (e) => {
+    e.preventDefault();
+
+    // Find selected employee from employees list
+    const selectedTrainer = employees.find(
+      (emp) => emp.id === trainerFormData.trainerId
+    );
+
+    if (!selectedTrainer) {
+      alert("Invalid Trainer Selection!");
+      return;
+    }
+
+    // Prepare final payload
+    const trainerData = {
+      trainerId: trainerFormData.trainerId,
+      trainerName: selectedTrainer.name,
+      trainerEmail: selectedTrainer.email,
+      trainerPhone: selectedTrainer.phone,
+      trainerExpertise: trainerFormData.trainerExpertise,
+    };
+
+    try {
+      const response = await fetch("http://localhost:5004/trainers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(trainerData),
+      });
+
+      if (response.ok) {
+        alert("Trainer added successfully!");
+        setShowAddTrainer(false);
+      } else {
+        console.error("Error creating trainer");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
   return (
     <div className="training-container">
       <div className="header-section">
@@ -369,6 +475,13 @@ const TrainingAndLearning = () => {
             </p>
           </div>
         </div>
+        <button
+          onClick={() => setShowAddTrainer(true)}
+          className="add-training-btn"
+        >
+          <Plus className="button-icon" />
+          Add Trainer
+        </button>
         <button
           onClick={() => setShowAddTraining(true)}
           className="add-training-btn"
@@ -596,7 +709,7 @@ const TrainingAndLearning = () => {
                 </select>
               </div> */}
 
-              <div className="form-field">
+              {/* <div className="form-field">
                 <label>Trainer</label>
                 <select
                   name="trainerId"
@@ -610,6 +723,23 @@ const TrainingAndLearning = () => {
                       trainings?.map((t) => [t.trainer.id, t.trainer])
                     ).values(),
                   ].map((trainer) => (
+                    <option key={trainer.id} value={trainer.id}>
+                      {trainer.name}
+                    </option>
+                  ))}
+                </select>
+              </div> */}
+
+              <div className="form-field">
+                <label>Trainer</label>
+                <select
+                  name="trainerId"
+                  value={formData.trainerId}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Select Trainer</option>
+                  {trainers?.map((trainer) => (
                     <option key={trainer.id} value={trainer.id}>
                       {trainer.name}
                     </option>
@@ -761,7 +891,7 @@ const TrainingAndLearning = () => {
                   ))}
                 </select>
               </div> */}
-
+              {/* 
               <div className="form-field">
                 <label>Trainer</label>
                 <select
@@ -776,6 +906,40 @@ const TrainingAndLearning = () => {
                       trainings?.map((t) => [t.trainer.id, t.trainer])
                     ).values(),
                   ].map((trainer) => (
+                    <option key={trainer.id} value={trainer.id}>
+                      {trainer.name}
+                    </option>
+                  ))}
+                </select>
+              </div> */}
+{/* <select
+  name="trainerId"
+  value={formData.trainerId}
+  onChange={handleInputChange}
+  required
+>
+  <option value="">Select Trainer</option>
+  {trainers?.length > 0 ? (
+    trainers.map((trainer) => (
+      <option key={trainer.id} value={trainer.id}>
+        {trainer.name}
+      </option>
+    ))
+  ) : (
+    <option disabled>No Trainers Available</option>
+  )}
+</select> */}
+
+              <div className="form-field">
+                <label>Trainer</label>
+                <select
+                  name="trainerId"
+                  value={formData.trainerId}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Select Trainer</option>
+                  {trainers?.map((trainer) => (
                     <option key={trainer.id} value={trainer.id}>
                       {trainer.name}
                     </option>
@@ -921,6 +1085,60 @@ const TrainingAndLearning = () => {
                 Delete Training
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {showAddTrainer && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Add New Trainer</h3>
+              <button
+                onClick={() => setShowAddTrainer(false)}
+                className="modal-close-btn"
+              >
+                <X className="icon" />
+              </button>
+            </div>
+            <form onSubmit={handleSubmitTrainer}>
+              {/* Trainer ID Dropdown */}
+              <div className="form-field">
+                <label>Select Trainer (Employee)</label>
+                <select
+                  name="trainerId"
+                  value={trainerFormData.trainerId}
+                  onChange={handleTrainerInputChange}
+                  required
+                >
+                  <option value="">Select Employee</option>
+                  {employees.map((employee) => (
+                    <option key={employee.id} value={employee.id}>
+                      {employee.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Trainer Expertise */}
+              <div className="form-field">
+                <label>Trainer Expertise</label>
+                <input
+                  type="text"
+                  name="trainerExpertise"
+                  value={trainerFormData.trainerExpertise}
+                  onChange={handleTrainerInputChange}
+                  placeholder="Enter Expertise"
+                  required
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" onClick={() => setShowAddTrainer(false)}>
+                  Cancel
+                </button>
+                <button type="submit">Create Trainer</button>
+              </div>
+            </form>
           </div>
         </div>
       )}

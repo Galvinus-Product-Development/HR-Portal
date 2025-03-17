@@ -250,6 +250,7 @@ import {
 import io from 'socket.io-client';
 import "./Dashboard.css";
 
+
 const socket = io(`${import.meta.env.VITE_SOCKET_URL}`);
 const API_BASE_URL_NS = `${import.meta.env.VITE_API_BASE_URL_NS}`;
 
@@ -367,7 +368,7 @@ const Dashboard = () => {
             <div>
               <p className="dashboard__stats-label">Total Employees</p>
               <p className="dashboard__stats-value">
-                {dashboardStats.totalEmployees}
+                {dashboardStats?.totalEmployees}
               </p>
             </div>
             <div className="dashboard__stats-icon-container dashboard__stats-icon-blue">
@@ -381,7 +382,7 @@ const Dashboard = () => {
             <div>
               <p className="dashboard__stats-label">On Leave Today</p>
               <p className="dashboard__stats-value">
-                {dashboardStats.employeesOnLeave}
+                {dashboardStats?.employeesOnLeave}
               </p>
             </div>
             <div className="dashboard__stats-icon-container dashboard__stats-icon-green">
@@ -395,7 +396,7 @@ const Dashboard = () => {
             <div>
               <p className="dashboard__stats-label">Pending Leaves</p>
               <p className="dashboard__stats-value">
-                {dashboardStats.pendingLeaveRequests}
+                {dashboardStats?.pendingLeaveRequests}
               </p>
             </div>
             <div className="dashboard__stats-icon-container dashboard__stats-icon-yellow">
@@ -409,7 +410,7 @@ const Dashboard = () => {
             <div>
               <p className="dashboard__stats-label">Active Employees</p>
               <p className="dashboard__stats-value">
-                {dashboardStats.upcomingBirthdays}
+                {dashboardStats?.upcomingBirthdays}
               </p>
             </div>
             <div className="dashboard__stats-icon-container dashboard__stats-icon-purple">
@@ -436,7 +437,7 @@ const Dashboard = () => {
               {notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <div
-                    key={notification.id}
+                    key={notification._id}
                     className={`dashboard__notification-item ${getNotificationColor(
                       notification.priority
                     )}`}
@@ -449,7 +450,8 @@ const Dashboard = () => {
                             : "dashboard__notification-icon-normal"
                         }`}
                       >
-                        <notification.icon className="dashboard__icon-small" />
+                        {notification.icon&&<notification.icon className="dashboard__icon-small" />}
+                        <Bell className="dashboard__icon-small" />
                       </div>
                       <div className="dashboard__notification-text">
                         <h3 className="dashboard__notification-title">

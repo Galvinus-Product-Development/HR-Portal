@@ -3,7 +3,6 @@ name: Deploy to Amazon ECR
 on:
   push:
     paths:
-      - "Backend-AS/**"
       - "Backend-ED/**"
       - "Backend-NS/**"
       - "Backend-UM/**"
@@ -37,8 +36,6 @@ jobs:
         uses: dorny/paths-filter@v2
         with:
           filters: |
-            Backend-AS:
-              - "Backend-AS/**"
             Backend-ED:
               - "Backend-ED/**"
             Backend-NS:
@@ -47,15 +44,6 @@ jobs:
               - "Backend-UM/**"
             Frontend:
               - "Frontend/**"
-
-      - name: Build & Push Docker Image for Backend-AS
-        if: steps.changed-files.outputs.Backend-AS == 'true'
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/backend-as:$IMAGE_TAG -f Backend-AS/Dockerfile Backend-AS
-          docker push $ECR_REGISTRY/backend-as:$IMAGE_TAG
 
       - name: Build & Push Docker Image for Backend-ED
         if: steps.changed-files.outputs.Backend-ED == 'true'

@@ -5,7 +5,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import notificationRoutes from './routes/notificationRoutes.js';
 import redisClient from './config/redis.js';
-import { consumer } from './config/kafka.js';
+// import { consumer } from './config/kafka.js';
 
 dotenv.config();
 
@@ -50,22 +50,22 @@ io.on('connection', (socket) => {
 });
 
 
-await consumer.run({
-  eachMessage: async ({ topic, partition, message }) => {
-    console.log(`Received message on topic ${topic}:`, message.value.toString());
+// await consumer.run({
+//   eachMessage: async ({ topic, partition, message }) => {
+//     console.log(`Received message on topic ${topic}:`, message.value.toString());
 
-    try {
-      const notification = JSON.parse(message.value.toString());
-      console.log("Notification processed:", notification);
+//     try {
+//       const notification = JSON.parse(message.value.toString());
+//       console.log("Notification processed:", notification);
 
-      // 🔥 Fix: Handle single userId correctly
-      io.to(notification.userId).emit('notification', notification);
+//       // 🔥 Fix: Handle single userId correctly
+//       io.to(notification.userId).emit('notification', notification);
 
-    } catch (error) {
-      console.error("Error processing message:", error);
-    }
-  },
-});
+//     } catch (error) {
+//       console.error("Error processing message:", error);
+//     }
+//   },
+// });
 
 
 app.use('/api/notifications', notificationRoutes);
