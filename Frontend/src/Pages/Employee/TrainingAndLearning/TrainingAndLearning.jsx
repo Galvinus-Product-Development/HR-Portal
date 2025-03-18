@@ -27,39 +27,119 @@ export default function TrainingAndLearning() {
     fetchTrainingData();
   }, []);
 
+  // const fetchTrainingData = async () => {
+  //   try {
+  //     const response = await fetch('http://localhost:5004/trainings/FormattedTrainings');
+  //     if (!response.ok) throw new Error('Failed to fetch');
+  //     const data = await response.json();
+
+  //     // Transform the admin training data to match employee portal format
+  //     const transformedTrainings = data.trainings.map(training => ({
+  //       id: training.id,
+  //       name: training.title,
+  //       trainer: training.trainer.name,
+  //       startDate: training.startDate,
+  //       endDate: training.endDate,
+  //       duration: `${training.duration} weeks`,
+  //       sessionTiming: 'Flexible',
+  //       status: training.status,
+  //       progress: training.progress || 0,
+  //       description: training.description,
+  //       resources: training.resources || [],
+  //       certificationAvailable: training.certificationAvailable,
+  //       mode: 'Online'
+  //     }));
+
+  //     setTrainings(transformedTrainings);
+
+  //     const today = new Date();
+
+  //     let activeTrainings = 0;
+  //     let completedTrainings = 0;
+  //     let upcomingTrainings = 0;
+  //     let totalParticipants = 0;
+  
+  //     trainings.forEach((training) => {
+  //       const startDate = new Date(training.startDate);
+  //       const endDate = new Date(training.endDate);
+  
+  //       if (today < startDate) {
+  //         upcomingTrainings++; // Training has not started yet
+  //       } else if (today >= startDate && today <= endDate) {
+  //         activeTrainings++; // Training is ongoing
+  //       } else {
+  //         completedTrainings++; // Training has ended
+  //       }
+  
+  //       totalParticipants += training.participants?.length || 0;
+  //     });
+
+  //     setSummary({
+  //       activeTrainings: activeTrainings,
+  //       completedTrainings: completedTrainings,
+  //       upcomingSessions: upcomingTrainings
+  //     });
+  //   } catch (error) {
+  //     console.error('Error fetching training data:', error);
+  //   }
+  // };
+
+
+
+
   const fetchTrainingData = async () => {
     try {
       const response = await fetch('http://localhost:5004/trainings/FormattedTrainings');
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
 
-      // Transform the admin training data to match employee portal format
-      const transformedTrainings = data.trainings.map(training => ({
-        id: training.id,
-        name: training.title,
-        trainer: training.trainer.name,
-        startDate: training.startDate,
-        endDate: training.endDate,
-        duration: `${training.duration} weeks`,
-        sessionTiming: 'Flexible',
-        status: training.status,
-        progress: training.progress || 0,
-        description: training.description,
-        resources: training.resources || [],
-        certificationAvailable: training.certificationAvailable,
-        mode: 'Online'
-      }));
+      const today = new Date();
+      let activeTrainings = 0;
+      let completedTrainings = 0;
+      let upcomingTrainings = 0;
+
+      const transformedTrainings = data.trainings.map(training => {
+        const startDate = new Date(training.startDate);
+        const endDate = new Date(training.endDate);
+        let status = 'Upcoming';
+
+        if (today >= startDate && today <= endDate) {
+          status = 'In Progress';
+          activeTrainings++;
+        } else if (today > endDate) {
+          status = 'Completed';
+          completedTrainings++;
+        } else {
+          upcomingTrainings++;
+        }
+
+        return {
+          id: training.id,
+          name: training.title,
+          trainer: training.trainer.name,
+          startDate: training.startDate,
+          endDate: training.endDate,
+          duration: `${training.duration} weeks`,
+          sessionTiming: 'Flexible',
+          status,
+          progress: training.progress || 0,
+          description: training.description,
+          resources: training.resources || [],
+          certificationAvailable: training.certificationAvailable,
+          mode: 'Online'
+        };
+      });
 
       setTrainings(transformedTrainings);
-      setSummary({
-        activeTrainings: data.summary.activeTrainings,
-        completedTrainings: data.summary.completedTrainings,
-        upcomingSessions: data.summary.upcomingSessions
-      });
+      setSummary({ activeTrainings, completedTrainings, upcomingSessions: upcomingTrainings });
     } catch (error) {
       console.error('Error fetching training data:', error);
     }
   };
+
+
+
+
 
   const getStatusIcon = (status) => {
     switch (status) {

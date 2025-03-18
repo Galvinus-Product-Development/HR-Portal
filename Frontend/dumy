@@ -1,0 +1,95 @@
+name: Deploy Frontend to Amazon ECS
+
+on:
+  push:
+    paths:
+      - "Frontend/**"
+    branches:
+      - master
+
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1  # Change if needed
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Ensure ECR Repository Exists for Frontend
+        run: |
+          aws ecr describe-repositories --repository-names frontend || \
+          aws ecr create-repository --repository-name frontend
+
+      - name: Build & Push Docker Image for Frontend
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/frontend:$IMAGE_TAG -f Frontend/Dockerfile Frontend
+          docker push $ECR_REGISTRY/frontend:$IMAGE_TAG
+
+      - name: Ensure ECS Cluster Exists
+        run: |
+          CLUSTER_EXISTS=$(aws ecs describe-clusters --clusters my-ecs-cluster --query "clusters[0].status" --output text 2>/dev/null || echo "null")
+          if [ "$CLUSTER_EXISTS" == "null" ]; then
+            echo "Creating ECS Cluster..."
+            aws ecs create-cluster --cluster-name my-ecs-cluster
+          else
+            echo "ECS Cluster already exists."
+          fi
+
+      - name: Register Task Definition
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cat <<EOF > task-def.json
+          {
+            "family": "frontend",
+            "networkMode": "bridge",
+            "containerDefinitions": [
+              {
+                "name": "frontend",
+                "image": "${ECR_REGISTRY}/frontend:${IMAGE_TAG}",
+                "memory": 512,
+                "cpu": 256,
+                "essential": true,
+                "portMappings": [
+                  {
+                    "containerPort": 80,
+                    "hostPort": 80
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+          aws ecs register-task-definition --cli-input-json file://task-def.json
+
+      - name: Ensure ECS Service Exists
+        run: |
+          SERVICE_EXISTS=$(aws ecs describe-services --cluster my-ecs-cluster --services frontend --query "services[0].serviceName" --output text 2>/dev/null || echo "null")
+          if [ "$SERVICE_EXISTS" == "null" ]; then
+            echo "Creating ECS Service..."
+            aws ecs create-service --cluster my-ecs-cluster --service-name frontend --task-definition frontend --desired-count 1 --launch-type EC2 \
+            --load-balancers targetGroupArn=<TARGET_GROUP_ARN>,containerName=frontend,containerPort=80
+          else
+            echo "ECS Service already exists."
+          fi
+
+      - name: Restart ECS Service with New Task Definition
+        run: |
+          aws ecs update-service --cluster my-ecs-cluster --service frontend --force-new-deployment

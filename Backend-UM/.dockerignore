@@ -1,3 +1,8 @@
 node_modules
 npm-debug.log
+logs
 .env
+coverage
+dist
+models/prisma/node_modules
+models/prisma/.env

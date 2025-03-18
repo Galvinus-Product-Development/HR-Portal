@@ -1,22 +1,48 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const { ObjectId } = require("mongodb");
+const jwt = require("jsonwebtoken"); // Import JWT
 
 exports.participantsEnroll = async (req, res) => {
-  const { trainingId, participantEmail } = req.body;
+  const { trainingId, signedUserId } = req.body;
 
   try {
-    // Find employee by email
-    // const employee = await prisma.employee.findUnique({
-    //   where: { email: participantEmail },
-    // });
+    // Validate trainingId
+    if (!trainingId || !ObjectId.isValid(trainingId)) {
+      return res.status(400).json({ error: "Invalid training ID" });
+    }
 
-    // if (!employee) return res.status(404).json({ error: "Employee not found" });
-    const randomEmployeeId = new ObjectId().toString();
+    // Verify and decode JWT token
+    let decoded;
+    try {
+      decoded = jwt.verify(signedUserId, process.env.JWT_SECRET);
+    } catch (error) {
+      console.log("JWT Verification Error:", error);
+      return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    }
+
+    const employeeId = decoded.userId; // Extract userId from token payload
+
+    if (!employeeId) {
+      return res.status(401).json({ error: "Unauthorized: Invalid user ID in token" });
+    }
+
+    // Check if the participant is already enrolled
+    const existingParticipant = await prisma.participant.findFirst({
+      where: {
+        employeeId: employeeId,
+        trainingId: trainingId,
+      },
+    });
+
+    if (existingParticipant) {
+      return res.status(400).json({ error: "User already enrolled in this training" });
+    }
+
     // Create Participant entry
     const participant = await prisma.participant.create({
       data: {
-        employeeId: randomEmployeeId,
+        employeeId: employeeId,  // Use extracted ID, not a random one
         trainingId,
         enrollmentDate: new Date(),
         progress: 0,

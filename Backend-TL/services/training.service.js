@@ -45,25 +45,29 @@ exports.getTrainingById = async (trainingId) => {
   });
 
   if (!training) return null;
-
+  console.log("Here is the log....",training);
   return {
     id: training.id,
     name: training.title,
     description: training.description,
     trainer: training.trainer?.name || "Unknown",
     mode: "Online",
-    startDate: "2024-03-15",
-    endDate: "2024-04-15",
+    startDate: training.startDate,
+    endDate: training.endDate,
     duration: `${training.duration} days`,
     sessionTiming: "Flexible",
     status: training.activeTraining ? "In Progress" : "Completed",
     progress: training.courseProgress,
     participants: training.participants.map((participant) => ({
-      id: participant.id,
+      id: participant.employeeId,
       name: participant.name,
       department: participant.department || "N/A",
       email: participant.email,
       phone: participant.phone || "N/A",
+      status:participant.status,
+      progress:participant.progress,
+      enrollmentDate:participant.enrollmentDate,
+      trainingId:participant.trainingId
     })),
     resources: [
       ...training.lectureFiles.map((lecture) => ({
@@ -73,6 +77,7 @@ exports.getTrainingById = async (trainingId) => {
         url: lecture.videoUrl,
         completed: false,
       })),
+
       ...training.materialFiles.map((material) => ({
         id: material.id,
         name: material.title,
