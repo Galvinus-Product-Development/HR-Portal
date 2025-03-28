@@ -216,6 +216,7 @@
   border: 1px solid #ddd;
   background-color: white;
   cursor: pointer;
+  color: black;
 }
 
 .pagination-controls button.active-page {

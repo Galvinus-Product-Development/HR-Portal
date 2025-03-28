@@ -20,7 +20,7 @@ const sendRegistrationLink = async (email) => {
   await prisma.passwordResetToken.create({ data: { email, token, expiresAt } });
   console.log(token);
   // Send email with the registration link
-  const registrationLink = `http://localhost:5173/complete-registration/${token}`;
+  const registrationLink = `http://hr-portal-lb-28083365.us-east-1.elb.amazonaws.com/complete-registration/${token}`;
   await sendEmail(email, "Complete Your Registration", `Click here to register: ${registrationLink}`);
 
   return "Registration link sent successfully!";

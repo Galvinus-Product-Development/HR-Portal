@@ -1,4 +1,4 @@
-import { createClient } from 'redis';
+const { createClient } = require('redis');
 
 const redisClient = createClient({ url: process.env.REDIS_URL });
 
@@ -13,4 +13,5 @@ redisClient.on('error', (err) => console.error('Redis Error:', err));
   }
 })();
 
-export default redisClient;
+// ✅ Use `module.exports` instead of `export default`
+module.exports = redisClient;

@@ -1,57 +1,45 @@
-const { PrismaClient, Status, Department } = require('@prisma/client');
-const { ObjectId } = require('mongodb');
-
+const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const employees = [
     {
-        id: new ObjectId().toString(),
+        id: '656a1234567890abcdef1234',
         name: 'Alice Johnson',
         jobTitle: 'Software Engineer',
-        department: Department.Engineering,
+        department: 'Engineering',
         location: 'New York',
-        phone: '1234567890'
+        phone: '1234567890',
     },
     {
-        id: new ObjectId().toString(),
+        id: '656b234567890abcdef12345',
         name: 'Bob Smith',
         jobTitle: 'HR Manager',
-        department: Department.HR,
+        department: 'HR',
         location: 'San Francisco',
-        phone: '9876543210'
+        phone: '9876543210',
     }
 ];
 
 const attendanceRecords = [
     {
-        id: new ObjectId().toString(),
-        employeeId: employees[0].id,
+        id: '757a1234567890abcdef1234',
+        employeeId: '656a1234567890abcdef1234',
         date: new Date('2025-02-18'),
         punchInTime: new Date('2025-02-18T09:00:00'),
         punchOutTime: new Date('2025-02-18T17:00:00'),
-        attendanceStatus: Status.Present,
+        attendanceStatus: 'Present',
         punchInMethod: 'Smart Phone Face Detection',
         punchOutMethod: 'Biometric',
-        presentDays: 1,
-        lateDays: 0,
-        overtime: 2,
-        lateComing: 0,
-        workingHours: 8
     },
     {
-        id: new ObjectId().toString(),
-        employeeId: employees[1].id,
+        id: '757b234567890abcdef12345',
+        employeeId: '656b234567890abcdef12345',
         date: new Date('2025-02-18'),
         punchInTime: new Date('2025-02-18T09:15:00'),
         punchOutTime: new Date('2025-02-18T18:00:00'),
-        attendanceStatus: Status.Present,
+        attendanceStatus: 'Present',
         punchInMethod: 'Smart Phone Face Detection',
         punchOutMethod: 'Biometric',
-        presentDays: 1,
-        lateDays: 0,
-        overtime: 3,
-        lateComing: 1,
-        workingHours: 9
     }
 ];
 
@@ -69,7 +57,7 @@ const seedDatabase = async () => {
 
         console.log('Seeding completed successfully.');
     } catch (error) {
-        console.error('Error seeding database:', error.meta || error.message || error);
+        console.error('Error seeding database:', error);
     } finally {
         await prisma.$disconnect();
     }

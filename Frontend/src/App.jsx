@@ -1,4 +1,3 @@
-
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Navigate } from "react-router-dom";
@@ -27,54 +26,52 @@ import RegisterPage from "./Pages/Admin/auth/RegisterPage";
 import NotificationPage from "./Pages/Admin/Notification/NotificationPage";
 import TrainingDetails from "./Pages/Admin/TrainingAndLearning/TrainingDetails/TrainingDetails";
 
-
 //Employee
-import EmpLayout from './Components/Employee/layout';
-import EmpDashboard from './Pages/Employee/Dashboard/Dashboard';
-import EmpLeaveManagement from './Pages/Employee/LeaveManagement/LeaveManagement';
-import EmpAttendance from './Pages/Employee/Attendance/Attendance';
-import EmpTraining from './Pages/Employee/TrainingAndLearning/TrainingAndLearning'
-import EmpCertification from './Pages/Employee/Certification/Certification'
-import EmpSettings from './Pages/Employee/Settings/Settings'
-import EmpEmployeeLayout from './Pages/Employee/Employee/EmployeeLayout/EmployeeLayout';
-import EmpPersonalDetails from './Pages/Employee/Employee/PersonalDetails/PersonalDetails';
-import EmploymentDetails from './Pages/Employee/Employee/EmployementDetails/EmployementDetails';
-import EmpBankDetails from './Pages/Employee/Employee/BankDetails/BankDetails';
-import EmpLeaveHistory from './Pages/Employee/LeaveManagement/LeaveHistory/LeaveHistory';
-import EmpLeavePolicy from './Pages/Employee/LeaveManagement/LeavePolicy/LeavePolicy';
-import EmpRequestLeave from './Pages/Employee/LeaveManagement/RequestLeave/RequestLeave'
-import EmpAttendanceTracker from './Pages/Employee/Attendance/AttendanceTracker/AttendanceTracker';
-import EmpAttendanceDashboard from './Pages/Employee/Attendance/AttendanceDashboard/AttendanceDashboard';
-import EmpTrainingDetails from './Pages/Employee/TrainingAndLearning/TrainingDetails/TrainingDetails';
-import EmpAddBankDetails from './Pages/Employee/Test/BankDetails';
+import EmpLayout from "./Components/Employee/layout";
+import EmpDashboard from "./Pages/Employee/Dashboard/Dashboard";
+import EmpLeaveManagement from "./Pages/Employee/LeaveManagement/LeaveManagement";
+import EmpAttendance from "./Pages/Employee/Attendance/Attendance";
+import EmpTraining from "./Pages/Employee/TrainingAndLearning/TrainingAndLearning";
+import EmpCertification from "./Pages/Employee/Certification/Certification";
+import EmpSettings from "./Pages/Employee/Settings/Settings";
+import EmpEmployeeLayout from "./Pages/Employee/Employee/EmployeeLayout/EmployeeLayout";
+import EmpPersonalDetails from "./Pages/Employee/Employee/PersonalDetails/PersonalDetails";
+import EmploymentDetails from "./Pages/Employee/Employee/EmployementDetails/EmployementDetails";
+import EmpBankDetails from "./Pages/Employee/Employee/BankDetails/BankDetails";
+import EmpLeaveHistory from "./Pages/Employee/LeaveManagement/LeaveHistory/LeaveHistory";
+import EmpLeavePolicy from "./Pages/Employee/LeaveManagement/LeavePolicy/LeavePolicy";
+import EmpRequestLeave from "./Pages/Employee/LeaveManagement/RequestLeave/RequestLeave";
+import EmpAttendanceTracker from "./Pages/Employee/Attendance/AttendanceTracker/AttendanceTracker";
+import EmpAttendanceDashboard from "./Pages/Employee/Attendance/AttendanceDashboard/AttendanceDashboard";
+import EmpTrainingDetails from "./Pages/Employee/TrainingAndLearning/TrainingDetails/TrainingDetails";
+import EmpAddBankDetails from "./Pages/Employee/Test/BankDetails";
 import CompleteRegistration from "./Pages/Employee/CompleteRegistration";
 
 // import Auth from './Pages/Auth/Auth';
 
 function App() {
   return (
-    
     <BrowserRouter>
-    <AuthProvider>
+      <AuthProvider>
         <Routes>
-
-
-
           {/* Authentication Routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/reset-password/:token" element={<NewPassword />} />
-          <Route path="/complete-registration/:token" element={<CompleteRegistration />} />
+          <Route
+            path="/complete-registration/:token"
+            element={<CompleteRegistration />}
+          />
           {/* Admin Routes */}
           <Route
-            path="/admin"
+            path="/admin/*"
             element={
               <PrivateRoute>
                 <Layout />
               </PrivateRoute>
             }
           >
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route index  element={<Dashboard />} />
             <Route path="attendance" element={<Attendance />} />
             <Route path="leave-management" element={<LeaveManagement />} />
 
@@ -105,14 +102,10 @@ function App() {
             <Route path="register-page" element={<RegisterPage />} />
             <Route path="notification-page" element={<NotificationPage />} />
           </Route>
-          {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
-
-          {/* <Route path="/" element={<Navigate to="/login" replace />} /> */}
-
 
           {/* Employee Routes */}
           <Route
-            path="/employee"
+            path="/employee/*"
             element={
               <PrivateRoute>
                 <EmpLayout />
@@ -149,12 +142,8 @@ function App() {
               <Route path="bank" element={<EmpBankDetails />} />
             </Route>
           </Route>
-
-
-
         </Routes>
-      
-    </AuthProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

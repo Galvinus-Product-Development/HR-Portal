@@ -1,55 +1,44 @@
-# # Use Node.js LTS as the base image
-# FROM node:18-alpine
+# Use a smaller Node.js base image
+FROM node:20-alpine AS build
 
-# # Set working directory inside the container
-# WORKDIR /app
-
-# # Copy package.json and package-lock.json first (for better caching)
-# COPY package*.json ./
-
-# # Install dependencies
-# RUN npm install --only=production
-
-# # Copy the entire source code
-# COPY . .
-
-# # Expose the port your Express server runs on
-# EXPOSE 5002
-
-# # Define environment variables (optional, can also use Docker Compose)
-# ENV NODE_ENV=production
-
-# # Start the application
-# CMD ["node", "app.js"]
-
-
-
-
-
-
-# Use an official Node.js runtime as the base image
-FROM node:20
-
-# Set the working directory in the container
+# Set the working directory
 WORKDIR /app
+
+# Install OpenSSL explicitly (fix Prisma issue)
+RUN apk add --no-cache openssl
 
 # Copy package.json and package-lock.json first
 COPY package.json package-lock.json ./
 
-# Install dependencies (only production dependencies)
-RUN npm install --omit=dev
-
-# Rebuild bcrypt for compatibility
-RUN npm rebuild bcrypt --build-from-source
+# Install dependencies (including devDependencies for Prisma)
+RUN npm ci
 
 # Copy the rest of the application code
 COPY . .
 
-# Ensure Prisma client is generated (if schema exists)
-RUN if [ -f "prisma/schema.prisma" ]; then npm run prisma:generate; fi
+# Generate Prisma client (if applicable)
+RUN npx prisma generate || echo "Skipping Prisma generation"
 
-# Expose the port the backend uses
+# Run Prisma migration (optional)
+RUN npx prisma migrate deploy || echo "Skipping Prisma migration"
+
+# Use a minimal runtime image
+FROM node:20-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Install OpenSSL explicitly in runtime image
+RUN apk add --no-cache openssl
+
+# Copy only necessary files from the build stage
+COPY --from=build /app /app
+
+# Expose the port
 EXPOSE 5002
 
-# Allow switching between development and production mode
-CMD ["npm", "start"]
+# Set environment variables
+ENV PORT=5002
+
+# Start the application
+CMD ["node", "app.js"]

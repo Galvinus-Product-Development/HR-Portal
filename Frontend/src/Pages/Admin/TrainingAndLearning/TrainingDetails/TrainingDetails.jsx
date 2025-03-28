@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import './TrainingDetails.css';
 import { differenceInDays } from "date-fns";
+
+const API_BASE_URL_TL = import.meta.env.VITE_API_BASE_URL_TL;
 const TrainingDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -17,7 +19,7 @@ const TrainingDetails = () => {
         const fetchTraining = async () => {
             try {
                 console.log("This is admin side Id:-", id);
-                const response = await fetch(`http://localhost:5004/trainings/FormattedTrainingById/${id}`);
+                const response = await fetch(`${API_BASE_URL_TL}/trainings/FormattedTrainingById/${id}`);
                 if (!response.ok) throw new Error("Failed to fetch training details.");
                 const data = await response.json();
                 console.log("adfasfafadssdasdfad", data);
@@ -178,7 +180,7 @@ const TrainingDetails = () => {
                                 <div key={participant.id} className="training-details-participant">
                                     <div>
                                         <p className="training-details-participant-name">{participant.name}</p>
-                                        <p className="training-details-participant-dept">{participant.department}</p>
+                                        {/* <p className="training-details-participant-dept">{participant.department}</p> */}
                                     </div>
                                     <div className="training-details-participant-email">
                                         {participant.email}

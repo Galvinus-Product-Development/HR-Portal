@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { act, useState } from "react";
 import "./Sidebar.css";
 import {
   BarChart3,
@@ -22,7 +22,7 @@ const Sidebar = () => {
   );
 
   const navigation = [
-    { name: "Homepage", icon: BarChart3, path: "/admin/dashboard" },
+    { name: "Homepage", icon: BarChart3, path: "/admin" },
     {
       name: "Attendance",
       icon: Clock,
@@ -50,7 +50,7 @@ const Sidebar = () => {
     { name: "Notifications", icon: Award, path: "/admin/notification-page" }
   ];
 
-  return (
+  return activeTab && (
     <div className="sidebar-container">
       <nav className="sidebar-nav">
         {navigation.map((item) => (

@@ -40,6 +40,8 @@ exports.getEmployeeLeaveHistoryForMonth = async (employeeId, year, month) => {
     const startDate = new Date(y, m - 1, 1);
     const endDate = new Date(y, m, 1);
 
+    console.log(y, m, typeof y, typeof m, startDate, endDate);
+
     return await prisma.leaveHistory.findMany({
         where: {
             employee: {

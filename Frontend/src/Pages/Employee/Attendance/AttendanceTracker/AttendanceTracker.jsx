@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import './AttendanceTracker.css';
+const API_BASE_URL_AT = import.meta.env.VITE_API_BASE_URL_AT;
+
+console.log("at.........",API_BASE_URL_AT);
 
 export default function AttendanceTracker() {
 	const [selectedMonth, setSelectedMonth] = useState(new Date());
 	const [attendanceRecords, setAttendanceRecords] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const ISTOffsetMs = 5.5 * 60 * 60 * 1000; // Convert UTC to IST
 
 	useEffect(() => {
 		fetchAttendanceData();
@@ -15,12 +19,12 @@ export default function AttendanceTracker() {
 	const fetchAttendanceData = async () => {
 		setLoading(true);
 		setError(null);
-		
-		const monthYear = selectedMonth.toISOString().slice(0, 7); // Format: YYYY-MM
-		const employeeId = localStorage.getItem("signedUserId");  // Get employeeId from local storage
+
+		const employeeId = localStorage.getItem("userId"); // Get employeeId from local storage
+		const year = selectedMonth.getFullYear();
+		const month = selectedMonth.getMonth() + 1; // Month is zero-based in JS, so add 1
 		try {
-			// Modified URL to fetch attendance records only for the specific employee
-			const response = await fetch(`http://localhost:5003/api/attendance/employee/${employeeId}/monthly/${monthYear}`);
+			const response = await fetch(`${API_BASE_URL_AT}/api/attendance/${employeeId}?year=${year}&month=${month}`);
 			if (!response.ok) {
 				throw new Error('Failed to fetch attendance data');
 			}
@@ -34,14 +38,13 @@ export default function AttendanceTracker() {
 	};
 
 	const handlePreviousMonth = () => {
-		setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1));
+		setSelectedMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
 	};
 
 	const handleNextMonth = () => {
-		setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1));
+		setSelectedMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
 	};
 
-	// Format minutes to hours and minutes
 	const formatWorkingHours = (minutes) => {
 		if (!minutes) return '-';
 		const hours = Math.floor(minutes / 60);
@@ -87,10 +90,10 @@ export default function AttendanceTracker() {
 								<tr key={index}>
 									<td>{new Date(record.date).toLocaleDateString()}</td>
 									<td>{record.attendanceStatus}</td>
-									<td>{record.punchInTime ? new Date(record.punchInTime).toLocaleTimeString() : '-'}</td>
-									<td>{record.punchOutTime ? new Date(record.punchOutTime).toLocaleTimeString() : '-'}</td>
-									<td>{formatWorkingHours(record.workingHours)}</td>
-									<td>{record.overtime ? formatWorkingHours(record.overtime) : '-'}</td>
+									<td>{record.punchInTime ? new Date(new Date(record.punchInTime).getTime() - ISTOffsetMs).toLocaleTimeString() : '-'}</td>
+									<td>{record.punchOutTime ? new Date(new Date(record.punchOutTime).getTime() - ISTOffsetMs).toLocaleTimeString() : '-'}</td>
+									<td>{record.workingHours}</td>
+									<td>{record.overtime ? record.overtime : '-'}</td>
 								</tr>
 							))}
 						</tbody>

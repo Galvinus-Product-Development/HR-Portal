@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaFileAlt, FaDownload, FaSpinner } from "react-icons/fa";
 import "./LeavePolicy.css";
-
+const API_BASE_URL_LM = import.meta.env.VITE_API_BASE_URL_LM;
 const LeavePolicy = () => {
     const [policies, setPolicies] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -17,7 +17,7 @@ const LeavePolicy = () => {
             setLoading(true);
             // Updated endpoint to use port 5000
             const response = await fetch(
-                "http://localhost:5005/api/leave-policies"
+                `${API_BASE_URL_LM}/api/leave-policies`
             );
 
             if (!response.ok) {
@@ -48,7 +48,7 @@ const LeavePolicy = () => {
         try {
             setDownloadLoading(policy.id);
             const response = await fetch(
-                `http://localhost:5005/api/leave-policies/${policy.id}/download`
+                `${API_BASE_URL_LM}/api/leave-policies/${policy.id}/download`
             );
 
             if (!response.ok) {

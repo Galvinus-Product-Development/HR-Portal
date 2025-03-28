@@ -13,6 +13,9 @@ import {
 } from 'lucide-react';
 import './TrainingAndLearning.css';
 
+const API_BASE_URL_TL = import.meta.env.VITE_API_BASE_URL_TL;
+
+
 export default function TrainingAndLearning() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('active');
@@ -29,7 +32,7 @@ export default function TrainingAndLearning() {
 
   // const fetchTrainingData = async () => {
   //   try {
-  //     const response = await fetch('http://localhost:5004/trainings/FormattedTrainings');
+  //     const response = await fetch('API_BASE_URL_TL/trainings/FormattedTrainings');
   //     if (!response.ok) throw new Error('Failed to fetch');
   //     const data = await response.json();
 
@@ -89,7 +92,7 @@ export default function TrainingAndLearning() {
 
   const fetchTrainingData = async () => {
     try {
-      const response = await fetch('http://localhost:5004/trainings/FormattedTrainings');
+      const response = await fetch(`${API_BASE_URL_TL}/trainings/FormattedTrainings`);
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
 

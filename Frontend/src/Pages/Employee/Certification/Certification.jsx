@@ -302,12 +302,13 @@ const CertificationsPage = () => {
   });
   const [file, setFile] = useState(null);
 
+  const API_BASE_URL_ED = import.meta.env.VITE_API_BASE_URL_ED;
   // Fetch certifications from the backend
   const fetchCertifications = async () => {
     try {
       const signedUserId = localStorage.getItem("signedUserId");
       const response = await fetch(
-        `http://localhost:5001/api/certifications/${signedUserId}`
+        `${API_BASE_URL_ED}/api/certifications/${signedUserId}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -351,7 +352,7 @@ const CertificationsPage = () => {
       const signedUserId = localStorage.getItem("signedUserId");
       data.append("signedUserId", signedUserId);
       const response = await fetch(
-        "http://localhost:5001/api/certifications/upload",
+        `${API_BASE_URL_ED}/api/certifications/upload`,
         {
           method: "POST",
           body: data,

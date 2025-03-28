@@ -76,7 +76,7 @@ export default function CompleteRegistration() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
+ const VITE_API_BASE_URL=import.meta.env.VITE_API_BASE_URL;
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!token) {
@@ -86,7 +86,7 @@ export default function CompleteRegistration() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/v1/admin/complete-registration/${token}`,
+        `${VITE_API_BASE_URL}/api/v1/admin/complete-registration/${token}`,
         {
           method: "POST",
           headers: {

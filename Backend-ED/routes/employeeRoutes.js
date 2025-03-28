@@ -11,6 +11,7 @@ router.get("/formatted", employeeController.getFormattedEmployees);
 router.put("/update-all/:id", checkPermission("edit_employee_details"), employeeController.updateAllEmployeeDetails);
 router.put("/approval-status/:id", checkPermission("approve_employee_details"), employeeController.updateApprovalStatus);
 router.get("/fetchEmployeeDetailsById/:id", checkPermission("view_employee_details"), employeeController.fetchEmployeeDetailsById);
+router.get("/fetchEmployeeDetailsByyId/:id",employeeController.fetchEmployeeDetailsById);
 
 // Employee Routes (No Permission Required)
 router.post("/personal-details", employeeController.submitPersonalDetails);

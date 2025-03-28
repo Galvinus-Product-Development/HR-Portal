@@ -4,6 +4,7 @@ const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
+const monthlyAttendanceRoutes = require('./routes/monthlyAttendanceRoutes');
 
 dotenv.config(); // Load environment variables
 
@@ -14,8 +15,13 @@ app.use(cors());
 app.use(express.json()); // Middleware to parse JSON request bodies
 
 // Mount separate routes
-app.use('/api/attendance', attendanceRoutes);
-app.use('/api/employees', employeeRoutes);
+app.get("/at", (req, res) => {
+  res.status(200).json({ status: "ok", message: `Service is healthy` });
+});
+
+app.use('/at/api/attendance', attendanceRoutes);
+app.use('/at/api/employees', employeeRoutes);
+app.use('/at/api/monthlyAttendance', monthlyAttendanceRoutes);
 
 // Handle Prisma Disconnection on Process Exit
 process.on('SIGINT', async () => {

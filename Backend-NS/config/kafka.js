@@ -1,31 +1,40 @@
-import { Kafka, Partitioners } from 'kafkajs';
-import dotenv from 'dotenv';
+const { Kafka, Partitioners } = require('kafkajs');
+const dotenv = require('dotenv');
 
-// Load environment variables
 dotenv.config();
 
-console.log('Kafka Broker:', process.env.KAFKA_BROKER); // Debug log to check broker
+console.log('Kafka Broker:', process.env.KAFKA_BROKER);
 
 const kafka = new Kafka({
   clientId: 'notification-service',
-  // brokers: process.env.KAFKA_BROKER ? process.env.KAFKA_BROKER.split(',') : ['brave_bardeen:9092'],
-  // brokers:["192.168.29.199:9092"],
-  brokers:[process.env.KAFKA_BROKER],
-  createPartitioner: Partitioners.LegacyPartitioner, // Fix partitioner warning
+  brokers: process.env.KAFKA_BROKER.split(','), // Fixing broker parsing
+  createPartitioner: Partitioners.LegacyPartitioner,
   retry: {
-    retries: 7, // Increase retry count
-    initialRetryTime: 300, // Initial retry delay in milliseconds
-    factor: 2, // Exponential backoff factor
+    retries: 7,
+    initialRetryTime: 300,
+    factor: 2,
   },
 });
 
-export const producer = kafka.producer();
-export const consumer = kafka.consumer({ groupId: 'notification-group' });
+const producer = kafka.producer();
+const consumer = kafka.consumer({ groupId: 'notification-group' });
 
-await producer.connect();
-await consumer.connect();
+async function initKafka() {
+  try {
+    await producer.connect();
+    console.log('✅ Kafka Producer connected');
 
-await consumer.subscribe({ topic: 'notification_events', fromBeginning: false });
+    await consumer.connect();
+    console.log('✅ Kafka Consumer connected');
 
-export default kafka;
+    // ❌ REMOVE this line, subscription happens in app.js
+    // await consumer.subscribe({ topic: 'notification_events', fromBeginning: false });
 
+  } catch (error) {
+    console.error('❌ Kafka connection error:', error);
+  }
+}
+
+initKafka().catch(console.error);
+
+module.exports = { kafka, producer, consumer };

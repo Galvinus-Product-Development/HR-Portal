@@ -1,8 +1,8 @@
 const leaveRequestService = require('../services/leaveRequestService');
-const jwt=require("jsonwebtoken");
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 exports.createLeaveRequest = async (req, res) => {
 	try {
-		// req.body includes employeeId (as the unique field from localStorage) along with other leave details.
 		const leaveRequestData = req.body;
 		const newLeaveRequest = await leaveRequestService.createLeaveRequest(leaveRequestData);
 		res.status(201).json(newLeaveRequest);
@@ -27,28 +27,19 @@ exports.getLeaveRequestById = async (req, res) => {
 exports.getAllLeaveRequests = async (req, res) => {
 	try {
 		// Expect a query parameter employeeId that corresponds to the unique field in Employee.
-		const { employeeId } = req.query;
+		const { id } = req.params;
+		const leaveRequests = await leaveRequestService.getAllLeaveRequests(id);
+		res.status(200).json(leaveRequests);
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+};
 
-		// Verify and decode JWT token
-		let decoded;
-		try {
-			decoded = jwt.verify(employeeId, process.env.JWT_SECRET);
-		} catch (error) {
-			console.log(error);
-			return { status: 401, data: { error: "Unauthorized: Invalid token" } };
-		}
-	
-		const userId = decoded.userId; // Extract userId from token payload
-	
-		if (!userId) {
-			return {
-			status: 401,
-			data: { error: "Unauthorized: Invalid user ID in token" },
-			};
-		}
-
-
-		const leaveRequests = await leaveRequestService.getAllLeaveRequests(userId);
+exports.getPendingLeaveRequests = async (req, res) => {
+	try {
+		// Expect a query parameter employeeId that corresponds to the unique field in Employee.
+		const { id } = req.params;
+		const leaveRequests = await leaveRequestService.getPendingLeaveRequests(id);
 		res.status(200).json(leaveRequests);
 	} catch (error) {
 		res.status(500).json({ error: error.message });
@@ -62,6 +53,7 @@ exports.updateLeaveRequest = async (req, res) => {
 		const updatedLeaveRequest = await leaveRequestService.updateLeaveRequest(id, updateData);
 		res.status(200).json(updatedLeaveRequest);
 	} catch (error) {
+		console.log(error);
 		res.status(500).json({ error: error.message });
 	}
 };
@@ -74,4 +66,29 @@ exports.deleteLeaveRequest = async (req, res) => {
 	} catch (error) {
 		res.status(500).json({ error: error.message });
 	}
+};
+
+
+// Get count of employees on leave today
+exports.getOnleaveToday= async (req, res) => {
+    try {
+
+		console.log("I came here..................");
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Normalize to start of the day
+
+        const count = await prisma.leaveRequest.count({
+            where: {
+                status: 'APPROVED', // Only approved leaves
+                startDate: { lte: today }, // Leave starts before or on today
+                endDate: { gte: today } // Leave ends on or after today
+            }
+        });
+		console.log("this is count",count);
+        return res.status(200).json({ count });
+
+    } catch (error) {
+        console.error("Error fetching employees on leave today:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
 };

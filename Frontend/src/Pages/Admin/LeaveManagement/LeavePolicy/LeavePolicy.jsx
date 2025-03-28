@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './LeavePolicy.css';
 
+const API_BASE_URL_LM= import.meta.env.VITE_API_BASE_URL_LM;
 const LeavePolicy = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [policies, setPolicies] = useState([]);
@@ -22,7 +23,7 @@ const LeavePolicy = () => {
     const fetchPolicies = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:5005/api/leave-policies');
+            const response = await fetch(`${API_BASE_URL_LM}/api/leave-policies`);
             if (!response.ok) {
                 throw new Error('Failed to fetch policies');
             }
@@ -57,7 +58,7 @@ const LeavePolicy = () => {
 
     const handleDeletePolicy = async (id) => {
         try {
-            const response = await fetch(`http://localhost:5005/api/leave-policies/${id}`, {
+            const response = await fetch(`${API_BASE_URL_LM}/api/leave-policies/${id}`, {
                 method: 'DELETE',
             });
             
@@ -107,7 +108,7 @@ const LeavePolicy = () => {
                 formData.append('policyFile', file);
             }
 
-            const response = await fetch('http://localhost:5005/api/leave-policies/upload', {
+            const response = await fetch(`${API_BASE_URL_LM}/api/leave-policies/upload`, {
                 method: 'POST',
                 body: formData,
             });
@@ -142,7 +143,7 @@ const LeavePolicy = () => {
     };
 
     const handleDownload = (policyId) => {
-        window.open(`http://localhost:5005/api/leave-policies/${policyId}/download`, '_blank');
+        window.open(`${API_BASE_URL_LM}/api/leave-policies/${policyId}/download`, '_blank');
     };
 
     return (

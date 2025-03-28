@@ -14,6 +14,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import "./TrainingDetails.css";
+const API_BASE_URL_TL = import.meta.env.VITE_API_BASE_URL_TL;
 
 export default function TrainingDetails() {
   const { id } = useParams();
@@ -25,7 +26,7 @@ export default function TrainingDetails() {
   useEffect(() => {
     const fetchTrainingDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:5004/trainings/${id}`);
+        const response = await fetch(`${API_BASE_URL_TL}/trainings/${id}`);
         if (!response.ok) throw new Error("Failed to fetch training details");
         const data = await response.json();
         console.log(data);
@@ -55,7 +56,7 @@ export default function TrainingDetails() {
     try {
       // const participantEmail = 'johndoe@example.com';
       const signedUserId = localStorage.getItem("signedUserId");
-      const response = await fetch(`http://localhost:5004/enroll`, {
+      const response = await fetch(`${API_BASE_URL_TL}/enroll`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -71,6 +72,7 @@ export default function TrainingDetails() {
       // Update state after successful enrollment
       setIsEnrolled(true);
     } catch (error) {
+      console.log(error);
       console.error("Enrollment Error:", error);
     }
   };

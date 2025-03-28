@@ -1,210 +1,3 @@
-// import React, { useState, useEffect } from 'react';
-// import io from 'socket.io-client';
-// import {
-//   Clock,
-//   CheckCircle,
-//   XCircle,
-//   Timer,
-//   Calendar,
-//   Users,
-//   Building,
-//   Bell,
-//   Briefcase,
-//   ArrowRight
-// } from 'lucide-react';
-// import './Dashboard.css';
-
-// const socket = io('http://localhost:5002'); // Adjust to backend URL
-
-// export default function Dashboard() {
-//   const [currentTime, setCurrentTime] = useState(new Date());
-//   const [isCheckedIn, setIsCheckedIn] = useState(false);
-//   const [checkInTime, setCheckInTime] = useState(null);
-//   const [workTimer, setWorkTimer] = useState('0:00:00');
-//   const [notifications, setNotifications] = useState([]);
-
-//   const userId  = localStorage.getItem("userId");// Replace with actual authenticated user ID
-
-//   useEffect(() => {
-//     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-//     return () => clearInterval(timer);
-//   }, []);
-
-//   useEffect(() => {
-//     if (isCheckedIn && checkInTime) {
-//       const timer = setInterval(() => {
-//         const start = new Date(checkInTime).getTime();
-//         const now = new Date().getTime();
-//         const diff = now - start;
-
-//         const hours = Math.floor(diff / (1000 * 60 * 60));
-//         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-//         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-//         setWorkTimer(`${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
-//       }, 1000);
-
-//       return () => clearInterval(timer);
-//     }
-//   }, [isCheckedIn, checkInTime]);
-
-//   // Fetch notifications from backend & listen for real-time updates
-//   useEffect(() => {
-//     const fetchNotifications = async () => {
-//       try {
-//         const response = await fetch(`http://localhost:5002/api/notifications/${userId}`);
-//         if (!response.ok) throw new Error('Failed to fetch notifications');
-//         const data = await response.json();
-//         console.log(data);
-//         setNotifications(data);
-//       } catch (error) {
-//         console.error('Error fetching notifications:', error);
-//       }
-//     };
-
-//     fetchNotifications();
-
-//     // Join WebSocket room for real-time notifications
-//     socket.emit('join', userId);
-
-//     socket.on('notification', (notification) => {
-//       console.log('New Notification:', notification);
-//       setNotifications((prev) => [notification, ...prev]);
-//     });
-
-//     return () => {
-//       socket.off('notification'); // Cleanup listener on unmount
-//     };
-//   }, [userId]);
-
-//   const handleCheckIn = () => {
-//     if (!isCheckedIn) {
-//       const now = new Date();
-//       setCheckInTime(now.toISOString());
-//       setIsCheckedIn(true);
-//     }
-//   };
-
-//   const handleCheckOut = () => {
-//     setIsCheckedIn(false);
-//     setCheckInTime(null);
-//     setWorkTimer('0:00:00');
-//   };
-
-//   return (
-//     <div className="dashboard-container">
-//       {/* Welcome Section */}
-//       <div className="welcome-section">
-//         <header>
-//           <h1 className="welcome-title">Welcome back, Subham!</h1>
-//           <p className="welcome-subtitle">Here's your HR dashboard overview</p>
-//         </header>
-//         <div className="current-time">
-//           <div className="current-time-text">
-//             <p className="time-label">Today's Date</p>
-//             <p className="time-value">
-//               {currentTime.toLocaleDateString('en-US', {
-//                 weekday: 'long',
-//                 month: 'long',
-//                 day: 'numeric',
-//               })}
-//             </p>
-//           </div>
-//           <Clock className="current-time-icon" />
-//         </div>
-//       </div>
-
-//       {/* Check In/Out Section */}
-//       <div className="checkin-section">
-//         <div className="checkin-header">
-//           <h2 className="checkin-title">Time Tracking</h2>
-//           <p className="checkin-time">
-//             {currentTime.toLocaleTimeString('en-US', {
-//               hour: '2-digit',
-//               minute: '2-digit',
-//               second: '2-digit',
-//             })}
-//           </p>
-//           <Timer className="checkin-icon" />
-//         </div>
-
-//         <div className="checkin-stats">
-//           <div className="checkin-stat">
-//             <p className="stats-label">Work Timer</p>
-//             <p className="stat-value">{workTimer}</p>
-//           </div>
-//           <div className="checkin-stat">
-//             <p className="stats-label">Check In Time</p>
-//             <p className="stat-value">
-//               {checkInTime
-//                 ? new Date(checkInTime).toLocaleTimeString('en-US', {
-//                   hour: '2-digit',
-//                   minute: '2-digit',
-//                 })
-//                 : '--:--'}
-//             </p>
-//           </div>
-//           <div className="checkin-stat">
-//             <p className="stats-label">Status</p>
-//             <p className="stat-value">{isCheckedIn ? 'Working' : 'Not Working'}</p>
-//           </div>
-//         </div>
-
-//         <div className="checkin-actions">
-//           <button
-//             onClick={handleCheckIn}
-//             disabled={isCheckedIn}
-//             className={`checkin-button ${isCheckedIn ? 'button-disabled' : 'button-enabled'}`}
-//           >
-//             <CheckCircle className="button-icon" />
-//             Check In
-//           </button>
-//           <button
-//             onClick={handleCheckOut}
-//             disabled={!isCheckedIn}
-//             className={`checkout-button ${!isCheckedIn ? 'button-disabled' : 'button-enabled'}`}
-//           >
-//             <XCircle className="button-icon" />
-//             Check Out
-//           </button>
-//         </div>
-//       </div>
-
-//       {/* Notifications Section */}
-//   <div className="notifications">
-//     <h3 className="section-title">Recent Updates</h3>
-//     {notifications.length > 0 ? (
-//       notifications.map((notification) => (
-//         <div key={notification._id} className="notification-card">
-//           <div className="notification-icon">
-//             {notification.type === 'success' && <CheckCircle className="notification-icon-img" />}
-//             {notification.type === 'warning' && <Bell className="notification-icon-img" />}
-//             {notification.type === 'info' && <Briefcase className="notification-icon-img" />}
-//           </div>
-//           <div className="notification-text">
-//             <p className="notification-title">{notification.title}</p>
-//             <p className="notification-message">{notification.message}</p>
-//             <p className="notification-time">
-//               {new Date(notification.createdAt).toLocaleString('en-US', {
-//                 month: 'short',
-//                 day: 'numeric',
-//                 hour: '2-digit',
-//                 minute: '2-digit',
-//                 hour12: true,
-//               })}
-//             </p>
-//           </div>
-//           <ArrowRight className="notification-action" />
-//         </div>
-//       ))
-//     ) : (
-//       <p className="no-notifications">No new notifications</p>
-//     )}
-//   </div>
-//     </div>
-//   );
-// }
-
 import React, { useState, useEffect } from "react";
 import {
   Clock,
@@ -220,16 +13,25 @@ import {
 } from "lucide-react";
 
 const VITE_API_BASE_URL_NS = import.meta.env.VITE_API_BASE_URL_NS;
+const VITE_API_BASE_URL_AT = import.meta.env.VITE_API_BASE_URL_AT;
+const VITE_SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 import io from "socket.io-client";
 import "./Dashboard.css";
-const socket = io("http://localhost:5002");
+const token = localStorage.getItem("accessToken");
+const socket = io(`${VITE_SOCKET_URL}`, {
+  path: "/ns/socket.io", 
+  transports: ["websocket", "polling"], 
+  auth: {
+    token, // ✅ Send token for authentication
+  },
+});
 export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [checkInTime, setCheckInTime] = useState(null);
   const [workTimer, setWorkTimer] = useState("0:00:00");
   const [notifications, setNotifications] = useState([]);
-  // const [employeeId, setEmployeeId] = useState("67b71d3c7960559f9b7bd5c1");       // This should come from auth context in a real app. Change the employee ID dynamically here.
+  //   const [employeeId, setEmployeeId] = useState("67b71d3c7960559f9b7bd5c1"); // This should come from auth context in a real app. Change the employee ID dynamically here.
   const [todayStats, setTodayStats] = useState({
     lateComing: 0,
     overtime: 0,
@@ -239,14 +41,48 @@ export default function Dashboard() {
   // New state to control the visibility of the checkout confirmation modal
   const [showModal, setShowModal] = useState(false);
 
-  const employeeId = localStorage.getItem("signedUserId"); // Storing the employee ID in local storage
+  const employeeId = localStorage.getItem("userId"); // Storing the employee ID in local storage
   const userId = localStorage.getItem("userId");
+  // This useEffect will hide the stats after 3 seconds whenever showTimeStats becomes true
+  const ISTOffsetMs = 5.5 * 60 * 60 * 1000;
+
+  const isCheckedInToday = () => {
+    if (!checkInTime) return false;
+    const checkInDate = new Date(checkInTime);
+    const today = new Date();
+    return (
+      checkInDate.getFullYear() === today.getFullYear() &&
+      checkInDate.getMonth() === today.getMonth() &&
+      checkInDate.getDate() === today.getDate()
+    );
+  };
+
+  // This optional effect will ensure that once a new day starts, the app resets and enables the Check In button again.
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const today = new Date();
+      // If checkInTime exists, and it's not today, reset it.
+      if (checkInTime) {
+        const checkInDate = new Date(checkInTime);
+        if (
+          checkInDate.getFullYear() !== today.getFullYear() ||
+          checkInDate.getMonth() !== today.getMonth() ||
+          checkInDate.getDate() !== today.getDate()
+        ) {
+          setCheckInTime(null);
+        }
+      }
+    }, 60000); // check every minute
+
+    return () => clearInterval(timer);
+  }, [checkInTime]);
+
   // This useEffect will hide the stats after 3 seconds whenever showTimeStats becomes true
   useEffect(() => {
     if (showTimeStats) {
       const timer = setTimeout(() => {
         setShowTimeStats(false);
-      }, 5003);
+      }, 3000);
 
       return () => clearTimeout(timer);
     }
@@ -259,32 +95,57 @@ export default function Dashboard() {
 
   // Update current time every second
   useEffect(() => {
-    const timer = setInterval(() => {
+    const timer1 = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-    return () => clearInterval(timer);
+    return () => clearInterval(timer1);
   }, []);
 
   // Update work timer if checked in
   useEffect(() => {
     let timer;
-    if (isCheckedIn && checkInTime) {
+
+    const checkedInTime = localStorage.getItem("checkInTime");
+
+    if (checkedInTime) {
+      setIsCheckedIn(true);
+
+      // Convert to IST 12-hour format
+      const check = convertToIST12HourFormat(checkedInTime);
+      setCheckInTime(check);
+      setWorkTimer(check);
+
+      // 🔥 Clear existing interval before setting a new one
+      if (window.workTimerInterval) {
+        clearInterval(window.workTimerInterval);
+      }
+
       timer = setInterval(() => {
-        const start = new Date(checkInTime).getTime();
+        const start = new Date(checkedInTime).getTime();
         const now = new Date().getTime();
         const diff = now - start;
+
         const hours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
         setWorkTimer(
-          `${hours}:${minutes.toString().padStart(2, "0")}:${seconds
+          `${hours.toString().padStart(2, "0")}:${minutes
             .toString()
-            .padStart(2, "0")}`
+            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
         );
       }, 1000);
+
+      // Store interval globally
+      console.log("Setting interval", timer);
+      window.workTimerInterval = timer;
     }
-    return () => clearInterval(timer);
-  }, [isCheckedIn, checkInTime]);
+
+    return () => {
+      // Cleanup interval on component unmount or state change
+      clearInterval(timer);
+    };
+  }, [isCheckedIn]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -320,7 +181,7 @@ export default function Dashboard() {
   const fetchTodayAttendance = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5003/api/attendance/employee/${employeeId}/today`
+        `${VITE_API_BASE_URL_AT}/api/attendance/${employeeId}/today`
       );
 
       if (!response.ok) {
@@ -345,7 +206,7 @@ export default function Dashboard() {
           if (data.punchOutTime) {
             setIsCheckedIn(false);
             // Reset work timer to 0 instead of showing total time
-            setWorkTimer("0:00:00");
+            setWorkTimer("00:00:00");
           } else {
             // If still checked in, set check-in time and status
             setIsCheckedIn(true);
@@ -358,30 +219,119 @@ export default function Dashboard() {
     }
   };
 
+  function convertToIST12HourFormat(isoString) {
+    const date = new Date(isoString);
+
+    // Convert to IST (UTC +5:30)
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const istDate = new Date(date.getTime() + istOffset);
+
+    let hours = istDate.getUTCHours();
+    const minutes = String(istDate.getUTCMinutes()).padStart(2, "0");
+    const seconds = String(istDate.getUTCSeconds()).padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+
+    // Convert to 12-hour format
+    hours = hours % 12 || 12;
+
+    return `${hours}:${minutes}:${seconds} ${ampm}`;
+  }
+
+  const handleWorkTimer = (startTime) => {
+    if (window.workTimerInterval) {
+      clearInterval(window.workTimerInterval);
+    }
+
+    window.workTimerInterval = setInterval(() => {
+      const now = new Date().getTime();
+      const diff = now - startTime;
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setWorkTimer(
+        `${hours.toString().padStart(2, "0")}:${minutes
+          .toString()
+          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+      );
+    }, 1000);
+  };
+
   // Handle Check In: create a new attendance record
   const handleCheckIn = async () => {
     if (!isCheckedIn) {
+      if (window.workTimerInterval) {
+        clearInterval(window.workTimerInterval);
+      }
       const now = new Date();
       setCheckInTime(now.toISOString());
       setIsCheckedIn(true);
       try {
-        const response = await fetch("http://localhost:5003/api/attendance", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            employeeId,
-            date: now.toISOString(),
-            punchInTime: now.toISOString(),
-            attendanceStatus: "Present",
-            punchInMethod: "Dashboard",
-          }),
-        });
-        if (!response.ok) {
+        const dailyAttendanceResponse = await fetch(
+          `${VITE_API_BASE_URL_AT}/api/attendance`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              employeeId: employeeId,
+              date: now.toISOString(),
+              punchInTime: now.toISOString(),
+              attendanceStatus: "Present",
+              punchInMethod: "Dashboard",
+            }),
+          }
+        );
+
+        if (!dailyAttendanceResponse.ok) {
           throw new Error("Failed to check in");
         }
 
+        const dateNow = new Date();
+        const year = dateNow.getUTCFullYear();
+        const month = dateNow.getMonth() + 1;
+        const day = dateNow.getDate();
+        const monthlyAttendanceResponse = await fetch(
+          `${VITE_API_BASE_URL_AT}/api/monthlyAttendance/${employeeId}?year=${year}&month=${month}&day=${day}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}), // Send an empty object if no body is required
+          }
+        );
+
+        if (!monthlyAttendanceResponse.ok) {
+          throw new Error("Failed to save monthly attendance");
+        }
+
         // Get updated record to see if we were late
-        const data = await response.json();
+        const data = await dailyAttendanceResponse.json();
+        const istTime = new Date(now.getTime() + ISTOffsetMs); // Convert to IST
+
+        const istISOString = new Date(
+          istTime.getTime() - istTime.getTimezoneOffset() * 60000
+        ).toISOString();
+
+        // Extract IST hours, minutes, and seconds
+        let hours = istTime.getUTCHours();
+        const minutes = String(istTime.getUTCMinutes()).padStart(2, "0");
+        const seconds = String(istTime.getUTCSeconds()).padStart(2, "0");
+
+        // Convert to 12-hour format
+        const ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12 || 12; // Convert '0' to '12'
+
+        // Final formatted IST time in 12-hour format
+        const ist12HourTimeString = `${hours}:${minutes} ${ampm}`;
+        const ist12HourWorkTimer = `${hours}:${minutes}:${seconds} ${ampm}`;
+
+        localStorage.setItem("checkInTime", now.toISOString());
+        // localStorage.setItem("workTimer", ist12HourWorkTimer);
+        const checkInTime123 = convertToIST12HourFormat(now.toISOString());
+        setCheckInTime(checkInTime123);
+        setWorkTimer("00:00:00");
+        handleWorkTimer(now.getTime());
+
         setTodayStats({
           lateComing: data.lateComing || 0,
           overtime: data.overtime || 0,
@@ -409,14 +359,14 @@ export default function Dashboard() {
     }
   };
 
-  // Handle Check Out: create check out event
   const handleCheckOut = async () => {
     if (isCheckedIn) {
       const now = new Date();
+      console.log(now.toISOString());
 
       try {
-        const response = await fetch(
-          `http://localhost:5003/api/attendance/employee/${employeeId}/today`,
+        const dailyAttendanceResponse = await fetch(
+          `${VITE_API_BASE_URL_AT}/api/attendance/${employeeId}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -427,22 +377,18 @@ export default function Dashboard() {
           }
         );
 
-        if (!response.ok) {
+        if (!dailyAttendanceResponse.ok) {
           throw new Error("Failed to check out");
         }
 
-        // Get updated data with workingHours in minutes
-        const data = await response.json();
         setIsCheckedIn(false);
+        setCheckInTime(null);
+        clearInterval(window.workTimerInterval);
+        window.workTimerInterval = null;
+        setWorkTimer("00:00:00");
+        localStorage.removeItem("checkInTime");
 
-        // Reset work timer to 0 when checking out
-        setWorkTimer("0:00:00");
-
-        // Update overtime status
-        setTodayStats({
-          ...todayStats,
-          overtime: data.overtime || 0,
-        });
+        // 🔥 Clear the interval on checkout
 
         // Update notifications
         const newNotification = {
@@ -477,13 +423,32 @@ export default function Dashboard() {
     }
     return `${mins}m`;
   };
+  const username = localStorage.getItem("name") || generateDeviceId();
 
+  const markAsRead = async (id) => {
+    try {
+      await fetch(`${VITE_API_BASE_URL_NS}/api/notifications/${id}/read`, {
+        method: "PATCH",
+      });
+
+      // Update UI Optimistically
+      setNotifications((prev) =>
+        prev.map((notification) =>
+          notification.id === id
+            ? { ...notification, status: "READ" }
+            : notification
+        )
+      );
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
   return (
     <div className="dashboard-container">
       {/* Welcome Section */}
       <div className="welcome-section">
         <header>
-          <h1 className="welcome-title">Welcome back, Subham!</h1>
+          <h1 className="welcome-title">Welcome back, {username}!</h1>
           <p className="welcome-subtitle">Here's your HR dashboard overview</p>
         </header>
         <div className="current-time">
@@ -520,17 +485,22 @@ export default function Dashboard() {
         <div className="checkin-stats">
           <div className="checkin-stat">
             <p className="stats-label">Work Timer</p>
-            <p className="stat-value">{workTimer}</p>
+            <p className="stat-value">{!workTimer ? "00:00:00" : workTimer}</p>
           </div>
           <div className="checkin-stat">
             <p className="stats-label">Check In Time</p>
             <p className="stat-value">
               {checkInTime
-                ? new Date(checkInTime).toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "--:--"}
+                ? // ? new Date(checkInTime).toLocaleTimeString(
+                  //       "en-US",
+                  //       {
+                  //           hour: "2-digit",
+                  //           minute: "2-digit",
+                  //       }
+                  //   )
+
+                  checkInTime
+                : "--:--:--"}
             </p>
           </div>
           <div className="checkin-stat">
@@ -544,9 +514,9 @@ export default function Dashboard() {
         <div className="checkin-actions">
           <button
             onClick={handleCheckIn}
-            disabled={isCheckedIn}
+            disabled={isCheckedInToday()}
             className={`checkin-button ${
-              isCheckedIn ? "button-disabled" : "button-enabled"
+              isCheckedInToday() ? "button-disabled" : "button-enabled"
             }`}
           >
             <CheckCircle className="button-icon" />
@@ -700,6 +670,17 @@ export default function Dashboard() {
                   </p>
                 </div>
                 <ArrowRight className="notification-action" />
+                {notification.status === "UNREAD" && (
+                  <button
+                    className="dashboard__notification-mark-read"
+                    onClick={() => {
+                      console.log("this is notification id:-", notification);
+                      markAsRead(notification.id);
+                    }}
+                  >
+                    Mark as Read
+                  </button>
+                )}
               </div>
             ))
           ) : (
@@ -708,7 +689,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="quick-actions">
+        {/* <div className="quick-actions">
           <h3 className="section-title">Quick Actions</h3>
           <div className="quick-action">
             <span className="action-title">Request Leave</span>
@@ -722,7 +703,7 @@ export default function Dashboard() {
             <span className="action-title">View Schedule</span>
             <Calendar className="action-icon" />
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

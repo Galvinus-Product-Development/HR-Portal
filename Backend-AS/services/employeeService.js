@@ -1,31 +1,18 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const jwt = require("jsonwebtoken");
 const axios = require("axios");
-
-const EMPLOYEE_SERVICE_URL = "http://localhost:5001/api/employeeRoutes/formatted";
-
+require("dotenv").config();
 exports.addEmployee = async (employeeData) => {
     return await prisma.employee.create({ data: employeeData });
 };
 
-exports.getEmployee = async (id) => {
-    // return await prisma.employee.findUnique({ where: { id } });
-    // Fetch employees from Employee Microservice
-    const employeeResponse = await axios.get(EMPLOYEE_SERVICE_URL);
-    // console.log(employeeResponse.data);
-    
-    const data = employeeResponse.data;
-    const employees = data.data; // Assuming API returns { data: [...] }
-
-    if (!employees || employees.length === 0) {
-        return { message: "No employees found" };
-    }
-    return employees;
-};
+// exports.getEmployee = async (id) => {
+//     console.log("comming here")
+//     return await prisma.employee.findUnique({ where: { id }, include: { attendance: true, monthlyAttendanceStats: true } });
+// };
 
 // exports.getAllEmployees = async () => {
-//     return await prisma.employee.findMany({ include: { attendance: true } });
+//     return await prisma.employee.findMany({ include: { attendance: true, monthlyAttendanceStats: true } });
 // };
 
 exports.updateEmployee = async (id, updateData) => {
@@ -37,62 +24,69 @@ exports.deleteEmployee = async (id) => {
 };
 
 
-
-
-
-
 exports.getAllEmployees = async () => {
     try {
-        // Fetch employees from Employee Microservice
-        const employeeResponse = await axios.get(EMPLOYEE_SERVICE_URL);
-        // console.log(employeeResponse.data);
-        
-        const data = employeeResponse.data;
-        const employees = data.data; // Assuming API returns { data: [...] }
-
-        if (!employees || employees.length === 0) {
-            return { message: "No employees found" };
+        const employeeServiceUrl = process.env.EMPLOYEE_SERVICE_URL;
+        if (!employeeServiceUrl) {
+            throw new Error("EMPLOYEE_SERVICE_URL is not defined in .env");
         }
 
-
-
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-        const validEmployeeIds = employees
-          .map(emp => emp.id)
-          .filter(id => !uuidRegex.test(id)); // Remove UUIDs
-        
-        if (validEmployeeIds.length === 0) {
-            return { message: "No valid employee IDs found for attendance records." };
-        }
-        
+        // Fetch employees from the other microservice
+        const { data: employees } = await axios.get(employeeServiceUrl);
+        console.log(employees);
+        // Fetch attendance & stats from this service
+        const employeeIds = employees?.data?.map(emp => emp.id);
         const attendanceRecords = await prisma.attendance.findMany({
-            where: {
-                employeeId: { in: validEmployeeIds },
-            },
+            where: { employeeId: { in: employeeIds } }
+        });
+        const monthlyAttendanceStats = await prisma.monthlyAttendanceStats.findMany({
+            where: { employeeId: { in: employeeIds } }
         });
 
-
-
-        // Extract all employee IDs
-        // const employeeIds = employees.map(emp => emp.id);
-
-        // // Fetch attendance data for these employees
-        // const attendanceRecords = await prisma.attendance.findMany({
-        //     where: {
-        //         employeeId: { in: employeeIds },
-        //     },
-        // });
-
-        // Merge employee data with attendance
-        const result = employees.map(employee => ({
-            ...employee,
-            attendance: attendanceRecords.filter(att => att.employeeId === employee.id),
+        // Merge data
+        const enrichedEmployees = employees?.data?.map(emp => ({
+            ...emp,
+            attendance: attendanceRecords.filter(att => att.employeeId === emp.id),
+            monthlyAttendanceStats: monthlyAttendanceStats.filter(stat => stat.employeeId === emp.id)
         }));
 
-        return result;
+        return enrichedEmployees;
     } catch (error) {
-        console.error("Error fetching employees with attendance:", error);
-        throw new Error("Failed to fetch employee and attendance data.");
+        console.error("Error fetching employees:", error);
+        throw new Error("Failed to fetch employees");
+    }
+};
+
+
+
+
+
+exports.getEmployee = async (id) => {
+    try {
+        console.log("Fetching employee details...");
+
+        // Fetch employee from the Employee Microservice
+        const employeeServiceUrl = `${process.env.EMPLOYEE_SERVICE_URLL}/${id}`;
+        const { data: employee } = await axios.get(employeeServiceUrl);
+
+        if (!employee) {
+            throw new Error("Employee not found");
+        }
+
+        // Fetch attendance and monthlyAttendanceStats from this service
+        const attendance = await prisma.attendance.findMany({ where: { employeeId: id } });
+        const monthlyAttendanceStats = await prisma.monthlyAttendanceStats.findMany({ where: { employeeId: id } });
+
+        // Merge the data
+        const enrichedEmployee = {
+            ...employee,
+            attendance,
+            monthlyAttendanceStats,
+        };
+
+        return enrichedEmployee;
+    } catch (error) {
+        console.error("Error fetching employee data:", error);
+        throw new Error("Failed to fetch employee data.");
     }
 };

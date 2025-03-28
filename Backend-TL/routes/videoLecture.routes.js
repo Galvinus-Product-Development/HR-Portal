@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const videoLectureController = require("../controllers/videolecture.controller");
+const videoLectureController = require("../controllers/videoLecture.controller");
 
 router.get("/", videoLectureController.getAllVideoLectures);
 router.get("/:id", videoLectureController.getVideoLectureById);

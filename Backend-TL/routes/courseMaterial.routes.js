@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const courseMaterialController = require("../controllers/coursematerial.controller");
 
+const courseMaterialController = require("../controllers/courseMaterial.controller");
 router.get("/", courseMaterialController.getAllCourseMaterials);
 router.get("/:id", courseMaterialController.getCourseMaterialById);
 router.post("/", courseMaterialController.createCourseMaterial);

@@ -18,26 +18,13 @@ router.post("/assign-role", authenticate,checkPermission("assign_role"), assignR
 // Only Super Admins can assign permissions to roles
 router.post("/assign-role-permission",authenticate, checkPermission("assign_role_permission"), assignRolePermission);
 
-// router.post("/assign-role-permission",authenticate, assignRolePermission);
-
 
 router.post("/remove-role-permission", authenticate, checkPermission("remove_role_permission"), removeRolePermission);
-// router.post("/remove-role-permission", authenticate,  removeRolePermission);
-
-// Only "admin" and "superadmin" can access this route
-// router.get("/admin/dashboard", checkRole(["admin", "superadmin"]), userController.adminDashboard);
-
-
-// Only users with "manage_users" permission can delete a user
-// router.delete("/delete-user/:userId", checkPermission(["manage_users"]), adminController.deleteUser);
 
 
 
 router.post("/roles", authenticate,checkPermission("create_role"), createRoleController); // Create role
 router.delete("/roles/:roleId",authenticate,checkPermission("delete_role"),  deleteRoleController); // Delete role
-
-// router.post("/permissions", authenticate,checkRole(["SUPER_ADMIN", "ADMIN"]), createPermissionController); // Create permission
-// router.delete("/permissions/:permissionId", authenticate,checkRole(["SUPER_ADMIN", "ADMIN"]), deletePermissionController); // Delete permission
 
 
 // Route for sending a registration link (Super Admin only)

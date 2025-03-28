@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { Shield, Info, Search, UserCog, Plus, Trash2 } from "lucide-react";
 import "./RolePermission.css";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -244,74 +244,170 @@ const RolePermissions = () => {
 
   const filteredEmployees = employees.filter(
     (emp) =>
-      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.department.toLowerCase().includes(searchTerm.toLowerCase())
+      // emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      // emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      // emp.department.toLowerCase().includes(searchTerm.toLowerCase())
+      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) 
   );
 
-  const AssignRoleModal = () => (
-    <div className="rolemgmt-modal-overlay">
-      <div className="rolemgmt-modal-container">
-        <div className="rolemgmt-modal-header">
-          <h3 className="rolemgmt-modal-title">Assign Roles to Employees</h3>
-          <button
-            onClick={() => setShowAssignRole(false)}
-            className="rolemgmt-modal-close-btn"
-          >
-            ×
-          </button>
-        </div>
+  // const AssignRoleModal = () => (
+  //   <div className="rolemgmt-modal-overlay">
+  //     <div className="rolemgmt-modal-container">
+  //       <div className="rolemgmt-modal-header">
+  //         <h3 className="rolemgmt-modal-title">Assign Roles to Employees</h3>
+  //         <button
+  //           onClick={() => setShowAssignRole(false)}
+  //           className="rolemgmt-modal-close-btn"
+  //         >
+  //           ×
+  //         </button>
+  //       </div>
 
-        <div className="rolemgmt-search-container">
-          <div className="rolemgmt-search-input-wrapper">
-            <Search className="rolemgmt-search-icon" />
-            <input
-              type="text"
-              placeholder="Search employees..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="rolemgmt-search-input"
-            />
+  //       <div className="rolemgmt-search-container">
+  //         <div className="rolemgmt-search-input-wrapper">
+  //           <Search className="rolemgmt-search-icon" />
+  //           <input
+  //             type="text"
+  //             placeholder="Search employees..."
+  //             value={searchTerm}
+  //             onChange={(e) => setSearchTerm(e.target.value)}
+  //             className="rolemgmt-search-input"
+  //           />
+  //         </div>
+  //       </div>
+
+  //       <div className="rolemgmt-employee-list">
+  //         {filteredEmployees.map((employee) => (
+  //           <div key={employee.id} className="rolemgmt-employee-item">
+  //             <div className="rolemgmt-employee-info">
+  //               <img
+  //                 src={employee.avatar}
+  //                 alt={employee.name}
+  //                 className="rolemgmt-employee-avatar"
+  //               />
+  //               <div>
+  //                 <h4 className="rolemgmt-employee-name">{employee.name}</h4>
+  //                 <p className="rolemgmt-employee-department">
+  //                   {employee.department}
+  //                 </p>
+  //               </div>
+  //             </div>
+  //             <div className="rolemgmt-employee-role-select-container">
+  //               <select
+  //                 value={employee.role}
+  //                 onChange={(e) =>
+  //                   handleUpdateEmployeeRole(employee.id, e.target.value)
+  //                 }
+  //                 className="rolemgmt-employee-role-select"
+  //               >
+  //                 {Object.keys(rolePermissions).map((role) => (
+  //                   <option key={role} value={role}>
+  //                     {formatToTitleCase(role)}
+  //                   </option>
+  //                 ))}
+  //               </select>
+  //             </div>
+  //           </div>
+  //         ))}
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
+
+
+
+
+
+  const AssignRoleModal = () => {
+    const searchInputRef = useRef(null);
+  
+    // Preserve input focus on re-render
+    useEffect(() => {
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+      }
+    }, [searchTerm]); // Focus only when searchTerm updates
+  
+    return (
+      <div className="rolemgmt-modal-overlay">
+        <div className="rolemgmt-modal-container">
+          <div className="rolemgmt-modal-header">
+            <h3 className="rolemgmt-modal-title">Assign Roles to Employees</h3>
+            <button
+              onClick={() => setShowAssignRole(false)}
+              className="rolemgmt-modal-close-btn"
+            >
+              ×
+            </button>
           </div>
-        </div>
-
-        <div className="rolemgmt-employee-list">
-          {filteredEmployees.map((employee) => (
-            <div key={employee.id} className="rolemgmt-employee-item">
-              <div className="rolemgmt-employee-info">
-                <img
-                  src={employee.avatar}
-                  alt={employee.name}
-                  className="rolemgmt-employee-avatar"
-                />
-                <div>
-                  <h4 className="rolemgmt-employee-name">{employee.name}</h4>
-                  <p className="rolemgmt-employee-department">
-                    {employee.department}
-                  </p>
+  
+          <div className="rolemgmt-search-container">
+            <div className="rolemgmt-search-input-wrapper">
+              <Search className="rolemgmt-search-icon" />
+              <input
+                ref={searchInputRef} // Attach ref
+                type="text"
+                placeholder="Search employees..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="rolemgmt-search-input"
+              />
+            </div>
+          </div>
+  
+          <div className="rolemgmt-employee-list">
+            {filteredEmployees.map((employee) => (
+              <div key={employee.id} className="rolemgmt-employee-item">
+                <div className="rolemgmt-employee-info">
+                  <img
+                    src={employee.avatar}
+                    alt={employee.name}
+                    className="rolemgmt-employee-avatar"
+                  />
+                  <div>
+                    <h4 className="rolemgmt-employee-name">{employee.name}</h4>
+                    <p className="rolemgmt-employee-department">
+                      {employee.department}
+                    </p>
+                  </div>
+                </div>
+                <div className="rolemgmt-employee-role-select-container">
+                  <select
+                    value={employee.role}
+                    onChange={(e) =>
+                      handleUpdateEmployeeRole(employee.id, e.target.value)
+                    }
+                    className="rolemgmt-employee-role-select"
+                  >
+                    {Object.keys(rolePermissions).map((role) => (
+                      <option key={role} value={role}>
+                        {formatToTitleCase(role)}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
-              <div className="rolemgmt-employee-role-select-container">
-                <select
-                  value={employee.role}
-                  onChange={(e) =>
-                    handleUpdateEmployeeRole(employee.id, e.target.value)
-                  }
-                  className="rolemgmt-employee-role-select"
-                >
-                  {Object.keys(rolePermissions).map((role) => (
-                    <option key={role} value={role}>
-                      {formatToTitleCase(role)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   return (
     <div className="rolemgmt-container">

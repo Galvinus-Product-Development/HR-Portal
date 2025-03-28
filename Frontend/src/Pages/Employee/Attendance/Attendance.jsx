@@ -8,12 +8,12 @@ export default function Attendance() {
 
 	const tabs = [
 		{
-			path: "/attendance/tracker",
+			path: "tracker",
 			label: "Attendance Tracker",
 			icon: ClipboardList,
 		},
 		{
-			path: "/attendance/dashboard",
+			path: "dashboard",
 			label: "Attendance Dashboard",
 			icon: LayoutDashboard,
 		},

@@ -19,18 +19,40 @@ exports.getAllTrainings = async () => {
   }
 };
 
-exports.getTrainingByyId = async (id) => {
+// exports.getTrainingByyId = async (id) => {
+//   return await prisma.training.findUnique({
+//     where: { id },
+//     include: {
+//       trainer: true,
+//       participants: true,
+//       materialFiles: true,
+//       lectureFiles: true,
+//       resourceFiles: true,
+//     },
+//   });
+// };
+
+
+
+exports.getTrainingByyId = async (trainingId) => {
   return await prisma.training.findUnique({
-    where: { id },
+    where: { id: trainingId },
     include: {
       trainer: true,
-      participants: true,
+      participants: {
+        include: {
+          employee: true, // Ensures employee details are fetched
+        },
+      },
       materialFiles: true,
       lectureFiles: true,
       resourceFiles: true,
     },
   });
 };
+
+
+
 
 exports.getTrainingById = async (trainingId) => {
   const training = await prisma.training.findUnique({

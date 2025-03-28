@@ -10,12 +10,12 @@ const Certification = () => {
         department: '',
         training: ''
     });
-
+const API_BASE_URL_ED = `${import.meta.env.VITE_API_BASE_URL_ED}`;
     // Fetch data from backend
     useEffect(() => {
         const fetchCertifications = async () => {
             try {
-                const response = await fetch('http://localhost:5001/api/certifications'); 
+                const response = await fetch(`${API_BASE_URL_ED}/api/certifications`); 
 
                 const data = await response.json();
                 console.log(data);

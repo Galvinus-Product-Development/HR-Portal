@@ -20,8 +20,18 @@ dotenv.config();
 // Initialize the app
 const app = express();
 
+// Ensure logs directory exists before writing logs
+const logDir = path.join(__dirname, "logs");
+if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+    console.log("✅ Logs directory created");
+}
+
 // Create a write stream (in append mode) for logging to a file
-const accessLogStream = fs.createWriteStream(path.join(__dirname, 'logs', 'access.log'), { flags: 'a' });
+const accessLogStream = fs.createWriteStream(path.join(logDir, "access.log"), { flags: "a" });
+
+// Create a write stream (in append mode) for logging to a file
+// const accessLogStream = fs.createWriteStream(path.join(__dirname, 'logs', 'access.log'), { flags: 'a' });
 app.use('/uploads', express.static('uploads'));
 
 
@@ -40,13 +50,15 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/inventory', bankRoutes);
-app.use('/api/documentRoutes', documentRoutes);
-app.use('/api/emergencyRoutes', emergencyRoutes);
-app.use('/api/employeeRoutes', employeeRoutes);
-app.use('/api/employmentRoutes', employmentRoutes);
-app.use('/api/salaryRoutes', salaryRoutes);
-app.use('/api/certifications',certificationRoutes)
-
+app.use('/ed/api/inventory', bankRoutes);
+app.use('/ed/api/documentRoutes', documentRoutes);
+app.use('/ed/api/emergencyRoutes', emergencyRoutes);
+app.use('/ed/api/employeeRoutes', employeeRoutes);
+app.use('/ed/api/employmentRoutes', employmentRoutes);
+app.use('/ed/api/salaryRoutes', salaryRoutes);
+app.use('/ed/api/certifications',certificationRoutes)
+app.get("/ed", (req, res) => {
+  res.status(200).json({ status: "ok", message: `Service is healthy` });
+});
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -14,6 +14,7 @@ export default function LeaveHistory() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const API_BASE_URL_LM= import.meta.env.VITE_API_BASE_URL_LM;
     // Fetch employee data only once on mount
     useEffect(() => {
         fetchEmployees();
@@ -27,7 +28,7 @@ export default function LeaveHistory() {
     // Fetch employee data for quick lookup of employee details
     const fetchEmployees = async () => {
         try {
-            const response = await fetch('http://localhost:5005/api/employees');
+            const response = await fetch(`${API_BASE_URL_LM}/api/employees`);
             if (!response.ok) {
                 throw new Error(`Failed to fetch employees: ${response.statusText}`);
             }
@@ -48,7 +49,7 @@ export default function LeaveHistory() {
         try {
             setLoading(true);
             const [year, month] = selectedMonth.split('-');
-            let url = 'http://localhost:5005/api/leave-history';
+            let url = `${API_BASE_URL_LM}/api/leave-history`;
             const queryParams = new URLSearchParams();
             if (year && month) {
                 queryParams.append('year', year);

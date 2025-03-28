@@ -277,12 +277,12 @@
 .att-dot-half-day {
   background-color: #f97316;
 }
-.att-dot-paid-leave {
+/* .att-dot-paid-leave {
   background-color: #3b82f6;
 }
 .att-dot-unpaid-leave {
   background-color: #8b5cf6;
-}
+} */
 .att-dot-late {
   background-color: #eab308;
 }

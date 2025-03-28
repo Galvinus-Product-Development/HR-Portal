@@ -211,13 +211,10 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
           <div className="details-grid">
             {[
               "name",
-              "gender",
               "location",
               "dateOfBirth",
-              "bloodGroup",
               "personalEmail",
               "phoneNumber",
-              "maritalStatus",
               "aadharNumber",
               "panNumber",
               "currentAddress",
@@ -244,10 +241,71 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
                 {errors[key] && <p className="error">{errors[key]}</p>}
               </div>
             ))}
+
+            <div>
+              <p className="detail-label">Blood Group</p>
+              <select
+                value={editedEmployee.personalDetails?.bloodGroup || ""}
+                onChange={(e) =>
+                  handleChange("personalDetails", "bloodGroup", e.target.value)
+                }
+              >
+                <option value="">Select Blood Group</option>
+                <option value="A-">A-</option>
+                <option value="A+">A+</option>
+                <option value="B-">B-</option>
+                <option value="B+">B+</option>
+                <option value="AB-">AB-</option>
+                <option value="AB+">AB+</option>
+                <option value="O-">O-</option>
+                <option value="O+">O+</option>
+              </select>
+              {errors.bloodGroup && (
+                <p className="error">{errors.bloodGroup}</p>
+              )}
+            </div>
+
+            <div>
+              <p className="detail-label">Gender</p>
+              <select
+                value={editedEmployee.personalDetails?.gender || ""}
+                onChange={(e) =>
+                  handleChange("personalDetails", "gender", e.target.value)
+                }
+              >
+                <option value="">Select Gender</option>
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+              </select>
+              {errors.gender && <p className="error">{errors.gender}</p>}
+            </div>
+
+            <div>
+              <p className="detail-label">Marital Status</p>
+              <select
+                value={editedEmployee.personalDetails?.maritalStatus || ""}
+                onChange={(e) =>
+                  handleChange(
+                    "personalDetails",
+                    "maritalStatus",
+                    e.target.value
+                  )
+                }
+              >
+                <option value="">Select Status</option>
+                <option value="MARRIED">MARRIED</option>
+                <option value="SINGLE">SINGLE</option>
+                <option value="DIVORCED">DIVORCED</option>
+                <option value="WIDOWED">WIDOWED</option>
+              </select>
+              {errors.maritalStatus && (
+                <p className="error">{errors.maritalStatus}</p>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Employment Details */}
+        {/* Employment Details
         <div className="details-card">
           <h3>
             <Briefcase className="icon" /> Employment Details
@@ -259,7 +317,6 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
               "location",
               "officeEmail",
               "dateOfJoining",
-              "employmentType",
               "uanNumber",
               "pfNumber",
               "esicNumber",
@@ -286,36 +343,28 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
               </div>
             ))}
 
-            {/* Line Manager Dropdown */}
-            {/* <div>
-              <p className="detail-label">Line Manager</p>
+            <div>
+              <p className="detail-label">Employment Type</p>
               <select
-                value={editedEmployee.employmentDetails?.lineManager || ""}
+                value={editedEmployee.employmentDetails?.employmentType || ""}
                 onChange={(e) =>
                   handleChange(
                     "employmentDetails",
-                    "lineManagerId",
+                    "employmentType",
                     e.target.value
                   )
                 }
               >
-                <option
-                  value={
-                    editedEmployee.employmentDetails?.["lineManagerId"] || ""
-                  }
-                >
-                  {editedEmployee.employmentDetails?.["lineManager"]}
-                </option>
-                {managers?.map((manager) => (
-                  <option key={manager.id} value={manager.id}>
-                    {manager.name}
-                  </option>
-                ))}
+                <option value="">Select employment type</option>
+                <option value="FULL_TIME">FULL TIME</option>
+                <option value="PART_TIME">PART TIME</option>
+                <option value="CONTRACT">CONTRACT</option>
+                <option value="INTERN">INTERN</option>
               </select>
-              {errors.lineManager && (
-                <p className="error">{errors.lineManager}</p>
+              {errors.employmentType && (
+                <p className="error">{errors.employmentType}</p>
               )}
-            </div> */}
+            </div>
 
             <div>
               <p className="detail-label">Line Manager</p>
@@ -340,13 +389,106 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
                 <p className="error">{errors.lineManager}</p>
               )}
             </div>
+          </div>
+        </div> */}
 
-            
+        {/* Employment Details */}
+        <div className="details-card">
+          <h3>
+            <Briefcase className="icon" /> Employment Details
+          </h3>
+          <div className="details-grid">
+            {[
+              "employeeId",
+              "jobTitle",
+              "location",
+              "officeEmail",
+              "dateOfJoining",
+              "uanNumber",
+              "pfNumber",
+              "esicNumber",
+            ].map((key) => (
+              <div key={key}>
+                <p className="detail-label">
+                  {key
+                    .replace(/([A-Z])/g, " $1")
+                    .trim()
+                    .replace(/\b\w/g, (c) => c.toUpperCase())}
+                </p>
+                <input
+                  type={key.includes("date") ? "date" : "text"}
+                  value={
+                    editedEmployee.employmentDetails?.[key] ||
+                    editedEmployee?.[key] ||
+                    ""
+                  }
+                  onChange={(e) => {
+                    let value = e.target.value;
+                    if (key === "jobTitle") {
+                      value = value.replace(/[^a-zA-Z\s]/g, ""); // Allow only letters & spaces
+                    } else if (
+                      ["uanNumber", "pfNumber", "esicNumber"].includes(key)
+                    ) {
+                      value = value.replace(/\D/g, ""); // Allow only numbers
+                    }
+                    handleChange("employmentDetails", key, value);
+                  }}
+                />
+                {errors[key] && <p className="error">{errors[key]}</p>}
+              </div>
+            ))}
+
+            <div>
+              <p className="detail-label">Employment Type</p>
+              <select
+                value={editedEmployee.employmentDetails?.employmentType || ""}
+                onChange={(e) =>
+                  handleChange(
+                    "employmentDetails",
+                    "employmentType",
+                    e.target.value
+                  )
+                }
+              >
+                <option value="">Select employment type</option>
+                <option value="FULL_TIME">FULL TIME</option>
+                <option value="PART_TIME">PART TIME</option>
+                <option value="CONTRACT">CONTRACT</option>
+                <option value="INTERN">INTERN</option>
+              </select>
+              {errors.employmentType && (
+                <p className="error">{errors.employmentType}</p>
+              )}
+            </div>
+
+            <div>
+              <p className="detail-label">Line Manager</p>
+              <select
+                value={editedEmployee.employmentDetails?.lineManagerId || ""}
+                onChange={(e) =>
+                  handleChange(
+                    "employmentDetails",
+                    "lineManagerId",
+                    e.target.value
+                  )
+                }
+              >
+                <option value="">Select a Manager</option>
+                {managers?.map((manager) => (
+                  <option key={manager.id} value={manager.id}>
+                    {manager.name}
+                  </option>
+                ))}
+              </select>
+              {errors.lineManager && (
+                <p className="error">{errors.lineManager}</p>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Bank Details */}
-        <div className="details-card">
+        {/* <div className="details-card">
           <h3>
             <CreditCard className="icon" /> Bank Details
           </h3>
@@ -372,11 +514,81 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
               )
             )}
           </div>
+        </div> */}
+
+        <div className="details-card">
+          <h3>
+            <CreditCard className="icon" /> Bank Details
+          </h3>
+          <div className="details-grid">
+            {/* Account Holder (Only Letters) */}
+            <div>
+              <p className="detail-label">Account Holder</p>
+              <input
+                type="text"
+                value={editedEmployee.bankDetails?.accountHolder || ""}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // Allow only letters & spaces
+                  handleChange("bankDetails", "accountHolder", value);
+                }}
+              />
+              {errors.accountHolder && (
+                <p className="error">{errors.accountHolder}</p>
+              )}
+            </div>
+
+            {/* Bank Name (Only Letters) */}
+            <div>
+              <p className="detail-label">Bank Name</p>
+              <input
+                type="text"
+                value={editedEmployee.bankDetails?.bankName || ""}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // Allow only letters & spaces
+                  handleChange("bankDetails", "bankName", value);
+                }}
+              />
+              {errors.bankName && <p className="error">{errors.bankName}</p>}
+            </div>
+
+            {/* Account Number (Only Numbers) */}
+            <div>
+              <p className="detail-label">Account Number</p>
+              <input
+                type="number"
+                value={editedEmployee.bankDetails?.accountNumber || ""}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, ""); // Allow only numbers
+                  handleChange("bankDetails", "accountNumber", value);
+                }}
+              />
+              {errors.accountNumber && (
+                <p className="error">{errors.accountNumber}</p>
+              )}
+            </div>
+
+            {/* IFSC Code (Alphanumeric) */}
+            <div>
+              <p className="detail-label">IFSC Code</p>
+              <input
+                type="text"
+                value={editedEmployee.bankDetails?.ifscCode || ""}
+                onChange={(e) =>
+                  handleChange(
+                    "bankDetails",
+                    "ifscCode",
+                    e.target.value.toUpperCase()
+                  )
+                }
+              />
+              {errors.ifscCode && <p className="error">{errors.ifscCode}</p>}
+            </div>
+          </div>
         </div>
 
         <div className="modal-actions">
-          <button onClick={handleSaveClick}>Save</button>
           <button onClick={onClose}>Cancel</button>
+          <button onClick={handleSaveClick}>Save</button>
         </div>
       </div>
     </div>

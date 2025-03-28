@@ -6,7 +6,7 @@ const AuthContext = createContext(undefined);
 // const API_BASE_URL = process.env.REACT_APP_API_URL 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-console.log(API_BASE_URL);
+console.log("asdfsdfasfafasdf",API_BASE_URL);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -77,6 +77,7 @@ export function AuthProvider({ children }) {
       }
 
     } catch (error) {
+      console.log(error);
       console.error("Login error:", error.message);
       throw error;
     } finally {

@@ -25,7 +25,7 @@ import "./TrainingAndLearning.css";
 import { differenceInDays } from "date-fns";
 
 const API_BASE_URL_ED = import.meta.env.VITE_API_BASE_URL_ED;
-
+const API_BASE_URL_TL = import.meta.env.VITE_API_BASE_URL_TL;
 const TrainingAndLearning = () => {
   const [showAddTraining, setShowAddTraining] = useState(false);
   const [showEditTraining, setShowEditTraining] = useState(false);
@@ -49,50 +49,45 @@ const TrainingAndLearning = () => {
     startDate: "",
     endDate: "",
   });
-  const [trainers,setTrainers]=useState();
+  const [trainers, setTrainers] = useState();
   const navigate = useNavigate();
   useEffect(() => {
     fetchTrainingAndTrainerData();
     console.log("Trainers Data in State:", trainers);
-
   }, []);
 
   useEffect(() => {
     console.log("Trainers Data in State:", trainers);
-
   }, [trainers]);
-
 
   const fetchTrainingAndTrainerData = async () => {
     try {
       const [trainingsResponse, trainersResponse] = await Promise.all([
-        fetch("http://localhost:5004/trainings/FormattedTrainings"),
-        fetch("http://localhost:5004/trainers"),
+        fetch(`${API_BASE_URL_TL}/trainings/FormattedTrainings`),
+        fetch(`${API_BASE_URL_TL}/trainers`),
       ]);
-  
+
       if (!trainingsResponse.ok || !trainersResponse.ok) {
         throw new Error("Failed to fetch data");
       }
-  
+
       const trainingsData = await trainingsResponse.json();
       const trainersData = await trainersResponse.json();
-  
+
       console.log("Trainings API Response:", trainingsData);
       console.log("Trainers API Response:", trainersData);
-  
+
       // if (!trainersData || !Array.isArray(trainersData.trainers)) {
       //   console.error("Invalid trainers data format:", trainersData);
       //   return;
       // }
-  
+
       setTrainings(trainingsData.trainings);
-      setTrainers(trainersData); 
+      setTrainers(trainersData);
     } catch (error) {
       console.error("Error fetching training and trainer data:", error);
     }
   };
-  
-  
 
   // Fetch employees from backend
   useEffect(() => {
@@ -139,7 +134,7 @@ const TrainingAndLearning = () => {
 
     try {
       console.log("This is the uploded data", formData);
-      const response = await fetch("http://localhost:5004/trainings", {
+      const response = await fetch(`${API_BASE_URL_TL}/trainings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -170,7 +165,7 @@ const TrainingAndLearning = () => {
     try {
       console.log(currentTraining.id);
       const response = await fetch(
-        `http://localhost:5004/trainings/${currentTraining.id}`,
+        `${API_BASE_URL_TL}/trainings/${currentTraining.id}`,
         {
           method: "PUT",
           headers: {
@@ -202,7 +197,7 @@ const TrainingAndLearning = () => {
   const handleDeleteTraining = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5004/trainings/${currentTraining.id}`,
+        `${API_BASE_URL_TL}/trainings/${currentTraining.id}`,
         {
           method: "DELETE",
         }
@@ -365,7 +360,7 @@ const TrainingAndLearning = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5004/upload", {
+      const response = await fetch(`${API_BASE_URL_TL}/upload`, {
         method: "POST",
         body: uploadData,
       });
@@ -446,7 +441,7 @@ const TrainingAndLearning = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:5004/trainers", {
+      const response = await fetch(`${API_BASE_URL_TL}/trainers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(trainerData),
@@ -637,8 +632,30 @@ const TrainingAndLearning = () => {
                 </div>
               </div>
             </div>
-            <div className="training-resources">
+            {/* <div className="training-resources">
               {training.resources.map((resource, index) => (
+                <a key={index} href={resource.url} className="resource-link">
+                  {getResourceIcon(resource.type)}
+                  <span>{resource.title}</span>
+                </a>
+              ))}
+              {training.certificationAvailable && (
+                <div className="certification-available">
+                  <Award className="icon" />
+                  Certification Available
+                </div>
+              )}
+            </div> */}
+
+            <div className="training-resources">
+              {[
+                ...new Map(
+                  training.resources.map((resource) => [
+                    resource.type,
+                    resource,
+                  ])
+                ).values(),
+              ].map((resource, index) => (
                 <a key={index} href={resource.url} className="resource-link">
                   {getResourceIcon(resource.type)}
                   <span>{resource.title}</span>
@@ -912,7 +929,7 @@ const TrainingAndLearning = () => {
                   ))}
                 </select>
               </div> */}
-{/* <select
+              {/* <select
   name="trainerId"
   value={formData.trainerId}
   onChange={handleInputChange}

@@ -22,7 +22,7 @@ const requestPasswordReset = async (req, res) => {
       },
     });
 
-    const resetUrl = `http://localhost:5173/reset-password/${token}`;
+    const resetUrl = `http://hr-portal-lb-28083365.us-east-1.elb.amazonaws.com/reset-password/${token}`;
     await sendEmail(
       email,
       "Password Reset Request",
