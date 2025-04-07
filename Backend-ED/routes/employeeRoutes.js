@@ -13,6 +13,7 @@ router.put("/approval-status/:id", checkPermission("approve_employee_details"), 
 router.get("/fetchEmployeeDetailsById/:id", checkPermission("view_employee_details"), employeeController.fetchEmployeeDetailsById);
 router.get("/fetchEmployeeDetailsByyId/:id",employeeController.fetchEmployeeDetailsById);
 
+
 // Employee Routes (No Permission Required)
 router.post("/personal-details", employeeController.submitPersonalDetails);
 router.get("/employment/:userId", employeeController.getEmploymentDetails);

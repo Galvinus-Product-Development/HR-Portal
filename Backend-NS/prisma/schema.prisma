@@ -25,22 +25,46 @@ datasource db {
 // }
 
 
-model Notification {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   // 🔥 Change from `@db.ObjectId` to a regular `String`
-  sourceId  String?  @db.ObjectId  // Keep this if `sourceId` is an ObjectId
-  sourceType SourceType? // Type of sender (User, System, Service)
-  type      NotificationType
-  title     String
-  message   String
-  status    NotificationStatus @default(UNREAD)
-  priority  NotificationPriority @default(NORMAL)
-  readAt    DateTime?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+// model Notification {
+//   id        String   @id @default(auto()) @map("_id") @db.ObjectId
+//   userId    String   // 🔥 Change from `@db.ObjectId` to a regular `String`
+//   sourceId  String?  @db.ObjectId  // Keep this if `sourceId` is an ObjectId
+//   sourceType SourceType? // Type of sender (User, System, Service)
+//   type      NotificationType
+//   title     String
+//   message   String
+//   status    NotificationStatus @default(UNREAD)
+//   priority  NotificationPriority @default(NORMAL)
+//   readAt    DateTime?
+//   createdAt DateTime   @default(now())
+//   updatedAt DateTime   @updatedAt
 
-  @@map("notifications") // Explicitly map to MongoDB collection "notifications"
+//   @@map("notifications") // Explicitly map to MongoDB collection "notifications"
+// }
+model Notification {
+  id            String                @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String                // 🔥 Changed from `@db.ObjectId` to String
+  sourceId      String?               @db.ObjectId
+  sourceType    SourceType?
+  type          NotificationType
+  title         String
+  message       String
+  status        NotificationStatus   @default(UNREAD)
+  priority      NotificationPriority @default(NORMAL)
+  readAt        DateTime?
+  redirectUrl   String?              // 🆕 Optional field for redirection
+  recipientType RecipientType        // 🆕 Indicates if for ADMIN or EMPLOYEE
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  @@map("notifications")
 }
+
+enum RecipientType {
+  ADMIN
+  EMPLOYEE
+}
+
 
 
 

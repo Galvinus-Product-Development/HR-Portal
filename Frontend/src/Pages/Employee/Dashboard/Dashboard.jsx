@@ -15,12 +15,14 @@ import {
 const VITE_API_BASE_URL_NS = import.meta.env.VITE_API_BASE_URL_NS;
 const VITE_API_BASE_URL_AT = import.meta.env.VITE_API_BASE_URL_AT;
 const VITE_SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+const API_BASE_URL_ED = import.meta.env.VITE_API_BASE_URL_ED;
+const API_BASE_URL_LM=import.meta.env.VITE_API_BASE_URL_LM;
 import io from "socket.io-client";
 import "./Dashboard.css";
 const token = localStorage.getItem("accessToken");
 const socket = io(`${VITE_SOCKET_URL}`, {
-  path: "/ns/socket.io", 
-  transports: ["websocket", "polling"], 
+  path: "/ns/socket.io",
+  transports: ["websocket", "polling"],
   auth: {
     token, // ✅ Send token for authentication
   },
@@ -31,6 +33,8 @@ export default function Dashboard() {
   const [checkInTime, setCheckInTime] = useState(null);
   const [workTimer, setWorkTimer] = useState("0:00:00");
   const [notifications, setNotifications] = useState([]);
+  const [formData, setFormData] = useState(null);
+  const [leaveBalance, setLeaveBalance] = useState([]);
   //   const [employeeId, setEmployeeId] = useState("67b71d3c7960559f9b7bd5c1"); // This should come from auth context in a real app. Change the employee ID dynamically here.
   const [todayStats, setTodayStats] = useState({
     lateComing: 0,
@@ -76,6 +80,63 @@ export default function Dashboard() {
 
     return () => clearInterval(timer);
   }, [checkInTime]);
+
+  const fetchLeaveBalance = async (id) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL_LM}/api/leave-balance?employeeId=${id}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch leave balance");
+      const data = await response.json();
+      setLeaveBalance(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch the employee ID from localStorage
+    const id = localStorage.getItem("userId");
+    if (id) {
+      fetchLeaveBalance(id);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchEmploymentDetails = async () => {
+      try {
+        const signedUserId = localStorage.getItem("signedUserId"); // Fetch from localStorage
+
+        if (!signedUserId) {
+          setError("Unauthorized: No signedUserId found.");
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(
+          `${API_BASE_URL_ED}/api/employeeRoutes/employment/${signedUserId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch employment details.");
+        }
+
+        const data = await response.json();
+        console.log("this is from data now...............",data);
+        setFormData(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchEmploymentDetails();
+  }, []);
 
   // This useEffect will hide the stats after 3 seconds whenever showTimeStats becomes true
   useEffect(() => {
@@ -590,19 +651,23 @@ export default function Dashboard() {
         <div className="quick-stat-card">
           <Calendar className="quick-stat-icon" />
           <h3 className="quick-stat-title">Leave Balance</h3>
-          <p className="quick-stat-value">15 days</p>
+          <p className="quick-stat-value">
+            {leaveBalance?.casualBalance +
+              leaveBalance?.sickBalance +
+              leaveBalance?.totalCompensatoryTaken}
+          </p>
           <p className="quick-stat-subtitle">Annual Leave</p>
         </div>
         <div className="quick-stat-card">
           <Users className="quick-stat-icon" />
           <h3 className="quick-stat-title">Team</h3>
-          <p className="quick-stat-value">Engineering</p>
-          <p className="quick-stat-subtitle">Department</p>
+          <p className="quick-stat-value">{formData?.designation}</p>
+          <p className="quick-stat-subtitle">{formData?.department}</p>
         </div>
         <div className="quick-stat-card">
           <Building className="quick-stat-icon" />
           <h3 className="quick-stat-title">Office</h3>
-          <p className="quick-stat-value">Silchar</p>
+          <p className="quick-stat-value">{formData?.work_location}</p>
           <p className="quick-stat-subtitle">Location</p>
         </div>
       </div>
@@ -645,17 +710,7 @@ export default function Dashboard() {
           {notifications.length > 0 ? (
             notifications.map((notification) => (
               <div key={notification._id} className="notification-card">
-                <div className="notification-icon">
-                  {notification.type === "success" && (
-                    <CheckCircle className="notification-icon-img" />
-                  )}
-                  {notification.type === "warning" && (
-                    <Bell className="notification-icon-img" />
-                  )}
-                  {notification.type === "info" && (
-                    <Briefcase className="notification-icon-img" />
-                  )}
-                </div>
+
                 <div className="notification-text">
                   <p className="notification-title">{notification.title}</p>
                   <p className="notification-message">{notification.message}</p>
@@ -669,7 +724,6 @@ export default function Dashboard() {
                     })}
                   </p>
                 </div>
-                <ArrowRight className="notification-action" />
                 {notification.status === "UNREAD" && (
                   <button
                     className="dashboard__notification-mark-read"

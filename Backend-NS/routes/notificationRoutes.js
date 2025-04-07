@@ -19,20 +19,52 @@ router.get("/dashboard-stats", async (req, res) => {
   }
 });
 
+
+
+
+
+
+
+
+
+
 router.post("/", async (req, res) => {
   try {
-    const { userIds, type, title, message, priority } = req.body;
+    let {
+      userIds,
+      type,
+      title,
+      message,
+      priority,
+      sourceId,
+      sourceType,
+      redirectUrl,
+      recipientType
+    } = req.body;
+  
+    // Apply default values
+    sourceId = sourceId ?? null;
+    sourceType = sourceType ?? null;
+    redirectUrl = redirectUrl ?? "#";
+    recipientType = recipientType ?? "EMPLOYEE";
+  
     const notification = await createNotification(
       userIds,
       type,
       title,
       message,
-      priority
+      priority,
+      sourceId,
+      sourceType,
+      redirectUrl,
+      recipientType
     );
+  
     res.status(201).json(notification);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+  
 });
 
 router.get("/:userId", async (req, res) => {
@@ -57,29 +89,40 @@ const EMPLOYEE_SERVICE_URL = `${process.env.EMPLOYEE_SERVICE_URL}`;
 
 const LEAVE_SERVICE_URL = `${process.env.LEAVE_SERVICE_URL}`;
 const ATTENDANCE_SERVICE_URL = `${process.env.ATTENDANCE_SERVICE_URL}`;
+const PENDING_LEAVE_REQUEST_URL = `${process.env.PENDING_LEAVE_REQUEST_URL}`;
 
-console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^6",ATTENDANCE_SERVICE_URL);
 
 const getDashboardStats = async () => {
+
   try {
     const [
       totalEmployeesRes,
       onLeaveRes,
       pendingLeavesRes,
-      activeEmployeesRes,
     ] = await Promise.all([
       axios.get(`${EMPLOYEE_SERVICE_URL}`), // Total employees
 
       axios.get(`${LEAVE_SERVICE_URL}`), // Employees on leave today
-      0, // Pending leave requests
-      axios.get(`${ATTENDANCE_SERVICE_URL}`), // Active employees (punched in)
+      axios.get(`${PENDING_LEAVE_REQUEST_URL}`),
+      // 0, // Pending leave requests
     ]);
-    console.log("this is on leave :-  ", onLeaveRes.data.count);
+
+
+    const totalEmployeesData = totalEmployeesRes.data.data || [];
+
+    // Filter active employees based on status
+    const activeStatusEmployees = totalEmployeesData.filter(
+      (employee) => employee.status === 'ACTIVE'
+    );
+
+
+
+    console.log("this is on totla employee data on NS:-  ", totalEmployeesRes.data.data);
     const stats = {
-      totalEmployees: totalEmployeesRes.data.data.length, // Assuming response has { count: number }
-      onLeaveToday: onLeaveRes.data.count, // Assuming response has { count: number }
-      pendingLeaves: pendingLeavesRes, // Assuming response has { count: number }
-      activeEmployees: activeEmployeesRes.data.count, // Assuming response has { count: number }
+      totalEmployees: totalEmployeesRes.data.data.length, 
+      onLeaveToday: onLeaveRes.data.count, 
+      pendingLeaves: pendingLeavesRes.data.length, 
+      activeEmployees: activeStatusEmployees.length, 
     };
     console.log(stats);
     return stats;

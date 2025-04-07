@@ -230,3 +230,32 @@
   cursor: not-allowed;
   color: black;
 }
+
+
+
+
+
+
+
+
+
+.employee-db-delete-btn {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.employee-db-delete-btn:hover {
+  background-color: #ff7875;
+}
+
+.employee-db-delete-icon {
+  width: 16px;
+  height: 16px;
+}

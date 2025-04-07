@@ -1,6 +1,8 @@
-import React, { useState, useEffect,useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Shield, Info, Search, UserCog, Plus, Trash2 } from "lucide-react";
 import "./RolePermission.css";
+import Notification from "../../../utils/Notification";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const RolePermissions = () => {
@@ -29,7 +31,16 @@ const RolePermissions = () => {
   ] = useState("");
   const [roleNameError, setRoleNameError] = useState("");
   const [roleDescriptionError, setRoleDescriptionError] = useState("");
-  
+
+  const [notification, setNotification] = useState({ message: "", type: "" });
+  const showNotification = (message, type) => {
+    setNotification({ message, type });
+
+    setTimeout(() => {
+      setNotification({ message: "", type: "" });
+    }, 10000);
+  };
+
   useEffect(() => {
     fetchEmployees();
     fetchRoles();
@@ -52,6 +63,7 @@ const RolePermissions = () => {
       console.log("Employees ", data);
       setEmployees(data);
     } catch (error) {
+      showNotification(`${error.message}`,"error");
       console.error("Error fetching employees:", error);
     }
   };
@@ -66,6 +78,7 @@ const RolePermissions = () => {
       setRolePermissions(data);
       // setSelectedRole(data[0]?.role || null);
     } catch (error) {
+      showNotification(`${error.message}`,"error");
       console.error("Error fetching roles:", error);
     }
   };
@@ -79,6 +92,7 @@ const RolePermissions = () => {
       console.log("Permission", data);
       setAvailablePermissions(data);
     } catch (error) {
+      showNotification(`${error.message}`,"error");
       console.error("Error fetching permissions:", error);
     }
   };
@@ -88,16 +102,22 @@ const RolePermissions = () => {
 
     setRoleNameError("");
     setRoleDescriptionError("");
-  
+
     if (roleName.trim().length < 3) {
       setRoleNameError("Role name must be at least 3 characters long.");
       return;
     }
-  
+
     if (roleDescription.trim().length < 10) {
-      setRoleDescriptionError("Role description must be at least 10 characters long.");
+      setRoleDescriptionError(
+        "Role description must be at least 10 characters long."
+      );
       return;
     }
+    const isConfirmed = window.confirm("Are you sure you want to create this role?");
+    if (!isConfirmed) { 
+      return;
+    } 
     try {
       const headers = {
         "Content-Type": "application/json",
@@ -115,7 +135,11 @@ const RolePermissions = () => {
       setRoleDescription("");
       setShowCreateRole(false);
       fetchRoles();
+      
+      showNotification(`Role created successfully!`,"success");
     } catch (error) {
+      
+      showNotification(`${error.message}`,"error");
       console.error("Error creating role:", error);
     }
   };
@@ -128,7 +152,10 @@ const RolePermissions = () => {
       Authorization: `Bearer ${localStorage.getItem("accessToken") || ""}`,
       "x-refresh-token": localStorage.getItem("refreshToken") || "",
     };
-
+    const isConfirmed = window.confirm("Are you sure you want to delete this role?");
+    if (!isConfirmed) { 
+      return;
+    } 
     try {
       console.log("Here.........", localStorage.getItem("accessToken"));
 
@@ -145,19 +172,25 @@ const RolePermissions = () => {
       setRoleToDelete("");
       setShowDeleteRole(false);
       fetchRoles();
+      showNotification(`Role deleted successfully!`,"success");
     } catch (error) {
+      
+      showNotification(`${error.message}`,"error");
       console.error("Error deleting role:", error);
     }
   };
 
-  const handleUpdateEmployeeRole = async (employeeId, newRole) => {
+  const handleUpdateEmployeeRole = async (employeeId, newRole,name) => {
     try {
       const headers = {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("accessToken") || ""}`,
         "x-refresh-token": localStorage.getItem("refreshToken") || "",
       };
-
+      const isConfirmed = window.confirm(`Are you sure you want to update the role of ${name}?`);
+      if (!isConfirmed) { 
+        return;
+      } 
       const response = await fetch(`${API_BASE_URL}/api/v1/admin/assign-role`, {
         method: "POST",
         headers,
@@ -174,7 +207,11 @@ const RolePermissions = () => {
 
       // Optionally refresh the employees list to reflect the update
       fetchEmployees();
+      
+      showNotification(`Role updated successfully!`,"success");
     } catch (error) {
+      
+      showNotification(`${error.message}`,"error");
       console.error("Error updating employee role:", error.message);
       alert(`Failed to update role: ${error.message}`); // Optional user feedback
     }
@@ -192,6 +229,10 @@ const RolePermissions = () => {
       Authorization: `Bearer ${localStorage.getItem("accessToken") || ""}`,
       "x-refresh-token": localStorage.getItem("refreshToken") || "",
     };
+    const isConfirmed = window.confirm("Are you sure you want to add permission to this role?");
+    if (!isConfirmed) { 
+      return;
+    } 
     console.log(selectedRoleForPermission, selectedPermission);
     try {
       const response = await fetch(
@@ -210,7 +251,11 @@ const RolePermissions = () => {
 
       fetchRoles();
       setShowPermissionModal(false);
+      
+      showNotification(`Permission added successfully!`,"success");
     } catch (error) {
+      
+      showNotification(`${error.message}`,"error");
       console.error("Error adding permission:", error);
     }
   };
@@ -223,7 +268,10 @@ const RolePermissions = () => {
       Authorization: `Bearer ${localStorage.getItem("accessToken") || ""}`,
       "x-refresh-token": localStorage.getItem("refreshToken") || "",
     };
-
+    const isConfirmed = window.confirm("Are you sure you want to remove permission from this role?");
+    if (!isConfirmed) { 
+      return;
+    } 
     try {
       const response = await fetch(
         `${API_BASE_URL}/api/v1/admin/remove-role-permission`,
@@ -237,97 +285,32 @@ const RolePermissions = () => {
       if (!response.ok) throw new Error("Failed to remove permission");
 
       fetchRoles(); // Refresh roles to update UI
+      
+      showNotification(`Permission removed successfully!`,"success");
     } catch (error) {
+      
+      showNotification(`${error.message}`,"error");
       console.error("Error removing permission:", error);
     }
   };
 
-  const filteredEmployees = employees.filter(
-    (emp) =>
-      // emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      // emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      // emp.department.toLowerCase().includes(searchTerm.toLowerCase())
-      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) 
+  const filteredEmployees = employees.filter((emp) =>
+    // emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    // emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    // emp.department.toLowerCase().includes(searchTerm.toLowerCase())
+    emp.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  // const AssignRoleModal = () => (
-  //   <div className="rolemgmt-modal-overlay">
-  //     <div className="rolemgmt-modal-container">
-  //       <div className="rolemgmt-modal-header">
-  //         <h3 className="rolemgmt-modal-title">Assign Roles to Employees</h3>
-  //         <button
-  //           onClick={() => setShowAssignRole(false)}
-  //           className="rolemgmt-modal-close-btn"
-  //         >
-  //           ×
-  //         </button>
-  //       </div>
-
-  //       <div className="rolemgmt-search-container">
-  //         <div className="rolemgmt-search-input-wrapper">
-  //           <Search className="rolemgmt-search-icon" />
-  //           <input
-  //             type="text"
-  //             placeholder="Search employees..."
-  //             value={searchTerm}
-  //             onChange={(e) => setSearchTerm(e.target.value)}
-  //             className="rolemgmt-search-input"
-  //           />
-  //         </div>
-  //       </div>
-
-  //       <div className="rolemgmt-employee-list">
-  //         {filteredEmployees.map((employee) => (
-  //           <div key={employee.id} className="rolemgmt-employee-item">
-  //             <div className="rolemgmt-employee-info">
-  //               <img
-  //                 src={employee.avatar}
-  //                 alt={employee.name}
-  //                 className="rolemgmt-employee-avatar"
-  //               />
-  //               <div>
-  //                 <h4 className="rolemgmt-employee-name">{employee.name}</h4>
-  //                 <p className="rolemgmt-employee-department">
-  //                   {employee.department}
-  //                 </p>
-  //               </div>
-  //             </div>
-  //             <div className="rolemgmt-employee-role-select-container">
-  //               <select
-  //                 value={employee.role}
-  //                 onChange={(e) =>
-  //                   handleUpdateEmployeeRole(employee.id, e.target.value)
-  //                 }
-  //                 className="rolemgmt-employee-role-select"
-  //               >
-  //                 {Object.keys(rolePermissions).map((role) => (
-  //                   <option key={role} value={role}>
-  //                     {formatToTitleCase(role)}
-  //                   </option>
-  //                 ))}
-  //               </select>
-  //             </div>
-  //           </div>
-  //         ))}
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
-
-
-
-
 
   const AssignRoleModal = () => {
     const searchInputRef = useRef(null);
-  
+
     // Preserve input focus on re-render
     useEffect(() => {
       if (searchInputRef.current) {
         searchInputRef.current.focus();
       }
-    }, [searchTerm]); // Focus only when searchTerm updates
-  
+    }, []); 
+
     return (
       <div className="rolemgmt-modal-overlay">
         <div className="rolemgmt-modal-container">
@@ -340,7 +323,7 @@ const RolePermissions = () => {
               ×
             </button>
           </div>
-  
+
           <div className="rolemgmt-search-container">
             <div className="rolemgmt-search-input-wrapper">
               <Search className="rolemgmt-search-icon" />
@@ -354,7 +337,7 @@ const RolePermissions = () => {
               />
             </div>
           </div>
-  
+
           <div className="rolemgmt-employee-list">
             {filteredEmployees.map((employee) => (
               <div key={employee.id} className="rolemgmt-employee-item">
@@ -375,7 +358,7 @@ const RolePermissions = () => {
                   <select
                     value={employee.role}
                     onChange={(e) =>
-                      handleUpdateEmployeeRole(employee.id, e.target.value)
+                      handleUpdateEmployeeRole(employee.id, e.target.value,employee.name)
                     }
                     className="rolemgmt-employee-role-select"
                   >
@@ -393,21 +376,6 @@ const RolePermissions = () => {
       </div>
     );
   };
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   return (
     <div className="rolemgmt-container">
@@ -442,38 +410,6 @@ const RolePermissions = () => {
       </div>
 
       {/* Create Role Modal */}
-      {/* {showCreateRole && (
-        <div className="rolemgmt-modal-overlay">
-          <div className="rolemgmt-modal-container">
-            <div className="rolemgmt-modal-header">
-              <h3>Create New Role</h3>
-              <button
-                className="rolemgmt-close-btn"
-                onClick={() => setShowCreateRole(false)}
-              >
-                ×
-              </button>
-            </div>
-            <input
-              type="text"
-              placeholder="Role Name"
-              value={roleName}
-              onChange={(e) => setRoleName(e.target.value)}
-            />
-            <textarea
-              placeholder="Role Description"
-              value={roleDescription}
-              onChange={(e) => setRoleDescription(e.target.value)}
-            />
-            <button
-              onClick={handleCreateRole}
-              className="rolemgmt-assign-roles-btn"
-            >
-              Create Role
-            </button>
-          </div>
-        </div>
-      )} */}
 
       {showCreateRole && (
         <div className="rolemgmt-modal-overlay">
@@ -670,6 +606,12 @@ const RolePermissions = () => {
           </div>
         </div>
       )}
+
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        onClose={() => setNotification({ message: "", type: "" })}
+      />
     </div>
   );
 };

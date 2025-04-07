@@ -1,6 +1,9 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
+const axios = require("axios");
+require("dotenv").config();
+
 exports.createEmployee = async (data) => {
   return await prisma.employee.create({ data });
 };
@@ -192,8 +195,698 @@ exports.fetchEmployeeDetailsById = async (employeeId) => {
     });
 };
 
+// exports.createPersonalDetails = async (data) => {
+//   console.log("this is personal details api........",data);
+//   console.log("Here it is end");
+//   try {
+//     const {
+//       signedUserId,
+//       name,
+//       gender,
+//       location,
+//       dateOfBirth,
+//       bloodGroup,
+//       email,
+//       phone,
+//       alternatePhone,
+//       emergencyContact,
+//       emergencyContactName,
+//       emergencyContactRelationship,
+//       emergencyContactEmail,
+//       currentAddress,
+//       permanentAddress,
+//       maritalStatus,
+//       aadhaar,
+//       pan,
+//       aadhaarIssueDate,
+//       aadhaarExpiryDate,
+//       panIssueDate,
+//       panExpiryDate,
+//       aadhaarPath,
+//       panPath,
+//     } = data;
+//     // Validate signedUserId
+//     if (!signedUserId) {
+//       console.log("Here>>>")
+//       return {
+//         status: 400,
+//         data: { error: "Invalid or missing signedUserId." },
+//       };
+//     }
+
+//     // Verify and decode JWT token
+//     let decoded;
+//     try {
+//       decoded = jwt.verify(signedUserId, process.env.JWT_SECRET);
+//     } catch (error) {
+//       console.log(error);
+//       return { status: 401, data: { error: "Unauthorized: Invalid token" } };
+//     }
+
+//     const userId = decoded.userId; // Extract userId from token payload
+
+//     if (!userId) {
+//       return {
+//         status: 401,
+//         data: { error: "Unauthorized: Invalid user ID in token" },
+//       };
+//     }
+
+//     // Check if an employee already exists for this userId
+//     const existingEmployee = await prisma.employee.findUnique({
+//       where: { employee_id: userId },
+//     });
+
+//     if (existingEmployee) {
+//       return {
+//         status: 400,
+//         data: { error: "Employee already exists for this user" },
+//       };
+//     }
+
+//     // Validate required fields
+//     if (!name || !email || !phone || !dateOfBirth) {
+//       return { status: 400, data: { error: "Required fields are missing." } };
+//     }
+
+//     // Split name into first and last name
+//     const [firstName, ...lastNameParts] = name.split(" ");
+//     const lastName = lastNameParts.join(" ") || "";
+
+//     // Create employee record
+//     const newEmployee = await prisma.employee.create({
+//       data: {
+//         employee_id: userId,
+//         first_name: firstName,
+//         last_name: lastName,
+//         gender: gender?.toUpperCase() || "UNKNOWN",
+//         city: "Silchar",
+//         state: "Assam",
+//         country: "India",
+//         postal_code: "788111",
+//         date_of_birth: new Date(dateOfBirth),
+//         blood_group: bloodGroup,
+//         email,
+//         phone_number: phone,
+//         alternate_phone_number: alternatePhone,
+//         current_address: currentAddress,
+//         permanent_address: permanentAddress,
+//         marital_status: maritalStatus?.toUpperCase() || "UNKNOWN",
+//         nationality: "Indian",
+//         approval_status: "PENDING",
+//         profile_pic_url: "",
+
+//         emergencyContacts: {
+//           create: emergencyContact
+//             ? [
+//                 {
+//                   contact_phone: emergencyContact,
+//                   contact_name: emergencyContactName || "UNKNOWN",
+//                   relationship: emergencyContactRelationship || "UNKNOWN",
+//                   contact_email: emergencyContactEmail || "",
+//                   approval_status: "PENDING", // Ensure uppercase
+//                 },
+//               ]
+//             : [],
+//         },
+
+//         documents: {
+//           create: [
+//             ...(aadhaar
+//               ? [
+//                   {
+//                     document_type: "AADHAAR",
+//                     document_number: aadhaar,
+//                     approval_status: "PENDING",
+//                     issue_date: aadhaarIssueDate
+//                       ? new Date(aadhaarIssueDate)
+//                       : new Date(),
+//                     expiry_date: aadhaarExpiryDate
+//                       ? new Date(aadhaarExpiryDate)
+//                       : null,
+//                     document_path: aadhaarPath || "",
+//                   },
+//                 ]
+//               : []),
+//             ...(pan
+//               ? [
+//                   {
+//                     document_type: "PAN",
+//                     document_number: pan,
+//                     approval_status: "PENDING",
+//                     issue_date: panIssueDate
+//                       ? new Date(panIssueDate)
+//                       : new Date(),
+//                     expiry_date: panExpiryDate ? new Date(panExpiryDate) : null,
+//                     document_path: panPath || "",
+//                   },
+//                 ]
+//               : []),
+//           ].map((doc) => ({
+//             ...doc,
+//             document_type: doc.document_type.toUpperCase(),
+//             approval_status: doc.approval_status.toUpperCase(),
+//           })),
+//         },
+//       },
+//       include: {
+//         emergencyContacts: true,
+//         documents: true,
+//       },
+//     });
+
+//     return {
+//       status: 201,
+//       data: {
+//         message: "Employee details submitted successfully",
+//         employee: newEmployee,
+//       },
+//     };
+//   } catch (error) {
+//     console.error("Service Error:", error);
+//     return { status: 500, data: { error: "Internal Server Error" } };
+//   }
+// };
+
+
+
+// exports.createPersonalDetails = async (data) => {
+//   console.log("this is personal details api........", data);
+//   try {
+//     const {
+//       signedUserId,
+//       name,
+//       gender,
+//       location,
+//       dateOfBirth,
+//       bloodGroup,
+//       email,
+//       phone,
+//       alternatePhone,
+//       emergencyContact,
+//       emergencyContactName,
+//       emergencyContactRelationship,
+//       emergencyContactEmail,
+//       currentAddress,
+//       permanentAddress,
+//       maritalStatus,
+//       aadhaar,
+//       pan,
+//       aadhaarIssueDate,
+//       aadhaarExpiryDate,
+//       panIssueDate,
+//       panExpiryDate,
+//       aadhaarPath,
+//       panPath,
+//     } = data;
+
+//     if (!signedUserId) {
+//       return {
+//         status: 400,
+//         data: { error: "Invalid or missing signedUserId." },
+//       };
+//     }
+
+//     // Decode JWT token
+//     let decoded;
+//     try {
+//       decoded = jwt.verify(signedUserId, process.env.JWT_SECRET);
+//     } catch (error) {
+//       console.log(error);
+//       return { status: 401, data: { error: "Unauthorized: Invalid token" } };
+//     }
+
+//     const userId = decoded.userId;
+
+//     if (!userId) {
+//       return {
+//         status: 401,
+//         data: { error: "Unauthorized: Invalid user ID in token" },
+//       };
+//     }
+
+//     if (!name || !email || !phone || !dateOfBirth) {
+//       return { status: 400, data: { error: "Required fields are missing." } };
+//     }
+
+//     const [firstName, ...lastNameParts] = name.split(" ");
+//     const lastName = lastNameParts.join(" ") || "";
+
+//     // Delete existing submission (and related entries via cascade or manual delete)
+//     const existing = await prisma.personalDetailsSubmission.findFirst({
+//       where: { user_id: userId },
+//       select: { id: true },
+//     });
+
+//     if (existing) {
+//       await prisma.emergencySubmission.deleteMany({
+//         where: { personal_details_submission_id: existing.id },
+//       });
+//       await prisma.documentSubmission.deleteMany({
+//         where: { personal_details_submission_id: existing.id },
+//       });
+//       await prisma.personalDetailsSubmission.delete({
+//         where: { id: existing.id },
+//       });
+//     }
+
+//     // Create new submission
+//     const personalSubmission = await prisma.personalDetailsSubmission.create({
+//       data: {
+//         user_id: userId,
+//         first_name: firstName,
+//         last_name: lastName,
+//         gender: gender?.toUpperCase() || "UNKNOWN",
+//         date_of_birth: new Date(dateOfBirth),
+//         blood_group: bloodGroup,
+//         email,
+//         phone_number: phone,
+//         alternate_phone_number: alternatePhone,
+//         current_address: currentAddress,
+//         permanent_address: permanentAddress,
+//         city: location?.city || "Silchar",
+//         state: location?.state || "Assam",
+//         country: location?.country || "India",
+//         postal_code: location?.postalCode || "788111",
+//         nationality: "Indian",
+//         marital_status: maritalStatus?.toUpperCase() || "UNKNOWN",
+//         profile_pic_url: "",
+
+//         emergencyContacts: emergencyContact
+//           ? {
+//               create: [
+//                 {
+//                   contact_name: emergencyContactName || "UNKNOWN",
+//                   relationship: emergencyContactRelationship || "UNKNOWN",
+//                   contact_phone: emergencyContact,
+//                   contact_email: emergencyContactEmail || "",
+//                   approval_status: "PENDING",
+//                 },
+//               ],
+//             }
+//           : undefined,
+
+//         documents: {
+//           create: [
+//             ...(aadhaar
+//               ? [
+//                   {
+//                     document_type: "AADHAAR",
+//                     document_number: aadhaar,
+//                     approval_status: "PENDING",
+//                     issue_date: aadhaarIssueDate
+//                       ? new Date(aadhaarIssueDate)
+//                       : new Date(),
+//                     expiry_date: aadhaarExpiryDate
+//                       ? new Date(aadhaarExpiryDate)
+//                       : null,
+//                     document_path: aadhaarPath || "",
+//                   },
+//                 ]
+//               : []),
+//             ...(pan
+//               ? [
+//                   {
+//                     document_type: "PAN",
+//                     document_number: pan,
+//                     approval_status: "PENDING",
+//                     issue_date: panIssueDate
+//                       ? new Date(panIssueDate)
+//                       : new Date(),
+//                     expiry_date: panExpiryDate ? new Date(panExpiryDate) : null,
+//                     document_path: panPath || "",
+//                   },
+//                 ]
+//               : []),
+//           ],
+//         },
+//       },
+//       include: {
+//         emergencyContacts: true,
+//         documents: true,
+//       },
+//     });
+
+//     return {
+//       status: 201,
+//       data: {
+//         message: "Latest personal details submitted successfully.",
+//         submission: personalSubmission,
+//       },
+//     };
+//   } catch (error) {
+//     console.error("Service Error:", error);
+//     return { status: 500, data: { error: "Internal Server Error" } };
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const sendNotification = async ({
+  userId,
+  sourceId = null,
+  sourceType = "USER",
+  type = "AUTO",
+  title,
+  message,
+  priority = "NORMAL",
+  redirectUrl = null,
+}) => {
+  try {
+    const NOTIFICATION_URL = process.env.NOTIFICATION_SERVICE_URL;
+
+    if (!NOTIFICATION_URL) {
+      console.warn("Notification URL is not set in environment variables.");
+      return;
+    }
+
+    await axios.post(NOTIFICATION_URL, {
+      userId,
+      sourceId,
+      sourceType,
+      type,
+      title,
+      message,
+      priority,
+      redirectUrl,
+    });
+  } catch (error) {
+    console.error("Notification error:", error.response?.data || error.message);
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// exports.createPersonalDetails = async (data) => {
+//   console.log("this is personal details api........", data);
+//   try {
+//     const {
+//       signedUserId,
+//       name,
+//       gender,
+//       location,
+//       dateOfBirth,
+//       bloodGroup,
+//       email,
+//       phone,
+//       alternatePhone,
+//       emergencyContact,
+//       emergencyContactName,
+//       emergencyContactRelationship,
+//       emergencyContactEmail,
+//       currentAddress,
+//       permanentAddress,
+//       maritalStatus,
+//       aadhaar,
+//       pan,
+//       aadhaarIssueDate,
+//       aadhaarExpiryDate,
+//       panIssueDate,
+//       panExpiryDate,
+//       aadhaarPath,
+//       panPath,
+//     } = data;
+
+//     if (!signedUserId) {
+//       return {
+//         status: 400,
+//         data: { error: "Invalid or missing signedUserId." },
+//       };
+//     }
+
+//     // Decode JWT token
+//     let decoded;
+//     try {
+//       decoded = jwt.verify(signedUserId, process.env.JWT_SECRET);
+//     } catch (error) {
+//       console.log(error);
+//       return { status: 401, data: { error: "Unauthorized: Invalid token" } };
+//     }
+
+//     const userId = decoded.userId;
+//     if (!userId) {
+//       return {
+//         status: 401,
+//         data: { error: "Unauthorized: Invalid user ID in token" },
+//       };
+//     }
+
+//     if (!name || !email || !phone || !dateOfBirth) {
+//       return { status: 400, data: { error: "Required fields are missing." } };
+//     }
+
+//     const [firstName, ...lastNameParts] = name.split(" ");
+//     const lastName = lastNameParts.join(" ") || "";
+
+//     // Check if employee already exists
+//     const existingEmployee = await prisma.employee.findUnique({
+//       where: { employee_id: userId },
+//     });
+
+//     // If employee does NOT exist, directly create in Employee table
+//     if (!existingEmployee) {
+//       const newEmployee = await prisma.employee.create({
+//         data: {
+//           employee_id: userId,
+//           first_name: firstName,
+//           last_name: lastName,
+//           gender: gender?.toUpperCase() || "UNKNOWN",
+//           date_of_birth: new Date(dateOfBirth),
+//           blood_group: bloodGroup,
+//           email,
+//           phone_number: phone,
+//           alternate_phone_number: alternatePhone,
+//           current_address: currentAddress,
+//           permanent_address: permanentAddress,
+//           city: location?.city || "Silchar",
+//           state: location?.state || "Assam",
+//           country: location?.country || "India",
+//           postal_code: location?.postalCode || "788111",
+//           nationality: "Indian",
+//           marital_status: maritalStatus?.toUpperCase() || "UNKNOWN",
+//           profile_pic_url: "",
+//           approval_status: "APPROVED",
+
+//           emergencyContacts: emergencyContact
+//             ? {
+//                 create: [
+//                   {
+//                     contact_name: emergencyContactName || "UNKNOWN",
+//                     relationship: emergencyContactRelationship || "UNKNOWN",
+//                     contact_phone: emergencyContact,
+//                     contact_email: emergencyContactEmail || "",
+//                     approval_status: "APPROVED",
+//                   },
+//                 ],
+//               }
+//             : undefined,
+
+//           documents: {
+//             create: [
+//               ...(aadhaar
+//                 ? [
+//                     {
+//                       document_type: "AADHAAR",
+//                       document_number: aadhaar,
+//                       approval_status: "APPROVED",
+//                       issue_date: aadhaarIssueDate
+//                         ? new Date(aadhaarIssueDate)
+//                         : new Date(),
+//                       expiry_date: aadhaarExpiryDate
+//                         ? new Date(aadhaarExpiryDate)
+//                         : null,
+//                       document_path: aadhaarPath || "",
+//                     },
+//                   ]
+//                 : []),
+//               ...(pan
+//                 ? [
+//                     {
+//                       document_type: "PAN",
+//                       document_number: pan,
+//                       approval_status: "APPROVED",
+//                       issue_date: panIssueDate
+//                         ? new Date(panIssueDate)
+//                         : new Date(),
+//                       expiry_date: panExpiryDate
+//                         ? new Date(panExpiryDate)
+//                         : null,
+//                       document_path: panPath || "",
+//                     },
+//                   ]
+//                 : []),
+//             ],
+//           },
+//         },
+//         include: {
+//           emergencyContacts: true,
+//           documents: true,
+//         },
+//       });
+
+
+//       return {
+//         status: 201,
+//         data: {
+//           message: "Personal details directly saved to Employee table (first time entry).",
+//           employee: newEmployee,
+//         },
+//       };
+//     }
+
+//     // If employee exists → proceed with personalDetailsSubmission
+//     const existingSubmission = await prisma.personalDetailsSubmission.findFirst({
+//       where: { user_id: userId },
+//       select: { id: true },
+//     });
+
+//     if (existingSubmission) {
+//       await prisma.emergencySubmission.deleteMany({
+//         where: { personal_details_id: existingSubmission.id },
+//       });
+//       await prisma.documentSubmission.deleteMany({
+//         where: { personal_details_id: existingSubmission.id },
+//       });
+//       await prisma.personalDetailsSubmission.delete({
+//         where: { id: existingSubmission.id },
+//       });
+//     }
+
+//     const personalSubmission = await prisma.personalDetailsSubmission.create({
+//       data: {
+//         user_id: userId,
+//         first_name: firstName,
+//         last_name: lastName,
+//         gender: gender?.toUpperCase() || "UNKNOWN",
+//         date_of_birth: new Date(dateOfBirth),
+//         blood_group: bloodGroup,
+//         email,
+//         phone_number: phone,
+//         alternate_phone_number: alternatePhone,
+//         current_address: currentAddress,
+//         permanent_address: permanentAddress,
+//         city: location?.city || "Silchar",
+//         state: location?.state || "Assam",
+//         country: location?.country || "India",
+//         postal_code: location?.postalCode || "788111",
+//         nationality: "Indian",
+//         marital_status: maritalStatus?.toUpperCase() || "UNKNOWN",
+//         profile_pic_url: "",
+
+//         emergencyContacts: emergencyContact
+//           ? {
+//               create: [
+//                 {
+//                   contact_name: emergencyContactName || "UNKNOWN",
+//                   relationship: emergencyContactRelationship || "UNKNOWN",
+//                   contact_phone: emergencyContact,
+//                   contact_email: emergencyContactEmail || "",
+//                   approval_status: "PENDING",
+//                 },
+//               ],
+//             }
+//           : undefined,
+
+//         documents: {
+//           create: [
+//             ...(aadhaar
+//               ? [
+//                   {
+//                     document_type: "AADHAAR",
+//                     document_number: aadhaar,
+//                     approval_status: "PENDING",
+//                     issue_date: aadhaarIssueDate
+//                       ? new Date(aadhaarIssueDate)
+//                       : new Date(),
+//                     expiry_date: aadhaarExpiryDate
+//                       ? new Date(aadhaarExpiryDate)
+//                       : null,
+//                     document_path: aadhaarPath || "",
+//                   },
+//                 ]
+//               : []),
+//             ...(pan
+//               ? [
+//                   {
+//                     document_type: "PAN",
+//                     document_number: pan,
+//                     approval_status: "PENDING",
+//                     issue_date: panIssueDate
+//                       ? new Date(panIssueDate)
+//                       : new Date(),
+//                     expiry_date: panExpiryDate ? new Date(panExpiryDate) : null,
+//                     document_path: panPath || "",
+//                   },
+//                 ]
+//               : []),
+//           ],
+//         },
+//       },
+//       include: {
+//         emergencyContacts: true,
+//         documents: true,
+//       },
+//     });
+
+//     return {
+//       status: 201,
+//       data: {
+//         message: "Personal details submitted for review.",
+//         submission: personalSubmission,
+//       },
+//     };
+//   } catch (error) {
+//     console.error("Service Error:", error);
+//     return { status: 500, data: { error: "Internal Server Error" } };
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 exports.createPersonalDetails = async (data) => {
-  console.log(data);
+  console.log("this is personal details api........", data);
   try {
     const {
       signedUserId,
@@ -221,16 +914,15 @@ exports.createPersonalDetails = async (data) => {
       aadhaarPath,
       panPath,
     } = data;
-    // Validate signedUserId
+
     if (!signedUserId) {
-      console.log("Here>>>")
       return {
         status: 400,
         data: { error: "Invalid or missing signedUserId." },
       };
     }
 
-    // Verify and decode JWT token
+    // Decode JWT token
     let decoded;
     try {
       decoded = jwt.verify(signedUserId, process.env.JWT_SECRET);
@@ -239,8 +931,7 @@ exports.createPersonalDetails = async (data) => {
       return { status: 401, data: { error: "Unauthorized: Invalid token" } };
     }
 
-    const userId = decoded.userId; // Extract userId from token payload
-
+    const userId = decoded.userId;
     if (!userId) {
       return {
         status: 401,
@@ -248,38 +939,149 @@ exports.createPersonalDetails = async (data) => {
       };
     }
 
-    // Check if an employee already exists for this userId
-    const existingEmployee = await prisma.employee.findUnique({
-      where: { employee_id: userId },
-    });
-
-    if (existingEmployee) {
-      return {
-        status: 400,
-        data: { error: "Employee already exists for this user" },
-      };
-    }
-
-    // Validate required fields
     if (!name || !email || !phone || !dateOfBirth) {
       return { status: 400, data: { error: "Required fields are missing." } };
     }
 
-    // Split name into first and last name
     const [firstName, ...lastNameParts] = name.split(" ");
     const lastName = lastNameParts.join(" ") || "";
 
-    // Create employee record
-    const newEmployee = await prisma.employee.create({
+    // Check if employee already exists
+    const existingEmployee = await prisma.employee.findUnique({
+      where: { employee_id: userId },
+    });
+
+    let newEmployee;
+    if (!existingEmployee) {
+      // Create a new employee record
+      newEmployee = await prisma.employee.create({
+        data: {
+          employee_id: userId,
+          first_name: firstName,
+          last_name: lastName,
+          gender: gender?.toUpperCase() || "UNKNOWN",
+          date_of_birth: new Date(dateOfBirth),
+          blood_group: bloodGroup,
+          email,
+          phone_number: phone,
+          alternate_phone_number: alternatePhone,
+          current_address: currentAddress,
+          permanent_address: permanentAddress,
+          city: location?.city || "Silchar",
+          state: location?.state || "Assam",
+          country: location?.country || "India",
+          postal_code: location?.postalCode || "788111",
+          nationality: "Indian",
+          marital_status: maritalStatus?.toUpperCase() || "UNKNOWN",
+          profile_pic_url: "",
+          approval_status: "APPROVED",
+          emergencyContacts: emergencyContact
+            ? {
+                create: [
+                  {
+                    contact_name: emergencyContactName || "UNKNOWN",
+                    relationship: emergencyContactRelationship || "UNKNOWN",
+                    contact_phone: emergencyContact,
+                    contact_email: emergencyContactEmail || "",
+                    approval_status: "APPROVED",
+                  },
+                ],
+              }
+            : undefined,
+          documents: {
+            create: [
+              ...(aadhaar
+                ? [
+                    {
+                      document_type: "AADHAAR",
+                      document_number: aadhaar,
+                      approval_status: "APPROVED",
+                      issue_date: aadhaarIssueDate
+                        ? new Date(aadhaarIssueDate)
+                        : new Date(),
+                      expiry_date: aadhaarExpiryDate
+                        ? new Date(aadhaarExpiryDate)
+                        : null,
+                      document_path: aadhaarPath || "",
+                    },
+                  ]
+                : []),
+              ...(pan
+                ? [
+                    {
+                      document_type: "PAN",
+                      document_number: pan,
+                      approval_status: "APPROVED",
+                      issue_date: panIssueDate
+                        ? new Date(panIssueDate)
+                        : new Date(),
+                      expiry_date: panExpiryDate
+                        ? new Date(panExpiryDate)
+                        : null,
+                      document_path: panPath || "",
+                    },
+                  ]
+                : []),
+            ],
+          },
+        },
+        include: {
+          emergencyContacts: true,
+          documents: true,
+        },
+      });
+
+      // Notify all employees about the new personal details
+      const employees = await prisma.employee.findMany(); // Get all employees
+
+      // Send a notification to all employees
+
+      for (let employee of employees) {
+        await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
+          userIds: [employee.employee_id],
+          title: "New Personal Details Submission",
+          message: `Employee ${firstName} ${lastName} has submitted their personal details.`,
+          priority: "NORMAL",
+          redirectUrl: `${process.env.APP_URL}/employees/${employee.employee_id}`, // URL to view the employee's details
+          recipientType: "ADMIN", 
+        });
+      }
+
+
+
+      return {
+        status: 201,
+        data: {
+          message: "Personal details directly saved to Employee table (first time entry).",
+          employee: newEmployee,
+        },
+      };
+    }
+
+    // If employee exists → proceed with personalDetailsSubmission
+    const existingSubmission = await prisma.personalDetailsSubmission.findFirst({
+      where: { user_id: userId },
+      select: { id: true },
+    });
+
+    if (existingSubmission) {
+      await prisma.emergencySubmission.deleteMany({
+        where: { personal_details_id: existingSubmission.id },
+      });
+      await prisma.documentSubmission.deleteMany({
+        where: { personal_details_id: existingSubmission.id },
+      });
+      await prisma.personalDetailsSubmission.delete({
+        where: { id: existingSubmission.id },
+      });
+    }
+
+    const personalSubmission = await prisma.personalDetailsSubmission.create({
       data: {
-        employee_id: userId,
+        user_id: userId,
         first_name: firstName,
         last_name: lastName,
         gender: gender?.toUpperCase() || "UNKNOWN",
-        city: "Silchar",
-        state: "Assam",
-        country: "India",
-        postal_code: "788111",
         date_of_birth: new Date(dateOfBirth),
         blood_group: bloodGroup,
         email,
@@ -287,25 +1089,26 @@ exports.createPersonalDetails = async (data) => {
         alternate_phone_number: alternatePhone,
         current_address: currentAddress,
         permanent_address: permanentAddress,
-        marital_status: maritalStatus?.toUpperCase() || "UNKNOWN",
+        city: location?.city || "Silchar",
+        state: location?.state || "Assam",
+        country: location?.country || "India",
+        postal_code: location?.postalCode || "788111",
         nationality: "Indian",
-        approval_status: "PENDING",
+        marital_status: maritalStatus?.toUpperCase() || "UNKNOWN",
         profile_pic_url: "",
-
-        emergencyContacts: {
-          create: emergencyContact
-            ? [
+        emergencyContacts: emergencyContact
+          ? {
+              create: [
                 {
-                  contact_phone: emergencyContact,
                   contact_name: emergencyContactName || "UNKNOWN",
                   relationship: emergencyContactRelationship || "UNKNOWN",
+                  contact_phone: emergencyContact,
                   contact_email: emergencyContactEmail || "",
-                  approval_status: "PENDING", // Ensure uppercase
+                  approval_status: "PENDING",
                 },
-              ]
-            : [],
-        },
-
+              ],
+            }
+          : undefined,
         documents: {
           create: [
             ...(aadhaar
@@ -338,11 +1141,7 @@ exports.createPersonalDetails = async (data) => {
                   },
                 ]
               : []),
-          ].map((doc) => ({
-            ...doc,
-            document_type: doc.document_type.toUpperCase(),
-            approval_status: doc.approval_status.toUpperCase(),
-          })),
+          ],
         },
       },
       include: {
@@ -351,11 +1150,26 @@ exports.createPersonalDetails = async (data) => {
       },
     });
 
+    // Notify all employees about the personal details submission
+    const employees = await prisma.employee.findMany(); // Get all employees
+
+    for (let employee of employees) {
+      await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
+        userIds: [employee.employee_id],
+        title: "New Personal Details Submission",
+        message: `Employee ${firstName} ${lastName} has submitted their personal details for review.`,
+        priority: "NORMAL",
+        redirectUrl: `${process.env.APP_URL}/employees/${employee.employee_id}`, // URL to view the employee's details
+        recipientType: "ADMIN", // Notification for employees
+      });
+    }
+
+
     return {
       status: 201,
       data: {
-        message: "Employee details submitted successfully",
-        employee: newEmployee,
+        message: "Personal details submitted for review.",
+        submission: personalSubmission,
       },
     };
   } catch (error) {
@@ -363,6 +1177,26 @@ exports.createPersonalDetails = async (data) => {
     return { status: 500, data: { error: "Internal Server Error" } };
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -694,48 +1528,179 @@ exports.updateAllEmployeeDetails = async (id, data) => {
   }
 };
 
+
+
 exports.updateApprovalStatus = async (id, approvalStatus) => {
   try {
+    console.log("This is approval status", approvalStatus);
+
     if (approvalStatus === "REJECTED") {
-      // Delete all related entries first
+      const existing = await prisma.personalDetailsSubmission.findFirst({
+        where: { user_id: id },
+        select: { id: true },
+      });
 
-      await prisma.salary.deleteMany({ where: { employee_id: id } });
-      await prisma.bank.deleteMany({ where: { employee_id: id } });
-      await prisma.emergency.deleteMany({ where: { employee_id: id } });
-      await prisma.document.deleteMany({ where: { employee_id: id } });
-      await prisma.employment.deleteMany({ where: { employee_id: id } });
-      await prisma.certification.deleteMany({ where: { employee_id: id } });
-      // Finally, delete the employee record
-      await prisma.employee.delete({ where: { employee_id: id } });
-
+      if (existing) {
+        console.log("Here in the existing..........");
+        await prisma.emergencySubmission.deleteMany({
+          where: { personal_details_id: existing.id },
+        });
+        await prisma.documentSubmission.deleteMany({
+          where: { personal_details_id: existing.id },
+        });
+        await prisma.personalDetailsSubmission.delete({
+          where: { id: existing.id },
+        });
+      }
+      console.log("It is not existing........");
       return {
         success: true,
-        message: "Employee and all related data deleted successfully",
+        message: "Submission and all related data deleted (REJECTED)",
       };
     }
 
-    // If not rejected, just update approval status
-    await prisma.employee.update({
-      where: { employee_id: id },
-      data: { approval_status: approvalStatus },
+    // For APPROVED
+    const submission = await prisma.personalDetailsSubmission.findFirst({
+      where: { user_id: id },
+      include: {
+        emergencyContacts: true,
+        documents: true,
+      },
     });
 
-    await prisma.emergency.updateMany({
-      where: { employee_id: id },
-      data: { approval_status: approvalStatus },
+    if (!submission) {
+      return {
+        success: false,
+        message: "No submission found with the given ID",
+      };
+    }
+
+    const {
+      user_id,
+      first_name,
+      last_name,
+      gender,
+      date_of_birth,
+      blood_group,
+      email,
+      phone_number,
+      alternate_phone_number,
+      current_address,
+      permanent_address,
+      city,
+      state,
+      country,
+      postal_code,
+      nationality,
+      marital_status,
+      profile_pic_url,
+    } = submission;
+
+    // Check if employee already exists
+    const existingEmployee = await prisma.employee.findUnique({
+      where: { employee_id: user_id },
     });
 
-    await prisma.document.updateMany({
-      where: { employee_id: id },
-      data: { approval_status: approvalStatus },
+    let employee;
+
+    if (existingEmployee) {
+      // Only update personal fields, not emergency contacts or documents
+      employee = await prisma.employee.update({
+        where: { employee_id: user_id },
+        data: {
+          first_name,
+          last_name,
+          gender,
+          date_of_birth,
+          blood_group,
+          email,
+          phone_number,
+          alternate_phone_number,
+          current_address,
+          permanent_address,
+          city,
+          state,
+          country,
+          postal_code,
+          nationality,
+          marital_status,
+          profile_pic_url,
+          approval_status: "APPROVED",
+        },
+      });
+    } else {
+      // Create employee with all nested data
+      employee = await prisma.employee.create({
+        data: {
+          employee_id: user_id,
+          first_name,
+          last_name,
+          gender,
+          date_of_birth,
+          blood_group,
+          email,
+          phone_number,
+          alternate_phone_number,
+          current_address,
+          permanent_address,
+          city,
+          state,
+          country,
+          postal_code,
+          nationality,
+          marital_status,
+          profile_pic_url,
+          approval_status: "APPROVED",
+
+          emergencyContacts: {
+            create: submission.emergencyContacts.map((e) => ({
+              contact_name: e.contact_name,
+              relationship: e.relationship,
+              contact_phone: e.contact_phone,
+              contact_email: e.contact_email,
+              approval_status: "APPROVED",
+            })),
+          },
+
+          documents: {
+            create: submission.documents.map((d) => ({
+              document_type: d.document_type,
+              document_number: d.document_number,
+              approval_status: "APPROVED",
+              issue_date: d.issue_date,
+              expiry_date: d.expiry_date,
+              document_path: d.document_path,
+            })),
+          },
+        },
+      });
+    }
+
+    // Clean up submission data
+    await prisma.emergencySubmission.deleteMany({
+      where: { personal_details_id: submission.id },
+    });
+    await prisma.documentSubmission.deleteMany({
+      where: { personal_details_id: submission.id },
+    });
+    await prisma.personalDetailsSubmission.delete({
+      where: { id: submission.id },
     });
 
-    return { success: true, message: "Approval status updated successfully" };
+    return {
+      success: true,
+      message: "Submission approved and employee data processed",
+      employee,
+    };
   } catch (error) {
     console.error("Error updating approval status:", error);
     throw new Error("Internal server error");
   }
 };
+
+
+
+
 
 exports.getEmploymentByUserId = async (userId) => {
   console.log(userId);

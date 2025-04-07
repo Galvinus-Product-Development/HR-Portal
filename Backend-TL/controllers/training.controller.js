@@ -1,5 +1,4 @@
 const trainingService = require("../services/training.service");
-
 exports.getAllTrainings = async (req, res) => {
   try {
     const trainings = await trainingService.getAllTrainings();
@@ -21,19 +20,27 @@ exports.getTrainingById = async (req, res) => {
 
 exports.createTraining = async (req, res) => {
   try {
-    console.log(req.body);
-    const training = await trainingService.createTraining(req.body);
+    console.log("Incoming Files:", req.files); // Debugging
+    console.log("Incoming Body:", req.body);   // Debugging
+    console.log("from inside the create training",req.body);
+    console.log("end.........create training..........................");
+    const training = await trainingService.createTraining(req.body,req.files);
     res.status(201).json(training);
   } catch (error) {
+    console.log(error);
     res.status(400).json({ error: error.message });
   }
 };
 
 exports.updateTraining = async (req, res) => {
   try {
+    
+    console.log("from inside the update training",req.body);
+    console.log("end.........update training..........................");
     const training = await trainingService.updateTraining(
       req.params.id,
-      req.body
+      req.body,
+      req.files
     );
     res.json(training);
   } catch (error) {

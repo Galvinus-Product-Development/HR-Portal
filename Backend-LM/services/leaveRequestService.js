@@ -74,19 +74,21 @@ exports.getLeaveRequestById = async (id) => {
   });
 };
 
-exports.getAllLeaveRequests = async (employeeId) => {
-  return await prisma.leaveRequest.findMany({ where: { employeeId } });
-};
+// exports.getAllLeaveRequests = async (employeeId) => {
 
+//   console.log("I came upto here..................")
 
-// exports.getPendingLeaveRequests = async (lineManagerId) => {
-//   return await prisma.leaveRequest.findMany({
-//     where: {
-//       lineManagerId,
-//       status: "PENDING", // Only fetch pending leave requests
-//     },
-//   });
+//   return await prisma.leaveRequest.findMany({ where: { employeeId } });
 // };
+
+
+exports.getAllLeaveRequests = async () => {
+  return await prisma.leaveRequest.findMany({
+    where: {
+      status: "PENDING", // Only fetch pending leave requests
+    },
+  });
+};
 
 
 

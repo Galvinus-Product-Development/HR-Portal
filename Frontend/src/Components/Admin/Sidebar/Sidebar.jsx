@@ -8,6 +8,9 @@ import {
   GraduationCap,
   Award,
   ChevronDown,
+  ShieldCheck,
+  UserPlus,
+  Bell
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -45,9 +48,9 @@ const Sidebar = () => {
     },
     { name: "Training and Learning", icon: GraduationCap, path: "/admin/training" },
     { name: "Certification and Badges", icon: Award, path: "/admin/certification" },
-    { name: "Role Permissions", icon: Award, path: "/admin/role-permission" },
-    { name: "User Registration", icon: Award, path: "/admin/register-page" },
-    { name: "Notifications", icon: Award, path: "/admin/notification-page" }
+    { name: "Role Permissions", icon: ShieldCheck, path: "/admin/role-permission" },
+    { name: "User Registration", icon: UserPlus, path: "/admin/register-page" },
+    { name: "Notifications", icon: Bell, path: "/admin/notification-page" }
   ];
 
   return activeTab && (
@@ -114,7 +117,7 @@ const Sidebar = () => {
       </nav>
 
       <footer className="sidebar-footer">
-        Designed and developed by <b>Galvinus Pvt Ltd</b>
+        Designed and developed by <b>Galvinus Ltd</b>
       </footer>
     </div>
   );

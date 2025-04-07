@@ -8,6 +8,19 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 console.log("asdfsdfasfafasdf",API_BASE_URL);
 
+const fetchAndStoreProfileImage = async (userId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/users/profile-picture/${userId}`);
+    const data = await response.json();
+
+    if (data.profilePicture) {
+      localStorage.setItem("profileImage", data.profilePicture);
+    }
+  } catch (error) {
+    console.error("Error fetching profile image:", error);
+  }
+};
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,12 +45,66 @@ export function AuthProvider({ children }) {
     return deviceId;
   };
 
-  const login = async (email, password) => {
+  // const login = async (email, password) => {
 
-    console.log("this is api base url",API_BASE_URL);
+  //   console.log("this is api base url",API_BASE_URL);
+  //   console.log("........................................ojoj............... NEWNEWNEW");
+  //   setIsLoading(true);
+
+  //   const deviceId = localStorage.getItem("deviceId") || generateDeviceId();
+  //   const userAgent = navigator.userAgent;
+  //   const headers = {
+  //     "Content-Type": "application/json",
+  //     Authorization: `Bearer ${localStorage.getItem("accessToken") || ""}`,
+  //     "x-refresh-token": localStorage.getItem("refreshToken") || "",
+  //     "x-device-id": deviceId,
+  //     "user-agent": userAgent,
+  //   };
+  //   try {
+  //     const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+  //       method: "POST",
+  //       headers,
+  //       body: JSON.stringify({ email, password, deviceId, userAgent }),
+  //     });
+
+  //     if (!response.ok) throw new Error("Invalid credentials");
+
+  //     const data = await response.json();
+  //     setUser(data.roleName);
+  //     console.log(data);
+      
+  //     localStorage.setItem("accessToken", data.accessToken);
+  //     localStorage.setItem("refreshToken", data.refreshToken);
+  //     localStorage.setItem("user", data.roleName);
+  //     localStorage.setItem("userId", data.userId);
+  //     localStorage.setItem("signedUserId", data.signedUserId);
+  //     localStorage.setItem("name", data.name);
+  //     localStorage.setItem("email", data.email);
+      
+  //     // navigate(data.roleName === "EMPLOYEE" ? "/employee" : "/admin", { replace: true });
+
+  //     if (data.roleName === "EMPLOYEE") {
+  //       navigate("/employee", { replace: true });
+  //     } else {
+  //       navigate("/admin", { replace: true });
+  //     }
+
+  //   } catch (error) {
+  //     console.log(error);
+  //     console.error("Login error:", error.message);
+  //     throw error;
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+
+
+  const login = async (email, password) => {
+    console.log("this is api base url", API_BASE_URL);
     console.log("........................................ojoj............... NEWNEWNEW");
     setIsLoading(true);
-
+  
     const deviceId = localStorage.getItem("deviceId") || generateDeviceId();
     const userAgent = navigator.userAgent;
     const headers = {
@@ -47,19 +114,21 @@ export function AuthProvider({ children }) {
       "x-device-id": deviceId,
       "user-agent": userAgent,
     };
+  
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
         method: "POST",
         headers,
         body: JSON.stringify({ email, password, deviceId, userAgent }),
       });
-
+  
       if (!response.ok) throw new Error("Invalid credentials");
-
+  
       const data = await response.json();
       setUser(data.roleName);
       console.log(data);
-      
+  
+      // Store authentication data
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
       localStorage.setItem("user", data.roleName);
@@ -67,15 +136,16 @@ export function AuthProvider({ children }) {
       localStorage.setItem("signedUserId", data.signedUserId);
       localStorage.setItem("name", data.name);
       localStorage.setItem("email", data.email);
-      
-      // navigate(data.roleName === "EMPLOYEE" ? "/employee" : "/admin", { replace: true });
-
+  
+      // Fetch and store profile picture
+      await fetchAndStoreProfileImage(data.userId);
+  
+      // Redirect based on role
       if (data.roleName === "EMPLOYEE") {
         navigate("/employee", { replace: true });
       } else {
         navigate("/admin", { replace: true });
       }
-
     } catch (error) {
       console.log(error);
       console.error("Login error:", error.message);
@@ -84,6 +154,10 @@ export function AuthProvider({ children }) {
       setIsLoading(false);
     }
   };
+  
+
+
+
 
   const resetPassword = async (email) => {
     try {

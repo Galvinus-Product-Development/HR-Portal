@@ -97,7 +97,8 @@ exports.submitPersonalDetails = async (req, res) => {
 exports.updateAllEmployeeDetails = async (req, res) => {
   try {
     const { id } = req.params;
-
+    console.log("This is for API documentation:-",req.body);
+    console.log("END...............................................");
     const updatedEmployee = await employeeService.updateAllEmployeeDetails(
       id,
       req.body
@@ -117,6 +118,7 @@ exports.updateAllEmployeeDetails = async (req, res) => {
 exports.updateApprovalStatus = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log("This is the ID:_____________",id)
     const updatedEmployee = await employeeService.updateApprovalStatus(
       id,
       req.body.approvalStatus

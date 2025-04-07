@@ -13,6 +13,7 @@ const employeeRoutes = require('./routes/employeeRoutes');
 const employmentRoutes = require('./routes/employmentRoutes');
 const salaryRoutes = require('./routes/salaryRoutes');
 const certificationRoutes = require('./routes/certificationRoutes');
+const personalDetailsRoutes = require("./routes/personalDetailsRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -56,7 +57,11 @@ app.use('/ed/api/emergencyRoutes', emergencyRoutes);
 app.use('/ed/api/employeeRoutes', employeeRoutes);
 app.use('/ed/api/employmentRoutes', employmentRoutes);
 app.use('/ed/api/salaryRoutes', salaryRoutes);
-app.use('/ed/api/certifications',certificationRoutes)
+app.use('/ed/api/certifications',certificationRoutes);
+app.use("/ed/api/personal-details", personalDetailsRoutes);
+
+
+
 app.get("/ed", (req, res) => {
   res.status(200).json({ status: "ok", message: `Service is healthy` });
 });

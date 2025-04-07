@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { ObjectId } from 'mongodb';
+const { PrismaClient } = require('@prisma/client');
+const { ObjectId } = require('mongodb');
 
 const prisma = new PrismaClient();
 
@@ -49,10 +49,12 @@ async function main() {
   console.log('Seeding complete!');
 }
 
-main()
-  .catch((e) => {
-    console.error('Error seeding database:', e);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+// main()
+//   .catch((e) => {
+//     console.error('Error seeding database:', e);
+//   })
+//   .finally(async () => {
+//     await prisma.$disconnect();
+//   });
+(async()=>{
+  await prisma.notification.deleteMany({});})()

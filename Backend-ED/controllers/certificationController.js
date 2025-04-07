@@ -3,36 +3,112 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
 const certificationService = require("../services/certificationService");
-// const uploadCertificate = (req, res) => {
-//   console.log("Here....................");
+const s3 = require("../config/s3Config");
+
+const uploadFileToS3 = async (file) => {
+  const params = {
+    Bucket: "galvinus-hr-portal", // Your S3 bucket name
+    Key: `certificates/${Date.now()}-${file.originalname}`, // Unique key for the file
+    Body: file.buffer, // The file buffer
+    ContentType: file.mimetype, // Mime type of the file
+  };
+
+  try {
+    const uploadResult = await s3.upload(params).promise();
+    return uploadResult.Location; // Return the file's URL
+  } catch (error) {
+    console.error("Error uploading file to S3:", error);
+    throw new Error("Failed to upload file to S3.");
+  }
+};
+// const uploadCertificate = async (req, res) => {
+//   console.log("upload certification body:-",req.body);
+//   console.log("Uploading certificate...");
+
 //   try {
 //     if (!req.file) {
-//       return res.status(400).json({ message: 'Please upload a certificate file.' });
+//       return res
+//         .status(400)
+//         .json({ message: "Please upload a certificate file." });
 //     }
 
+//     const {
+//       signedUserId,
+//       name,
+//       issuer,
+//       issue_date,
+//       expiry_date,
+//       badge_visibility,
+//     } = req.body;
+
+//     if (!signedUserId) {
+//       return {
+//         status: 400,
+//         data: { error: "Invalid or missing signedUserId." },
+//       };
+//     }
+
+//     // Verify and decode JWT token
+//     let decoded;
+//     try {
+//       decoded = jwt.verify(signedUserId, process.env.JWT_SECRET);
+//     } catch (error) {
+//       console.log(error);
+//       return { status: 401, data: { error: "Unauthorized: Invalid token" } };
+//     }
+
+//     const employee_id = decoded.userId; // Extract userId from token payload
+
+//     if (!employee_id) {
+//       return {
+//         status: 401,
+//         data: { error: "Unauthorized: Invalid user ID in token" },
+//       };
+//     }
+
+//     // Ensure the employee exists before inserting
+//     const employee = await prisma.employee.findUnique({
+//       where: { employee_id },
+//     });
+
+//     if (!employee) {
+//       return res.status(404).json({ message: "Employee not found" });
+//     }
+
+//     // Prepare data for insertion
 //     const certificateData = {
-//       name: req.body.name,
-//       issuer: req.body.issuer,
-//       issue_date: req.body.issue_date,
-//       expiry_date: req.body.expiry_date || null,
-//       badge_visibility: req.body.badge_visibility === 'true', // Convert string to boolean
-//       certificate_file: `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`, // File URL
+//       employee_id,
+//       certificate_name: name,
+//       issuing_authority: issuer,
+//       issue_date: new Date(issue_date),
+//       expiry_date: expiry_date ? new Date(expiry_date) : null,
+//       certificate_path: `${req.protocol}://${req.get("host")}/uploads/${
+//         req.file.filename
+//       }`, // File URL
+//       badge_visibility: badge_visibility === "true", // Convert string to boolean
 //     };
 
-//     // Here, you would typically save certificateData to a database (MongoDB, PostgreSQL, etc.)
-//     console.log('Certificate Uploaded:', certificateData);
+//     // Save to the database
+//     const savedCertificate = await prisma.certification.create({
+//       data: certificateData,
+//     });
 
 //     res.status(201).json({
-//       message: 'Certificate uploaded successfully!',
-//       certificate: certificateData,
+//       message: "Certificate uploaded successfully!",
+//       certificate: savedCertificate,
 //     });
 //   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Server error while uploading certificate.' });
+//     console.error("Error uploading certificate:", error);
+//     res
+//       .status(500)
+//       .json({ message: "Server error while uploading certificate." });
 //   }
 // };
 
+
+
 const uploadCertificate = async (req, res) => {
+  console.log("upload certification body:-", req.body);
   console.log("Uploading certificate...");
 
   try {
@@ -52,10 +128,7 @@ const uploadCertificate = async (req, res) => {
     } = req.body;
 
     if (!signedUserId) {
-      return {
-        status: 400,
-        data: { error: "Invalid or missing signedUserId." },
-      };
+      return res.status(400).json({ error: "Invalid or missing signedUserId." });
     }
 
     // Verify and decode JWT token
@@ -64,16 +137,13 @@ const uploadCertificate = async (req, res) => {
       decoded = jwt.verify(signedUserId, process.env.JWT_SECRET);
     } catch (error) {
       console.log(error);
-      return { status: 401, data: { error: "Unauthorized: Invalid token" } };
+      return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
 
     const employee_id = decoded.userId; // Extract userId from token payload
 
     if (!employee_id) {
-      return {
-        status: 401,
-        data: { error: "Unauthorized: Invalid user ID in token" },
-      };
+      return res.status(401).json({ error: "Unauthorized: Invalid user ID in token" });
     }
 
     // Ensure the employee exists before inserting
@@ -85,6 +155,9 @@ const uploadCertificate = async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
 
+    // Upload the certificate to S3 and get the URL
+    const certificateUrl = await uploadFileToS3(req.file);
+
     // Prepare data for insertion
     const certificateData = {
       employee_id,
@@ -92,9 +165,7 @@ const uploadCertificate = async (req, res) => {
       issuing_authority: issuer,
       issue_date: new Date(issue_date),
       expiry_date: expiry_date ? new Date(expiry_date) : null,
-      certificate_path: `${req.protocol}://${req.get("host")}/uploads/${
-        req.file.filename
-      }`, // File URL
+      certificate_path: certificateUrl, // S3 File URL
       badge_visibility: badge_visibility === "true", // Convert string to boolean
     };
 
@@ -109,11 +180,12 @@ const uploadCertificate = async (req, res) => {
     });
   } catch (error) {
     console.error("Error uploading certificate:", error);
-    res
-      .status(500)
-      .json({ message: "Server error while uploading certificate." });
+    res.status(500).json({ message: "Server error while uploading certificate." });
   }
 };
+
+
+
 
 module.exports = { uploadCertificate };
 

@@ -1,6 +1,5 @@
 const prisma = require("../models/prisma/prismaClient");
 
-
 exports.assignRole = async (userId, roleName) => {
   // Validate role exists
   const role = await prisma.role.findUnique({
@@ -14,12 +13,11 @@ exports.assignRole = async (userId, roleName) => {
   // Update user's role by setting `roleId`
   await prisma.user.update({
     where: { id: userId },
-    data: { roleId: role.id }, 
+    data: { roleId: role.id },
   });
 
   return `Role '${roleName}' assigned successfully to user '${userId}'`;
 };
-
 
 exports.assignRolePermission = async (roleName, permissionName) => {
   // Get role
@@ -60,20 +58,39 @@ exports.assignRolePermission = async (roleName, permissionName) => {
   return `Permission '${permissionName}' assigned to role '${roleName}'`;
 };
 
-
-
-
 /**
  * Create a new role
  */
+// exports.createRole = async (name, description) => {
+//   return await prisma.role.create({
+//     data: {
+//       name,
+//       description,
+//     },
+//   });
+// };
 exports.createRole = async (name, description) => {
+  // Normalize the name: Convert to uppercase & replace spaces with underscores
+  const normalizedName = name.toUpperCase().replace(/\s+/g, "_");
+
+  // Check if the role already exists
+  const existingRole = await prisma.role.findUnique({
+    where: { name: normalizedName },
+  });
+
+  if (existingRole) {
+    throw new Error("Role with this name already exists");
+  }
+
+  // Create the role
   return await prisma.role.create({
     data: {
-      name,
+      name: normalizedName,
       description,
     },
   });
 };
+
 
 /**
  * Delete a role by ID
@@ -107,10 +124,11 @@ exports.deleteRole = async (roleId) => {
     return deletedRole;
   } catch (error) {
     console.error("Error deleting role:", error);
-    throw new Error(error.message || "Failed to delete role. Ensure it has no dependencies.");
+    throw new Error(
+      error.message || "Failed to delete role. Ensure it has no dependencies."
+    );
   }
 };
-
 
 /**
  * Create a new permission

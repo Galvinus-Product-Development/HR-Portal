@@ -132,6 +132,9 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
     if (!employmentDetails.jobTitle?.trim()) {
       newErrors.jobTitle = "Job title is required";
     }
+    if (!employmentDetails.department?.trim()) {
+      newErrors.jobTitle = "Department is required";
+    }
     if (!employmentDetails.location?.trim()) {
       newErrors.location = "Location is required";
     }
@@ -305,93 +308,6 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
           </div>
         </div>
 
-        {/* Employment Details
-        <div className="details-card">
-          <h3>
-            <Briefcase className="icon" /> Employment Details
-          </h3>
-          <div className="details-grid">
-            {[
-              "employeeId",
-              "jobTitle",
-              "location",
-              "officeEmail",
-              "dateOfJoining",
-              "uanNumber",
-              "pfNumber",
-              "esicNumber",
-            ].map((key) => (
-              <div key={key}>
-                <p className="detail-label">
-                  {key
-                    .replace(/([A-Z])/g, " $1")
-                    .trim()
-                    .replace(/\b\w/g, (c) => c.toUpperCase())}
-                </p>
-                <input
-                  type={key.includes("date") ? "date" : "text"}
-                  value={
-                    editedEmployee.employmentDetails?.[key] ||
-                    editedEmployee?.[key] ||
-                    ""
-                  }
-                  onChange={(e) =>
-                    handleChange("employmentDetails", key, e.target.value)
-                  }
-                />
-                {errors[key] && <p className="error">{errors[key]}</p>}
-              </div>
-            ))}
-
-            <div>
-              <p className="detail-label">Employment Type</p>
-              <select
-                value={editedEmployee.employmentDetails?.employmentType || ""}
-                onChange={(e) =>
-                  handleChange(
-                    "employmentDetails",
-                    "employmentType",
-                    e.target.value
-                  )
-                }
-              >
-                <option value="">Select employment type</option>
-                <option value="FULL_TIME">FULL TIME</option>
-                <option value="PART_TIME">PART TIME</option>
-                <option value="CONTRACT">CONTRACT</option>
-                <option value="INTERN">INTERN</option>
-              </select>
-              {errors.employmentType && (
-                <p className="error">{errors.employmentType}</p>
-              )}
-            </div>
-
-            <div>
-              <p className="detail-label">Line Manager</p>
-              <select
-                value={editedEmployee.employmentDetails?.lineManagerId || ""}
-                onChange={(e) =>
-                  handleChange(
-                    "employmentDetails",
-                    "lineManagerId",
-                    e.target.value
-                  )
-                }
-              >
-                <option value="">Select a Manager</option>
-                {managers?.map((manager) => (
-                  <option key={manager.id} value={manager.id}>
-                    {manager.name}
-                  </option>
-                ))}
-              </select>
-              {errors.lineManager && (
-                <p className="error">{errors.lineManager}</p>
-              )}
-            </div>
-          </div>
-        </div> */}
-
         {/* Employment Details */}
         <div className="details-card">
           <h3>
@@ -401,6 +317,7 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
             {[
               "employeeId",
               "jobTitle",
+              "department",
               "location",
               "officeEmail",
               "dateOfJoining",
@@ -462,6 +379,25 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
             </div>
 
             <div>
+              <p className="detail-label">Status</p>
+              <select
+                value={editedEmployee.employmentDetails?.status || ""}
+                onChange={(e) =>
+                  handleChange("employmentDetails", "status", e.target.value)
+                }
+              >
+                <option value="">Select Status</option>
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="DEACTIVATED">DEACTIVATED</option>
+                {/* <option value="CONTRACT">CONTRACT</option>
+                <option value="INTERN">INTERN</option> */}
+              </select>
+              {errors.employmentType && (
+                <p className="error">{errors.employmentType}</p>
+              )}
+            </div>
+
+            <div>
               <p className="detail-label">Line Manager</p>
               <select
                 value={editedEmployee.employmentDetails?.lineManagerId || ""}
@@ -488,33 +424,6 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
         </div>
 
         {/* Bank Details */}
-        {/* <div className="details-card">
-          <h3>
-            <CreditCard className="icon" /> Bank Details
-          </h3>
-          <div className="details-grid">
-            {["accountHolder", "bankName", "accountNumber", "ifscCode"].map(
-              (key) => (
-                <div key={key}>
-                  <p className="detail-label">
-                    {key
-                      .replace(/([A-Z])/g, " $1")
-                      .trim()
-                      .replace(/\b\w/g, (c) => c.toUpperCase())}
-                  </p>
-                  <input
-                    type="text"
-                    value={editedEmployee.bankDetails?.[key] || ""}
-                    onChange={(e) =>
-                      handleChange("bankDetails", key, e.target.value)
-                    }
-                  />
-                  {errors[key] && <p className="error">{errors[key]}</p>}
-                </div>
-              )
-            )}
-          </div>
-        </div> */}
 
         <div className="details-card">
           <h3>
@@ -596,3 +505,5 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
 };
 
 export default EmployeeModal;
+
+

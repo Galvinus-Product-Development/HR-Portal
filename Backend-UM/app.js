@@ -10,6 +10,7 @@ const session = require("./config/sessionStore");
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const rolePermissionRoutes = require("./routes/rolePermissionRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -66,7 +67,7 @@ app.get("/um", (req, res) => {
 app.use("/um/api/v1/auth", authRoutes);
 app.use("/um/api/v1/admin", adminRoutes);
 app.use("/um/api/role-permissions", rolePermissionRoutes);
-
+app.use("/um/api/users", userRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);

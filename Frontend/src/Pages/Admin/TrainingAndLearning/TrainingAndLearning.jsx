@@ -129,17 +129,78 @@ const TrainingAndLearning = () => {
     }));
   };
 
+  // const handleSubmitTraining = async (e) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     console.log("This is the uploded data", formData);
+  //     const response = await fetch(`${API_BASE_URL_TL}/trainings`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(formData),
+  //     });
+
+  //     if (!response.ok) {
+  //       const errorData = await response.json();
+  //       throw new Error(errorData.error || "Failed to create training");
+  //     }
+
+  //     // Reset form data
+  //     resetFormData();
+
+  //     // Close modal and refresh data
+  //     setShowAddTraining(false);
+  //     fetchTrainingAndTrainerData();
+  //   } catch (error) {
+  //     console.error("Error creating training:", error);
+  //     alert(`Failed to create training: ${error.message}`);
+  //   }
+  // };
   const handleSubmitTraining = async (e) => {
     e.preventDefault();
 
+    const formDataToSend = new FormData(); // ✅ Use FormData for multipart data
+
+    console.log("Raw formData:", formData); // Debugging the original state
+
+    // Append non-file fields
+    Object.entries(formData).forEach(([key, value]) => {
+      if (!["materialFiles", "lectureFiles", "resourceFiles"].includes(key)) {
+        formDataToSend.append(key, value);
+      }
+    });
+
+    console.log("Before adding files:", [...formDataToSend.entries()]); // Debugging before adding files
+
+    // Append files correctly
+    if (formData.materialFiles?.length) {
+      formData.materialFiles.forEach((file) =>
+        formDataToSend.append("materialFiles", file)
+      );
+    }
+    if (formData.lectureFiles?.length) {
+      formData.lectureFiles.forEach((file) =>
+        formDataToSend.append("lectureFiles", file)
+      );
+    }
+    if (formData.resourceFiles?.length) {
+      formData.resourceFiles.forEach((file) =>
+        formDataToSend.append("resourceFiles", file)
+      );
+    }
+
+    console.log("After adding files:");
+    for (let pair of formDataToSend.entries()) {
+      console.log(pair[0], pair[1]); // Debugging final FormData values
+    }
+
     try {
-      console.log("This is the uploded data", formData);
+      console.log("direct loging", formDataToSend);
       const response = await fetch(`${API_BASE_URL_TL}/trainings`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+        body: formDataToSend, // ✅ Send as FormData
       });
 
       if (!response.ok) {
@@ -147,10 +208,7 @@ const TrainingAndLearning = () => {
         throw new Error(errorData.error || "Failed to create training");
       }
 
-      // Reset form data
       resetFormData();
-
-      // Close modal and refresh data
       setShowAddTraining(false);
       fetchTrainingAndTrainerData();
     } catch (error) {
@@ -159,22 +217,85 @@ const TrainingAndLearning = () => {
     }
   };
 
+  // const handleUpdateTraining = async (e) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     console.log(currentTraining.id);
+  //     const response = await fetch(
+  //       `${API_BASE_URL_TL}/trainings/${currentTraining.id}`,
+  //       {
+  //         method: "PUT",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(formData),
+  //       }
+  //     );
+  //     console.log("ygvby");
+
+  //     if (!response.ok) {
+  //       const errorData = await response.json();
+  //       throw new Error(errorData.error || "Failed to update training");
+  //     }
+
+  //     // Reset form data
+  //     resetFormData();
+
+  //     // Close modal and refresh data
+  //     setShowEditTraining(false);
+  //     setCurrentTraining(null);
+  //     fetchTrainingAndTrainerData();
+  //   } catch (error) {
+  //     console.error("Error updating training:", error);
+  //     alert(`Failed to update training: ${error.message}`);
+  //   }
+  // };
+
   const handleUpdateTraining = async (e) => {
     e.preventDefault();
 
+    const formDataToSend = new FormData(); // ✅ Use FormData for multipart data
+
+    console.log("Updating training with:", formData);
+
+    // Append non-file fields
+    Object.entries(formData).forEach(([key, value]) => {
+      if (!["materialFiles", "lectureFiles", "resourceFiles"].includes(key)) {
+        formDataToSend.append(key, value);
+      }
+    });
+
+    // Append files (if present)
+    if (formData.materialFiles?.length) {
+      formData.materialFiles.forEach((file) =>
+        formDataToSend.append("materialFiles", file)
+      );
+    }
+    if (formData.lectureFiles?.length) {
+      formData.lectureFiles.forEach((file) =>
+        formDataToSend.append("lectureFiles", file)
+      );
+    }
+    if (formData.resourceFiles?.length) {
+      formData.resourceFiles.forEach((file) =>
+        formDataToSend.append("resourceFiles", file)
+      );
+    }
+
+    console.log("Final FormData before sending:");
+    for (let pair of formDataToSend.entries()) {
+      console.log(pair[0], pair[1]); // Debugging FormData
+    }
+
     try {
-      console.log(currentTraining.id);
       const response = await fetch(
         `${API_BASE_URL_TL}/trainings/${currentTraining.id}`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
+          body: formDataToSend, // ✅ Send FormData
         }
       );
-      console.log("ygvby");
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -420,6 +541,17 @@ const TrainingAndLearning = () => {
 
   const handleSubmitTrainer = async (e) => {
     e.preventDefault();
+
+    // Simple Validation
+    if (!trainerFormData.trainerId) {
+      alert("Please select a trainer.");
+      return;
+    }
+
+    if (!trainerFormData.trainerExpertise.trim()) {
+      alert("Trainer expertise cannot be empty.");
+      return;
+    }
 
     // Find selected employee from employees list
     const selectedTrainer = employees.find(

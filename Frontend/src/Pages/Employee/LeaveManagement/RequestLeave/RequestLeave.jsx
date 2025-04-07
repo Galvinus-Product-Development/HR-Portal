@@ -16,6 +16,7 @@ export default function Leave() {
   const [leaveBalance, setLeaveBalance] = useState([]);
   const [recentRequests, setRecentRequests] = useState([]);
   const [employeeId, setEmployeeId] = useState("");
+  const [name, setName] = useState("");
   const [managerId, setManagerId] = useState("");
 
   // UI states
@@ -26,6 +27,11 @@ export default function Leave() {
   useEffect(() => {
     // Fetch the employee ID from localStorage
     const id = localStorage.getItem("userId");
+    const namee=localStorage.getItem("name");
+    if(namee)
+    {
+      setName(namee);
+    }
     if (id) {
       setEmployeeId(id);
       fetchLeaveBalance(id);
@@ -225,7 +231,7 @@ export default function Leave() {
             userIds: [data.employmentDetails.lineManagerId], // Send notification to the line manager
             type: "AUTO", // Auto-generated notification
             title: "New Leave Request Submitted",
-            message: `Employee ${leaveRequestData.employeeId} has submitted a leave request from ${leaveRequestData.startDate} to ${leaveRequestData.endDate}.`,
+            message: `Employee ${name} has submitted a leave request from ${leaveRequestData.startDate.split('T')[0]} to ${leaveRequestData.endDate.split('T')[0]}.`,
             priority: "NORMAL",
           }),
         }

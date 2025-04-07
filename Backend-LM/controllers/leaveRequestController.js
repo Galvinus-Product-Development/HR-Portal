@@ -27,10 +27,12 @@ exports.getLeaveRequestById = async (req, res) => {
 exports.getAllLeaveRequests = async (req, res) => {
 	try {
 		// Expect a query parameter employeeId that corresponds to the unique field in Employee.
-		const { id } = req.params;
-		const leaveRequests = await leaveRequestService.getAllLeaveRequests(id);
+		// const { id } = req.params;
+		console.log("I came here inside the getAllLeaveRequests");
+		const leaveRequests = await leaveRequestService.getAllLeaveRequests();
 		res.status(200).json(leaveRequests);
 	} catch (error) {
+		console.log("This is the error.....................................................................",error);
 		res.status(500).json({ error: error.message });
 	}
 };
@@ -70,21 +72,60 @@ exports.deleteLeaveRequest = async (req, res) => {
 
 
 // Get count of employees on leave today
-exports.getOnleaveToday= async (req, res) => {
+// exports.getOnleaveToday= async (req, res) => {
+//     try {
+
+// 		console.log("I came here..................");
+//         const today = new Date();
+//         today.setHours(0, 0, 0, 0); // Normalize to start of the day
+
+//         const count = await prisma.leaveRequest.count({
+//             where: {
+//                 status: 'APPROVED', // Only approved leaves
+//                 startDate: { lte: today }, // Leave starts before or on today
+//                 endDate: { gte: today } // Leave ends on or after today
+//             }
+//         });
+// 		console.log("this is count.......................................................................",data);
+//         return res.status(200).json({ count });
+
+//     } catch (error) {
+//         console.error("Error fetching employees on leave today:", error);
+//         return res.status(500).json({ error: "Internal Server Error" });
+//     }
+// };
+
+exports.getOnleaveToday = async (req, res) => {
     try {
+        console.log("I came here..................");
 
-		console.log("I came here..................");
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Normalize to start of the day
+        // Get current date (Year-Month-Date only, ignoring time)
+        const now = new Date();
+        const todayStr = now.toISOString().split("T")[0]; // "YYYY-MM-DD"
 
-        const count = await prisma.leaveRequest.count({
-            where: {
-                status: 'APPROVED', // Only approved leaves
-                startDate: { lte: today }, // Leave starts before or on today
-                endDate: { gte: today } // Leave ends on or after today
-            }
+        // Fetch all approved leaves for debugging
+        const allApprovedLeaves = await prisma.leaveRequest.findMany({
+            where: { status: 'APPROVED' }
         });
-		console.log("this is count",count);
+
+        // Manual filtering to compare only dates
+        const debugLeaves = allApprovedLeaves.filter((leave) => {
+            const startDateStr = new Date(leave.startDate).toISOString().split("T")[0];
+            const endDateStr = new Date(leave.endDate).toISOString().split("T")[0];
+
+            console.log(`Checking leave ID: ${leave.id}`);
+            console.log(`Start Date: ${startDateStr}, End Date: ${endDateStr}`);
+            console.log(
+                `Condition: ${startDateStr} <= ${todayStr} && ${endDateStr} >= ${todayStr}`
+            );
+
+            return startDateStr <= todayStr && endDateStr >= todayStr;
+        });
+
+
+        const count = debugLeaves.length;
+        console.log("Leave count:", count);
+
         return res.status(200).json({ count });
 
     } catch (error) {

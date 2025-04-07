@@ -61,7 +61,9 @@ const createNotification = async (
   message, 
   priority = 'NORMAL', 
   sourceId = null, 
-  sourceType = null
+  sourceType = null,
+  redirectUrl="#",
+  recipientType="EMPLOYEE"
 ) => {
   try {
     console.log("Creating notifications...", userIds, type, title, message, priority);
@@ -69,6 +71,7 @@ const createNotification = async (
     if (!Array.isArray(userIds)) {
       throw new Error('userIds must be an array');
     }
+
 
     // Convert sourceId to ObjectId if present
     const notificationsData = userIds.map(userId => ({
@@ -80,6 +83,8 @@ const createNotification = async (
       sourceId: sourceId ? new ObjectId(sourceId) : null,
       sourceType,
       status: "UNREAD",
+      redirectUrl,
+      recipientType,
       createdAt: new Date(),
     }));
 

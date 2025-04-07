@@ -1,0 +1,71 @@
+/* Notification.css */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: white;
+    font-weight: 500;
+    z-index: 9999;
+    transition: all 0.5s ease;
+    max-width: 400px;
+  }
+  
+  /* Notification types */
+  .notification.success {
+    background: linear-gradient(to right, #34d399, #10b981);
+  }
+  
+  .notification.error {
+    background: linear-gradient(to right, #f87171, #ef4444);
+  }
+  
+  .notification.warning {
+    background: linear-gradient(to right, #fbbf24, #f59e0b);
+  }
+  
+  .notification.info {
+    background: linear-gradient(to right, #60a5fa, #3b82f6);
+  }
+  
+  /* Animation states */
+  .notification.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .notification.hidden {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  
+  /* Message and close button */
+  .notification-message {
+    flex: 1;
+  }
+  
+  .notification-close {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.8);
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .notification-close:hover {
+    color: white;
+  }
+  
+  .notification-close:focus {
+    outline: none;
+    color: white;
+  }

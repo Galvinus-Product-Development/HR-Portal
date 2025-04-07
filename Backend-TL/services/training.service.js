@@ -1,6 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-
+const s3 = require("../config/s3Config");
 exports.getAllTrainings = async () => {
   try {
     return await prisma.training.findMany({
@@ -32,8 +32,6 @@ exports.getAllTrainings = async () => {
 //   });
 // };
 
-
-
 exports.getTrainingByyId = async (trainingId) => {
   return await prisma.training.findUnique({
     where: { id: trainingId },
@@ -51,9 +49,6 @@ exports.getTrainingByyId = async (trainingId) => {
   });
 };
 
-
-
-
 exports.getTrainingById = async (trainingId) => {
   const training = await prisma.training.findUnique({
     where: { id: trainingId },
@@ -67,7 +62,7 @@ exports.getTrainingById = async (trainingId) => {
   });
 
   if (!training) return null;
-  console.log("Here is the log....",training);
+  console.log("Here is the log....", training);
   return {
     id: training.id,
     name: training.title,
@@ -86,10 +81,10 @@ exports.getTrainingById = async (trainingId) => {
       department: participant.department || "N/A",
       email: participant.email,
       phone: participant.phone || "N/A",
-      status:participant.status,
-      progress:participant.progress,
-      enrollmentDate:participant.enrollmentDate,
-      trainingId:participant.trainingId
+      status: participant.status,
+      progress: participant.progress,
+      enrollmentDate: participant.enrollmentDate,
+      trainingId: participant.trainingId,
     })),
     resources: [
       ...training.lectureFiles.map((lecture) => ({
@@ -118,18 +113,28 @@ exports.getTrainingById = async (trainingId) => {
   };
 };
 
-exports.createTraining = async (data) => {
+async function uploadFileToS3(fileBuffer, fileName, mimeType) {
+  const params = {
+    Bucket: "galvinus-hr-portal",
+    Key: `trainings/${Date.now()}-${fileName}`,
+    Body: fileBuffer,
+    ContentType: mimeType,
+  };
+
+  const uploadedFile = await s3.upload(params).promise();
+  return uploadedFile.Location; // Return file URL
+}
+
+exports.createTraining = async (data, files) => {
   console.log(data);
+  console.log("this is files", files);
   try {
     let trainerId = data.trainerId || null;
 
-    // If trainerId is provided, check if trainer exists
     if (trainerId) {
       let trainer = await prisma.trainer.findUnique({
         where: { id: trainerId },
       });
-
-      // If trainer does not exist, create a new one
       if (!trainer) {
         trainer = await prisma.trainer.create({
           data: {
@@ -144,43 +149,68 @@ exports.createTraining = async (data) => {
       }
     }
 
-    // Dummy file URLs for now
-    const dummyFileUrl = "https://example.com/dummy-file.pdf";
+    // Upload files and store URLs
+    const materialFiles = await Promise.all(
+      (files?.materialFiles || []).map(async (file) => {
+        const fileUrl = await uploadFileToS3(
+          file.buffer,
+          file.originalname,
+          file.mimetype
+        );
+        return { title: file.originalname, type: file.mimetype, fileUrl };
+      })
+    );
 
-    // Prepare training data with dummy file URLs
+    const lectureFiles = await Promise.all(
+      (files?.lectureFiles || []).map(async (file) => {
+        const videoUrl = await uploadFileToS3(
+          file.buffer,
+          file.originalname,
+          file.mimetype
+        );
+        return {
+          title: file.originalname,
+          videoUrl,
+          duration: 60,
+          uploadedAt: new Date(),
+        };
+      })
+    );
+
+    const resourceFiles = await Promise.all(
+      (files?.resourceFiles || []).map(async (file) => {
+        const resourceUrl = await uploadFileToS3(
+          file.buffer,
+          file.originalname,
+          file.mimetype
+        );
+        return {
+          title: file.originalname,
+          resourceUrl,
+          uploadedAt: new Date(),
+        };
+      })
+    );
     const trainingData = {
       title: data.title,
       description: data.description,
       trainerId,
       startDate: new Date(data.startDate),
       endDate: new Date(data.endDate),
-      courseProgress: data.courseProgress,
-      certificationAvailable: data.certificationAvailable,
-      totalParticipants: data.totalParticipants,
-      upcomingSessions: data.upcomingSessions,
-      activeTraining: data.activeTraining,
-      materialFiles: {
-        create: (data.materialFiles || []).map(() => ({
-          title: "Dummy Material",
-          type: "PDF",
-          fileUrl: dummyFileUrl,
-        })),
-      },
-      lectureFiles: {
-        create: (data.lectureFiles || []).map(() => ({
-          title: "Dummy Lecture",
-          videoUrl: dummyFileUrl,
-          duration: 60, // Dummy duration in minutes
-          uploadedAt: new Date(),
-        })),
-      },
-      resourceFiles: {
-        create: (data.resourceFiles || []).map(() => ({
-          title: "Dummy Resource",
-          resourceUrl: dummyFileUrl,
-          uploadedAt: new Date(),
-        })),
-      },
+      courseProgress: parseFloat(data.courseProgress) || 0, // Convert to Float
+      certificationAvailable: data.certificationAvailable === "true", // Convert to Boolean
+      totalParticipants: parseInt(data.totalParticipants) || 0, // Convert to Int
+      upcomingSessions: parseInt(data.upcomingSessions) || 0, // Convert to Int
+      activeTraining: data.activeTraining === "true", // Convert to Boolean
+
+      // Include uploaded files if they exist
+      materialFiles: materialFiles.length
+        ? { create: materialFiles }
+        : undefined,
+      lectureFiles: lectureFiles.length ? { create: lectureFiles } : undefined,
+      resourceFiles: resourceFiles.length
+        ? { create: resourceFiles }
+        : undefined,
     };
 
     return await prisma.training.create({
@@ -200,97 +230,236 @@ exports.createTraining = async (data) => {
   }
 };
 
-exports.updateTraining = async (id, data) => {
+// exports.updateTraining = async (id, data, files) => {
+//   try {
+//     // console.log("Updating training ID:", id);
+//     // console.log("Received Data:", JSON.stringify(data, null, 2));
+//     // console.log("Received Files:", JSON.stringify(files, null, 2));
+
+//     if (!data || typeof data !== "object") {
+//       throw new Error("Invalid data format: Expected an object");
+//     }
+
+//     // Verify training exists
+//     const existingTraining = await prisma.training.findUnique({
+//       where: { id },
+//       include: { materialFiles: true, lectureFiles: true, resourceFiles: true },
+//     });
+
+//     if (!existingTraining) {
+//       throw new Error(`Training with ID ${id} not found`);
+//     }
+
+//     // Convert values to correct types
+//     const parseBoolean = (value) => value === "true";
+//     const parseNumber = (value, fallback) => (isNaN(value) ? fallback : Number(value));
+
+//     data.courseProgress = "courseProgress" in data ? parseNumber(data.courseProgress, existingTraining.courseProgress) : existingTraining.courseProgress;
+//     data.certificationAvailable = "certificationAvailable" in data ? parseBoolean(data.certificationAvailable) : existingTraining.certificationAvailable;
+//     data.totalParticipants = "totalParticipants" in data ? parseNumber(data.totalParticipants, existingTraining.totalParticipants) : existingTraining.totalParticipants;
+//     data.upcomingSessions = "upcomingSessions" in data ? parseNumber(data.upcomingSessions, existingTraining.upcomingSessions) : existingTraining.upcomingSessions;
+//     data.activeTraining = "activeTraining" in data ? parseBoolean(data.activeTraining) : existingTraining.activeTraining;
+//     data.startDate = data.startDate ? new Date(data.startDate) : existingTraining.startDate;
+//     data.endDate = data.endDate ? new Date(data.endDate) : existingTraining.endDate;
+//     data.trainerId = data.trainerId || null;
+
+//     console.log("Uploading files...");
+
+//     // Safe file upload function
+//     const safeUploadFileToS3 = async (file) => {
+//       try {
+//         return await uploadFileToS3(file.buffer, file.originalname, file.mimetype);
+//       } catch (error) {
+//         console.error(`Failed to upload ${file.originalname}:`, error);
+//         return null;
+//       }
+//     };
+
+//     // Upload new files
+//     const processFiles = async (fileGroup, type) => {
+//       return fileGroup?.length
+//         ? (await Promise.all(fileGroup.map(safeUploadFileToS3))).filter(Boolean).map((url, i) => ({
+//             title: fileGroup[i].originalname,
+//             [`${type}Url`]: url,
+//             uploadedAt: new Date(),
+//             trainingId: id,
+//           }))
+//         : [];
+//     };
+
+//     const newMaterialFiles = await processFiles(files?.materialFiles, "file");
+//     const newLectureFiles = await processFiles(files?.lectureFiles, "video");
+//     const newResourceFiles = await processFiles(files?.resourceFiles, "resource");
+
+//     console.log("Updating training record...");
+
+//     const updateData = {
+//       title: data.title || existingTraining.title,
+//       description: data.description || existingTraining.description,
+//       trainer: data.trainerId ? { connect: { id: data.trainerId } } : undefined,
+//       courseProgress: data.courseProgress,
+//       certificationAvailable: data.certificationAvailable,
+//       totalParticipants: data.totalParticipants,
+//       upcomingSessions: data.upcomingSessions,
+//       activeTraining: data.activeTraining,
+//       startDate: data.startDate,
+//       endDate: data.endDate,
+
+//       materialFiles: newMaterialFiles.length ? { create: newMaterialFiles } : undefined,
+//       lectureFiles: newLectureFiles.length ? { create: newLectureFiles } : undefined,
+//       resourceFiles: newResourceFiles.length ? { create: newResourceFiles } : undefined,
+//     };
+
+//     Object.keys(updateData).forEach((key) => {
+//       if (updateData[key] === undefined) delete updateData[key];
+//     });
+
+//     await prisma.training.update({ where: { id }, data: updateData });
+
+//     console.log("Fetching updated training...");
+
+//     return await prisma.training.findUnique({
+//       where: { id },
+//       include: { trainer: true, participants: { include: { employee: true } }, sessions: true, materialFiles: true, lectureFiles: true, resourceFiles: true },
+//     });
+//   } catch (error) {
+//     console.error("Error in updateTraining:", error);
+//     throw error;
+//   }
+// };
+
+exports.updateTraining = async (id, data, files) => {
   try {
-    console.log(
-      "This is user Idgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg"
-    );
-    const { id: _, ...updateData } = data;
-    console.log("This is user Id", id);
-    console.log("This is updated data", updateData);
-    // Verify training exists
+    if (!data || typeof data !== "object") {
+      throw new Error("Invalid data format: Expected an object");
+    }
+
+    // Fetch existing training
     const existingTraining = await prisma.training.findUnique({
       where: { id },
+      include: { materialFiles: true, lectureFiles: true, resourceFiles: true },
     });
 
     if (!existingTraining) {
       throw new Error(`Training with ID ${id} not found`);
     }
 
-    // Handle trainer updates
-    if (updateData.hasOwnProperty("trainerId")) {
-      if (updateData.trainerId) {
-        // Verify new trainer exists if trainerId is provided
-        const trainer = await prisma.trainer.findUnique({
-          where: { id: updateData.trainerId },
-        });
-        if (!trainer) {
-          throw new Error(`Trainer with ID ${updateData.trainerId} not found`);
-        }
-      } else {
-        // If trainerId is null or undefined, explicitly set it to null
-        updateData.trainerId = null;
+    // Safe Type Conversion
+    const parseBoolean = (value) => value === "true";
+    const parseNumber = (value, fallback) =>
+      isNaN(value) ? fallback : Number(value);
+    const parseDate = (value, fallback) =>
+      isNaN(Date.parse(value)) ? fallback : new Date(value);
+
+    data.courseProgress =
+      "courseProgress" in data
+        ? parseNumber(data.courseProgress, existingTraining.courseProgress)
+        : existingTraining.courseProgress;
+    data.certificationAvailable =
+      "certificationAvailable" in data
+        ? parseBoolean(data.certificationAvailable)
+        : existingTraining.certificationAvailable;
+    data.totalParticipants =
+      "totalParticipants" in data
+        ? parseNumber(data.totalParticipants, existingTraining.totalParticipants)
+        : existingTraining.totalParticipants;
+    data.upcomingSessions =
+      "upcomingSessions" in data
+        ? parseNumber(data.upcomingSessions, existingTraining.upcomingSessions)
+        : existingTraining.upcomingSessions;
+    data.activeTraining =
+      "activeTraining" in data
+        ? parseBoolean(data.activeTraining)
+        : existingTraining.activeTraining;
+    data.startDate = data.startDate
+      ? parseDate(data.startDate, existingTraining.startDate)
+      : existingTraining.startDate;
+    data.endDate = data.endDate
+      ? parseDate(data.endDate, existingTraining.endDate)
+      : existingTraining.endDate;
+
+    console.log("Uploading files...");
+
+    const safeUploadFileToS3 = async (file) => {
+      try {
+        return await uploadFileToS3(
+          file.buffer,
+          file.originalname,
+          file.mimetype
+        );
+      } catch (error) {
+        console.error(`Failed to upload ${file.originalname}:`, error);
+        return null;
       }
-    }
+    };
 
-    const dummyFileUrl = "https://example.com/dummy-file.pdf";
-    return await prisma.training.update({
-      where: {
-        id,
-      },
-      data: {
-        title: updateData.title,
-        description: updateData.description,
-        trainer: {
-          connect: { id: updateData.trainerId },
-        }, // ✅ Fixed trainerId
-        // duration: isNaN(parseInt(duration)) ? null : `${duration} weeks`, // ✅ Ensure valid duration
-        courseProgress: 55,
+    const processFiles = async (fileGroup, type) => {
+      return fileGroup?.length
+        ? (await Promise.all(fileGroup.map(safeUploadFileToS3)))
+            .filter(Boolean)
+            .map((url, i) => ({
+              title: fileGroup[i].originalname,
+              [`${type}Url`]: url,
+              uploadedAt: new Date(), // ✅ Added `uploadedAt`
+              // trainingId: id,
+            }))
+        : [];
+    };
 
-        certificationAvailable: updateData.certificationAvailable,
-        totalParticipants: 1,
-        upcomingSessions: 0,
-        activeTraining: true,
-        startDate: new Date(updateData.startDate), // ✅ Example start date
-        endDate: new Date(updateData.endDate), // ✅ Example end date
+    // Ensure `files` is valid
+    const newMaterialFiles = files?.materialFiles
+      ? await processFiles(files.materialFiles, "file")
+      : [];
+    const newLectureFiles = files?.lectureFiles
+      ? await processFiles(files.lectureFiles, "video")
+      : [];
+    const newResourceFiles = files?.resourceFiles
+      ? await processFiles(files.resourceFiles, "resource")
+      : [];
 
-        materialFiles: {
-          create: (updateData.materialFiles || []).map(() => ({
-            title: "Dummy Material",
-            type: "PDF",
-            fileUrl: dummyFileUrl,
-          })),
-        },
-        lectureFiles: {
-          create: (updateData.lectureFiles || []).map(() => ({
-            title: "Dummy Lecture",
-            videoUrl: dummyFileUrl,
-            duration: 60, // Dummy duration in minutes
-            uploadedAt: new Date(),
-          })),
-        },
-        resourceFiles: {
-          create: (updateData.resourceFiles || []).map(() => ({
-            title: "Dummy Resource",
-            resourceUrl: dummyFileUrl,
-            uploadedAt: new Date(),
-          })),
-        },
-      },
-      include: {
-        trainer: true,
-        participants: { include: { employee: true } },
-        sessions: true,
-        materialFiles: true,
-        lectureFiles: true,
-        resourceFiles: true,
-      },
+    console.log("Updating training record...");
+
+    const updateData = {
+      title: data.title || existingTraining.title,
+      description: data.description || existingTraining.description,
+      trainer: data.trainerId ? { connect: { id: data.trainerId } } : undefined, // ✅ Fixed `trainer` relation
+      courseProgress: data.courseProgress,
+      certificationAvailable: data.certificationAvailable,
+      totalParticipants: data.totalParticipants,
+      upcomingSessions: data.upcomingSessions,
+      activeTraining: data.activeTraining,
+      startDate: data.startDate,
+      endDate: data.endDate,
+
+      materialFiles: newMaterialFiles.length
+        ? { create: newMaterialFiles.map((file) => ({ ...file,  type: "RESOURCE"})) }
+        : undefined,
+
+      lectureFiles: newLectureFiles.length
+        ? { create: newLectureFiles.map((file) => ({ ...file,  duration: 0 })) } // ✅ Added `duration`
+        : undefined,
+
+      resourceFiles: newResourceFiles.length
+        ? { create: newResourceFiles.map((file) => ({ ...file })) }
+        : undefined,
+    };
+
+    console.log("This is updated data:", updateData);
+
+    await prisma.training.update({ where: { id }, data: updateData });
+
+    console.log("Fetching updated training...");
+
+    return await prisma.training.findUnique({
+      where: { id },
+      include: { trainer: true, participants: { include: { employee: true } }, sessions: true, materialFiles: true, lectureFiles: true, resourceFiles: true },
     });
   } catch (error) {
     console.error("Error in updateTraining:", error);
     throw error;
   }
 };
+
 
 exports.deleteTraining = async (id) => {
   try {
