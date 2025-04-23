@@ -111,9 +111,36 @@ exports.updateAllEmployeeDetails = async (req, res) => {
         updatedEmployee,
       });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+
+
+
+
+exports.deleteEmployeeById = async (req, res) => {
+  const { employeeId } = req.params;
+
+  try {
+    await employeeService.deleteEmployee(employeeId);
+    res.status(200).json({ message: 'Employee and related data deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting employee:', error);
+    res.status(500).json({ error: 'Failed to delete employee.' });
+  }
+};
+
+
+
+
+
+
+
+
 
 exports.updateApprovalStatus = async (req, res) => {
   try {
@@ -215,4 +242,39 @@ exports.getBankDetails = async (req, res) => {
         console.error("Error fetching bank details:", error);
         res.status(500).json({ message: "Error fetching bank details" });
     }
+};
+
+
+
+
+
+
+
+exports.bulkImportEmployees = async (req, res) => {
+  try {
+    const { employees } = req.body;
+
+    if (!Array.isArray(employees) || employees.length === 0) {
+      return res.status(400).json({ message: 'No employee data provided.' });
+    }
+
+    const result = await employeeService.importEmployees(employees);
+    return res.status(200).json({ message: 'Import completed.', skipped: result.skipped, created: result.created });
+  } catch (error) {
+    console.error('Error importing employees:', error);
+    return res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+
+
+
+exports.addEmployee = async (req, res) => {
+  try {
+    const result = await employeeService.createSingleEmployee(req.body);
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('Error adding employees:', error);
+    res.status(400).json({ message: error.message });
+  }
 };

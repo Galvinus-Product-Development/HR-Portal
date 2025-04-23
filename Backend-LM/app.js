@@ -11,6 +11,7 @@ const leaveHistoryRoutes = require("./routes/leaveHistoryRoutes");
 const leavePolicyRoutes = require("./routes/leavePolicyRoutes");
 const leaveBalanceRoutes = require("./routes/leaveBalanceRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const holidayRoutes = require('./routes/holidayRoutes');
 
 dotenv.config();
 
@@ -31,6 +32,8 @@ app.use("/lm/api/leave-history", leaveHistoryRoutes);
 app.use("/lm/api/leave-policies", leavePolicyRoutes);
 app.use("/lm/api/leave-balance", leaveBalanceRoutes);
 app.use("/lm/api/upload-leave-request-docs", uploadRoutes);
+app.use('/lm/api/holiday', holidayRoutes);
+
 app.get("/lm", (req, res) => {
   res.status(200).json({ status: "ok", message: `Service is healthy` });
 });

@@ -144,7 +144,9 @@ export function AuthProvider({ children }) {
       if (data.roleName === "EMPLOYEE") {
         navigate("/employee", { replace: true });
       } else {
+        console.log("1");
         navigate("/admin", { replace: true });
+        console.log("2")
       }
     } catch (error) {
       console.log(error);
@@ -152,6 +154,7 @@ export function AuthProvider({ children }) {
       throw error;
     } finally {
       setIsLoading(false);
+      console.log("Till Here!!!!!!")
     }
   };
   

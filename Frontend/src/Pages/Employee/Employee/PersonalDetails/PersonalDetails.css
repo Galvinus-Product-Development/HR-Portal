@@ -78,3 +78,15 @@ button {
 .grid-container label {
   font-weight: bold;
 }
+
+
+
+.address-section {
+  margin-bottom: 20px;
+}
+
+.address-section h3 {
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}

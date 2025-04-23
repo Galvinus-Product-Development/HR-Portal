@@ -64,3 +64,5 @@ const seedDatabase = async () => {
 };
 
 seedDatabase();
+// (async()=>await prisma.overtime.deleteMany({}))();
+

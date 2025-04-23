@@ -1,0 +1,322 @@
+.overtime-container {
+    padding: 20px;
+    font-family: "Arial", sans-serif;
+    position: relative; /* Add this to make the button positioning relative to the container */
+}
+ 
+.overtime-header {
+    display: flex; /* Change from grid to flex for better alignment */
+    justify-content: space-between; /* Space out the title and button */
+    align-items: center; /* Vertically center items */
+    margin-bottom: 20px;
+}
+ 
+.overtime-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: black;
+    margin-bottom: 5px;
+}
+ 
+.overtime-subtitle {
+    font-size: 14px;
+    color: #777;
+}
+ 
+.apply-overtime-button {
+    background-color: #4f46e5;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    /* Remove absolute positioning */
+}
+ 
+.apply-overtime-button:hover {
+    background-color: #3e3bb3;
+}
+ 
+.overtime-filters {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+ 
+.overtime-search {
+    width: 15%;
+}
+ 
+.overtime-search-icon {
+    margin-right: 8px;
+}
+ 
+.overtime-search-input {
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    width: 50%;
+}
+ 
+.overtime-filter-buttons {
+    display: flex;
+    align-items: center;
+}
+ 
+.overtime-select-filter {
+    padding: 6px;
+    margin-right: 10px;
+    border-radius: 4px;
+}
+ 
+.overtime-filter-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+    border-radius: 4px;
+    margin-left: 10px;
+    padding: 2.5px 6px;
+    margin-right: 10px;
+    border: none;
+    background-color: white;
+    border: 1px solid black;
+}
+ 
+.overtime-table-container {
+    overflow-x: auto;
+}
+ 
+.overtime-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+ 
+.overtime-table-head {
+    background-color: #f7f7f7;
+}
+ 
+.overtime-table-header {
+    padding: 10px;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+}
+ 
+.overtime-table-body {
+    background-color: white;
+}
+ 
+.overtime-table-row {
+    border-bottom: 1px solid #ddd;
+}
+ 
+.overtime-table-cell {
+    padding: 12px;
+}
+ 
+.overtime-employee-info {
+    display: flex;
+    align-items: center;
+}
+ 
+.overtime-employee-avatar {
+    margin-right: 10px;
+}
+ 
+.overtime-avatar-icon {
+    width: 24px;
+    height: 24px;
+}
+ 
+.overtime-employee-name {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+ 
+.overtime-employee-id {
+    color: #777;
+    font-size: 12px;
+}
+ 
+.overtime-status-badge {
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 9999px;
+    font-weight: bold;
+}
+ 
+.overtime-status-approved {
+    background-color: #d1fad1;
+    color: #064e3b;
+    font-size: 12px;
+    font-weight: bold;
+}
+ 
+.overtime-status-rejected {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    font-size: 12px;
+    font-weight: bold;
+}
+ 
+.overtime-status-pending {
+    background-color: #e2e8f0;
+    color: #1f2937;
+    font-size: 12px;
+    font-weight: bold;
+}
+ 
+/* .overtime-status-onHold {
+    background-color: #fef9c3;
+    color: #9e7d28;
+    font-size: 12px;
+    font-weight: bold;
+  } */
+ 
+.overtime-status-onHold {
+    background-color: #fef08a; /* light yellow background */
+    color: #92400e; /* a complementary darker yellow/brown for text */
+    font-size: 12px;
+    font-weight: bold;
+}
+ 
+.overtime-approve-button {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+    transition: background-color 0.3s ease;
+}
+ 
+.overtime-approve-button:hover {
+    background-color: #218838;
+}
+ 
+.overtime-reject-button {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+    transition: background-color 0.3s ease;
+}
+ 
+.overtime-reject-button:hover {
+    background-color: #c82333;
+}
+ 
+.overtime-hold-button {
+    background-color: #ffc107;
+    color: black;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+    transition: background-color 0.3s ease;
+}
+ 
+.overtime-hold-button:hover {
+    background-color: #e0a800;
+}
+ 
+.overtime-details-button {
+    background-color: transparent;
+    border: none;
+    color: #4f46e5;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+ 
+.overtime-icon {
+    margin-right: 5px;
+}
+ 
+.overtime-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+ 
+.overtime-modal {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 500px;
+    max-width: 100%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+ 
+.overtime-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+ 
+.overtime-modal-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+ 
+.overtime-modal-request-id {
+    margin-top: 5px;
+}
+ 
+.overtime-close-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+ 
+.overtime-close-icon {
+    width: 24px;
+    height: 24px;
+    color: #777;
+}
+ 
+.overtime-modal-body {
+    margin-top: 20px;
+    margin-bottom: 15px;
+    line-height: 25px;
+}
+ 
+.overtime-modal-footer {
+    display: flex;
+    /* justify-content: space-between; */
+    margin-top: 20px;
+    margin-bottom: 5px;
+    /* margin-right: 50px; */
+}

@@ -50,6 +50,13 @@ const TrainingAndLearning = () => {
     endDate: "",
   });
   const [trainers, setTrainers] = useState();
+  const [filters, setFilters] = useState({
+    startDate: "",
+    endDate: "",
+    trainerId: "",
+    showFilters: false
+  });
+  const [filteredTrainings, setFilteredTrainings] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
     fetchTrainingAndTrainerData();
@@ -59,6 +66,58 @@ const TrainingAndLearning = () => {
   useEffect(() => {
     console.log("Trainers Data in State:", trainers);
   }, [trainers]);
+
+
+
+  useEffect(() => {
+    let result = [...trainings];
+    
+    // Apply trainer filter if selected
+    if (filters.trainerId) {
+      result = result.filter(training => training.trainer.id === filters.trainerId);
+    }
+    
+    // Apply date range filter if dates are selected
+    if (filters.startDate) {
+      const filterStartDate = new Date(filters.startDate);
+      result = result.filter(training => new Date(training.startDate) >= filterStartDate);
+    }
+    
+    if (filters.endDate) {
+      const filterEndDate = new Date(filters.endDate);
+      result = result.filter(training => new Date(training.endDate) <= filterEndDate);
+    }
+    
+    setFilteredTrainings(result);
+  }, [trainings, filters.trainerId, filters.startDate, filters.endDate]);
+
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+
+  const clearFilters = () => {
+    setFilters({
+      startDate: "",
+      endDate: "",
+      trainerId: "",
+      showFilters: true
+    });
+  };
+
+
+  const toggleFilters = () => {
+    setFilters(prev => ({
+      ...prev,
+      showFilters: !prev.showFilters
+    }));
+  };
+
 
   const fetchTrainingAndTrainerData = async () => {
     try {
@@ -129,35 +188,6 @@ const TrainingAndLearning = () => {
     }));
   };
 
-  // const handleSubmitTraining = async (e) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     console.log("This is the uploded data", formData);
-  //     const response = await fetch(`${API_BASE_URL_TL}/trainings`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(formData),
-  //     });
-
-  //     if (!response.ok) {
-  //       const errorData = await response.json();
-  //       throw new Error(errorData.error || "Failed to create training");
-  //     }
-
-  //     // Reset form data
-  //     resetFormData();
-
-  //     // Close modal and refresh data
-  //     setShowAddTraining(false);
-  //     fetchTrainingAndTrainerData();
-  //   } catch (error) {
-  //     console.error("Error creating training:", error);
-  //     alert(`Failed to create training: ${error.message}`);
-  //   }
-  // };
   const handleSubmitTraining = async (e) => {
     e.preventDefault();
 
@@ -216,41 +246,6 @@ const TrainingAndLearning = () => {
       alert(`Failed to create training: ${error.message}`);
     }
   };
-
-  // const handleUpdateTraining = async (e) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     console.log(currentTraining.id);
-  //     const response = await fetch(
-  //       `${API_BASE_URL_TL}/trainings/${currentTraining.id}`,
-  //       {
-  //         method: "PUT",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify(formData),
-  //       }
-  //     );
-  //     console.log("ygvby");
-
-  //     if (!response.ok) {
-  //       const errorData = await response.json();
-  //       throw new Error(errorData.error || "Failed to update training");
-  //     }
-
-  //     // Reset form data
-  //     resetFormData();
-
-  //     // Close modal and refresh data
-  //     setShowEditTraining(false);
-  //     setCurrentTraining(null);
-  //     fetchTrainingAndTrainerData();
-  //   } catch (error) {
-  //     console.error("Error updating training:", error);
-  //     alert(`Failed to update training: ${error.message}`);
-  //   }
-  // };
 
   const handleUpdateTraining = async (e) => {
     e.preventDefault();
@@ -590,6 +585,602 @@ const TrainingAndLearning = () => {
     }
   };
 
+  // return (
+  //   <div className="training-container">
+  //     <div className="header-section">
+  //       <div className="header-title">
+  //         <div className="page-header">
+  //           <h2 className="page-title">Training & Learning</h2>
+  //           <p className="page-description">
+  //             Enhance skills and track learning progress with tailored training
+  //             programs.
+  //           </p>
+  //         </div>
+  //       </div>
+  //       <button
+  //         onClick={() => setShowAddTrainer(true)}
+  //         className="add-training-btn"
+  //       >
+  //         <Plus className="button-icon" />
+  //         Add Trainer
+  //       </button>
+  //       <button
+  //         onClick={() => setShowAddTraining(true)}
+  //         className="add-training-btn"
+  //       >
+  //         <Plus className="button-icon" />
+  //         Add Training
+  //       </button>
+  //     </div>
+
+
+
+
+  //     {/* Filter Section */}
+  //     {filters.showFilters && (
+  //       <div className="filters-container">
+  //         <div className="filter-group">
+  //           <label>Start Date</label>
+  //           <input
+  //             type="date"
+  //             name="startDate"
+  //             value={filters.startDate}
+  //             onChange={handleFilterChange}
+  //           />
+  //         </div>
+  //         <div className="filter-group">
+  //           <label>End Date</label>
+  //           <input
+  //             type="date"
+  //             name="endDate"
+  //             value={filters.endDate}
+  //             onChange={handleFilterChange}
+  //           />
+  //         </div>
+  //         <div className="filter-group">
+  //           <label>Trainer</label>
+  //           <select
+  //             name="trainerId"
+  //             value={filters.trainerId}
+  //             onChange={handleFilterChange}
+  //           >
+  //             <option value="">All Trainers</option>
+  //             {trainers?.map((trainer) => (
+  //               <option key={trainer.id} value={trainer.id}>
+  //                 {trainer.name}
+  //               </option>
+  //             ))}
+  //           </select>
+  //         </div>
+  //         <button onClick={clearFilters} className="clear-filters-btn">
+  //           Clear Filters
+  //         </button>
+  //       </div>
+  //     )}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //     <div className="training-stats-grid">
+  //       <div className="training-stat-card">
+  //         <div className="training-stat-content">
+  //           <div>
+  //             <p className="training-stat-label">Active Trainings</p>
+  //             <p className="training-stat-value">{summary.activeTrainings}</p>
+  //           </div>
+  //           <div className="training-icon-wrapper active-icon">
+  //             <BookOpen className="training-icon" />
+  //           </div>
+  //         </div>
+  //       </div>
+
+  //       <div className="training-stat-card">
+  //         <div className="training-stat-content">
+  //           <div>
+  //             <p className="training-stat-label">Completed Trainings</p>
+  //             <p className="training-stat-value">
+  //               {summary.completedTrainings}
+  //             </p>
+  //           </div>
+  //           <div className="training-icon-wrapper completed-icon">
+  //             <Award className="training-icon" />
+  //           </div>
+  //         </div>
+  //       </div>
+
+  //       {/* Total Participants Card */}
+  //       <div className="training-stat-card">
+  //         <div className="training-stat-content">
+  //           <div>
+  //             <p className="training-stat-label">Total Participants</p>
+  //             <p className="training-stat-value">{summary.totalParticipants}</p>
+  //           </div>
+  //           <div className="training-icon-wrapper participants-icon">
+  //             <Users className="training-icon" />
+  //           </div>
+  //         </div>
+  //       </div>
+
+  //       <div className="training-stat-card">
+  //         <div className="training-stat-content">
+  //           <div>
+  //             <p className="training-stat-label">Upcoming Trainings</p>
+  //             <p className="training-stat-value">{summary.upcomingTrainings}</p>
+  //           </div>
+  //           <div className="training-icon-wrapper upcoming-icon">
+  //             <Clock className="training-icon" />
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+  //     <div className="training-list">
+  //       <h2>Current Training Programs</h2>
+  //       {trainings.map((training) => (
+  //         <div
+  //           key={training.id}
+  //           className="training-card"
+  //           onClick={(e) => {
+  //             navigate(`${training.id}`);
+  //           }}
+  //           style={{ cursor: "pointer" }}
+  //         >
+  //           <div className="training-header">
+  //             <h3>{training.title}</h3>
+  //             <div className="training-actions">
+  //               <span
+  //                 className={`training-status ${getStatusColor(
+  //                   getTrainingStatus(training?.startDate, training?.endDate)
+  //                 )}`}
+  //               >
+  //                 {getTrainingStatus(training?.startDate, training?.endDate)}
+  //               </span>
+  //               <div className="action-buttons">
+  //                 <button
+  //                   className="action-button edit-button"
+  //                   onClick={(e) => {
+  //                     openEditModal(training);
+  //                     e.stopPropagation();
+  //                   }}
+  //                 >
+  //                   <Edit size={16} />
+  //                 </button>
+  //                 <button
+  //                   className="action-button delete-button"
+  //                   onClick={(e) => {
+  //                     openDeleteConfirm(training);
+  //                     e.stopPropagation();
+  //                   }}
+  //                 >
+  //                   <Trash size={16} />
+  //                 </button>
+  //               </div>
+  //             </div>
+  //           </div>
+  //           <p className="training-description">{training.description}</p>
+
+  //           <div className="training-details-row">
+  //             <div className="training-detail-item">
+  //               <p className="detail-title">Trainer</p>
+  //               <div className="trainer-info">
+  //                 <img
+  //                   src={training.trainer.avatar}
+  //                   alt={training.trainer.name}
+  //                   className="trainer-avatar"
+  //                 />
+  //                 <p className="detail-value">{training.trainer.name}</p>
+  //               </div>
+  //             </div>
+  //             <div className="training-detail-item">
+  //               <p className="detail-title">Duration</p>
+  //               <div className="detail-value-container">
+  //                 <p>
+  //                   {differenceInDays(
+  //                     new Date(training.endDate),
+  //                     new Date(training.startDate)
+  //                   )}{" "}
+  //                   days
+  //                 </p>
+  //               </div>
+  //             </div>
+  //             <div className="training-detail-item">
+  //               <p className="detail-title">Participants</p>
+  //               <p className="detail-value">
+  //                 {training.participants.length} enrolled
+  //               </p>
+  //             </div>
+  //             <div className="training-detail-item">
+  //               <p className="detail-title">Progress</p>
+  //               <div className="progress-bar-container">
+  //                 <div className="progress-bar">
+  //                   <div
+  //                     className="progress-filled"
+  //                     style={{
+  //                       width: `${calculateProgress(
+  //                         training.startDate,
+  //                         training.endDate
+  //                       )}%`,
+  //                     }}
+  //                   />
+  //                 </div>
+  //                 <p className="progress-percentage">
+  //                   {calculateProgress(training.startDate, training.endDate)}%
+  //                 </p>
+  //               </div>
+  //             </div>
+  //           </div>
+
+  //           <div className="training-resources">
+  //             {[
+  //               ...new Map(
+  //                 training.resources.map((resource) => [
+  //                   resource.type,
+  //                   resource,
+  //                 ])
+  //               ).values(),
+  //             ].map((resource, index) => (
+  //               <a key={index} href={resource.url} className="resource-link">
+  //                 {getResourceIcon(resource.type)}
+  //                 <span>{resource.title}</span>
+  //               </a>
+  //             ))}
+  //             {training.certificationAvailable && (
+  //               <div className="certification-available">
+  //                 <Award className="icon" />
+  //                 Certification Available
+  //               </div>
+  //             )}
+  //           </div>
+  //         </div>
+  //       ))}
+  //     </div>
+  //     {showAddTraining && (
+  //       <div className="modal-overlay">
+  //         <div className="modal-content">
+  //           <div className="modal-header">
+  //             <h3>Add New Training Program</h3>
+  //             <button
+  //               onClick={() => setShowAddTraining(false)}
+  //               className="modal-close-btn"
+  //             >
+  //               <X className="icon" />
+  //             </button>
+  //           </div>
+  //           <form onSubmit={handleSubmitTraining}>
+  //             <div className="form-field">
+  //               <label>Training Name</label>
+  //               <input
+  //                 type="text"
+  //                 name="title"
+  //                 value={formData.title}
+  //                 onChange={handleInputChange}
+  //                 placeholder="Enter Training Name"
+  //                 required
+  //               />
+  //             </div>
+  //             <div className="form-field">
+  //               <label>Training Description</label>
+  //               <textarea
+  //                 name="description"
+  //                 value={formData.description}
+  //                 onChange={handleInputChange}
+  //                 placeholder="Enter Training Description"
+  //                 required
+  //               ></textarea>
+  //             </div>
+
+  //             <div className="form-field">
+  //               <label>Trainer</label>
+  //               <select
+  //                 name="trainerId"
+  //                 value={formData.trainerId}
+  //                 onChange={handleInputChange}
+  //                 required
+  //               >
+  //                 <option value="">Select Trainer</option>
+  //                 {trainers?.map((trainer) => (
+  //                   <option key={trainer.id} value={trainer.id}>
+  //                     {trainer.name}
+  //                   </option>
+  //                 ))}
+  //               </select>
+  //             </div>
+
+  //             {/* Start Date and End Date Fields */}
+  //             <div className="form-field">
+  //               <label>Start Date</label>
+  //               <input
+  //                 type="date"
+  //                 name="startDate"
+  //                 value={formData.startDate}
+  //                 onChange={handleInputChange}
+  //                 required
+  //               />
+  //             </div>
+  //             <div className="form-field">
+  //               <label>End Date</label>
+  //               <input
+  //                 type="date"
+  //                 name="endDate"
+  //                 value={formData.endDate}
+  //                 onChange={handleInputChange}
+  //                 required
+  //               />
+  //             </div>
+
+  //             <div className="form-field">
+  //               <label>Material For Training</label>
+  //               <input
+  //                 type="file"
+  //                 multiple
+  //                 onChange={(e) => handleFileChange(e, "materialFiles")}
+  //               />
+  //             </div>
+  //             <div className="form-field">
+  //               <label>Lecture For Training</label>
+  //               <input
+  //                 type="file"
+  //                 multiple
+  //                 onChange={(e) => handleFileChange(e, "lectureFiles")}
+  //               />
+  //             </div>
+  //             <div className="form-field">
+  //               <label>Resource For Training</label>
+  //               <input
+  //                 type="file"
+  //                 multiple
+  //                 onChange={(e) => handleFileChange(e, "resourceFiles")}
+  //               />
+  //             </div>
+  //             {/* <button onClick={handleUpload}>Upload Files</button> */}
+
+  //             <div className="field form-field checkbox-field">
+  //               <label>Certification Available</label>
+  //               <input
+  //                 type="checkbox"
+  //                 name="certificationAvailable"
+  //                 checked={formData.certificationAvailable}
+  //                 onChange={handleInputChange}
+  //               />
+  //             </div>
+
+  //             <div className="modal-actions">
+  //               <button type="button" onClick={() => setShowAddTraining(false)}>
+  //                 Cancel
+  //               </button>
+  //               <button type="submit">Create Training</button>
+  //             </div>
+  //           </form>
+  //         </div>
+  //       </div>
+  //     )}{" "}
+  //     {/* Edit Training Modal */}
+  //     {showEditTraining && (
+  //       <div className="modal-overlay">
+  //         <div className="modal-content">
+  //           <div className="modal-header">
+  //             <h3>Edit Training Program</h3>
+  //             <button
+  //               onClick={() => setShowEditTraining(false)}
+  //               className="modal-close-btn"
+  //             >
+  //               <X className="icon" />
+  //             </button>
+  //           </div>
+  //           <form onSubmit={handleUpdateTraining}>
+  //             <div className="form-field">
+  //               <label>Training Name</label>
+  //               <input
+  //                 type="text"
+  //                 name="title"
+  //                 value={formData.title}
+  //                 onChange={handleInputChange}
+  //                 placeholder="Enter Training Name"
+  //                 required
+  //               />
+  //             </div>
+  //             <div className="form-field">
+  //               <label>Training Description</label>
+  //               <textarea
+  //                 name="description"
+  //                 value={formData.description}
+  //                 onChange={handleInputChange}
+  //                 placeholder="Enter Training Description"
+  //                 required
+  //               ></textarea>
+  //             </div>
+
+  //             <div className="form-field">
+  //               <label>Trainer</label>
+  //               <select
+  //                 name="trainerId"
+  //                 value={formData.trainerId}
+  //                 onChange={handleInputChange}
+  //                 required
+  //               >
+  //                 <option value="">Select Trainer</option>
+  //                 {trainers?.map((trainer) => (
+  //                   <option key={trainer.id} value={trainer.id}>
+  //                     {trainer.name}
+  //                   </option>
+  //                 ))}
+  //               </select>
+  //             </div>
+
+  //             <div className="form-field">
+  //               <label>Start Date</label>
+  //               <input
+  //                 type="date"
+  //                 name="startDate"
+  //                 value={formData.startDate}
+  //                 onChange={handleInputChange}
+  //                 required
+  //               />
+  //             </div>
+  //             <div className="form-field">
+  //               <label>End Date</label>
+  //               <input
+  //                 type="date"
+  //                 name="endDate"
+  //                 value={formData.endDate}
+  //                 onChange={handleInputChange}
+  //                 required
+  //               />
+  //             </div>
+
+  //             <div className="form-field">
+  //               <label>Material For Training</label>
+  //               <input
+  //                 type="file"
+  //                 multiple
+  //                 onChange={(e) => handleFileChange(e, "materialFiles")}
+  //               />
+  //             </div>
+  //             <div className="form-field">
+  //               <label>Lecture For Training</label>
+  //               <input
+  //                 type="file"
+  //                 multiple
+  //                 onChange={(e) => handleFileChange(e, "lectureFiles")}
+  //               />
+  //             </div>
+  //             <div className="form-field">
+  //               <label>Resource For Training</label>
+  //               <input
+  //                 type="file"
+  //                 multiple
+  //                 onChange={(e) => handleFileChange(e, "resourceFiles")}
+  //               />
+  //             </div>
+  //             {/* <button onClick={handleUpload}>Upload Files</button> */}
+
+  //             <div className="field form-field checkbox-field">
+  //               <label>Certification Available</label>
+  //               <input
+  //                 type="checkbox"
+  //                 name="certificationAvailable"
+  //                 checked={formData.certificationAvailable}
+  //                 onChange={handleInputChange}
+  //               />
+  //             </div>
+
+  //             <div className="modal-actions">
+  //               <button
+  //                 type="button"
+  //                 onClick={() => setShowEditTraining(false)}
+  //               >
+  //                 Cancel
+  //               </button>
+  //               <button type="submit">Update Training</button>
+  //             </div>
+  //           </form>
+  //         </div>
+  //       </div>
+  //     )}
+  //     {/* Delete Confirmation Modal */}
+  //     {showDeleteConfirm && (
+  //       <div className="modal-overlay">
+  //         <div className="modal-content delete-modal">
+  //           <div className="modal-header">
+  //             <h3>Confirm Delete</h3>
+  //             <button
+  //               onClick={() => setShowDeleteConfirm(false)}
+  //               className="modal-close-btn"
+  //             >
+  //               <X className="icon" />
+  //             </button>
+  //           </div>
+  //           <div className="delete-confirmation-content">
+  //             <AlertCircle className="delete-warning-icon" />
+  //             <p>
+  //               Are you sure you want to delete the training program{" "}
+  //               <strong>"{currentTraining.title}"</strong>?
+  //             </p>
+  //             <p className="delete-warning">This action cannot be undone.</p>
+  //           </div>
+  //           <div className="modal-actions">
+  //             <button type="button" onClick={() => setShowDeleteConfirm(false)}>
+  //               Cancel
+  //             </button>
+  //             <button
+  //               type="button"
+  //               className="delete-confirm-btn"
+  //               onClick={handleDeleteTraining}
+  //             >
+  //               Delete Training
+  //             </button>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     )}
+  //     {showAddTrainer && (
+  //       <div className="modal-overlay">
+  //         <div className="modal-content">
+  //           <div className="modal-header">
+  //             <h3>Add New Trainer</h3>
+  //             <button
+  //               onClick={() => setShowAddTrainer(false)}
+  //               className="modal-close-btn"
+  //             >
+  //               <X className="icon" />
+  //             </button>
+  //           </div>
+  //           <form onSubmit={handleSubmitTrainer}>
+  //             {/* Trainer ID Dropdown */}
+  //             <div className="form-field">
+  //               <label>Select Trainer (Employee)</label>
+  //               <select
+  //                 name="trainerId"
+  //                 value={trainerFormData.trainerId}
+  //                 onChange={handleTrainerInputChange}
+  //                 required
+  //               >
+  //                 <option value="">Select Employee</option>
+  //                 {employees.map((employee) => (
+  //                   <option key={employee.id} value={employee.id}>
+  //                     {employee.name}
+  //                   </option>
+  //                 ))}
+  //               </select>
+  //             </div>
+
+  //             {/* Trainer Expertise */}
+  //             <div className="form-field">
+  //               <label>Trainer Expertise</label>
+  //               <input
+  //                 type="text"
+  //                 name="trainerExpertise"
+  //                 value={trainerFormData.trainerExpertise}
+  //                 onChange={handleTrainerInputChange}
+  //                 placeholder="Enter Expertise"
+  //                 required
+  //               />
+  //             </div>
+
+  //             <div className="modal-actions">
+  //               <button type="button" onClick={() => setShowAddTrainer(false)}>
+  //                 Cancel
+  //               </button>
+  //               <button type="submit">Create Trainer</button>
+  //             </div>
+  //           </form>
+  //         </div>
+  //       </div>
+  //     )}
+  //   </div>
+  // );
+
+
   return (
     <div className="training-container">
       <div className="header-section">
@@ -602,6 +1193,9 @@ const TrainingAndLearning = () => {
             </p>
           </div>
         </div>
+        <button onClick={toggleFilters} className="filter-btn">
+          {filters.showFilters ? "Hide Filters" : "Show Filters"}
+        </button>
         <button
           onClick={() => setShowAddTrainer(true)}
           className="add-training-btn"
@@ -617,6 +1211,49 @@ const TrainingAndLearning = () => {
           Add Training
         </button>
       </div>
+      
+      {/* Filter Section */}
+      {filters.showFilters && (
+        <div className="filters-container">
+          <div className="filter-group">
+            <label>Start Date</label>
+            <input
+              type="date"
+              name="startDate"
+              value={filters.startDate}
+              onChange={handleFilterChange}
+            />
+          </div>
+          <div className="filter-group">
+            <label>End Date</label>
+            <input
+              type="date"
+              name="endDate"
+              value={filters.endDate}
+              onChange={handleFilterChange}
+            />
+          </div>
+          <div className="filter-group">
+            <label>Trainer</label>
+            <select
+              name="trainerId"
+              value={filters.trainerId}
+              onChange={handleFilterChange}
+            >
+              <option value="">All Trainers</option>
+              {trainers?.map((trainer) => (
+                <option key={trainer.id} value={trainer.id}>
+                  {trainer.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button onClick={clearFilters} className="clear-filters-btn">
+            Clear Filters
+          </button>
+        </div>
+      )}
+  
       <div className="training-stats-grid">
         <div className="training-stat-card">
           <div className="training-stat-content">
@@ -629,7 +1266,7 @@ const TrainingAndLearning = () => {
             </div>
           </div>
         </div>
-
+  
         <div className="training-stat-card">
           <div className="training-stat-content">
             <div>
@@ -643,7 +1280,7 @@ const TrainingAndLearning = () => {
             </div>
           </div>
         </div>
-
+  
         {/* Total Participants Card */}
         <div className="training-stat-card">
           <div className="training-stat-content">
@@ -656,7 +1293,7 @@ const TrainingAndLearning = () => {
             </div>
           </div>
         </div>
-
+  
         <div className="training-stat-card">
           <div className="training-stat-content">
             <div>
@@ -669,140 +1306,141 @@ const TrainingAndLearning = () => {
           </div>
         </div>
       </div>
+      
       <div className="training-list">
-        <h2>Current Training Programs</h2>
-        {trainings.map((training) => (
-          <div
-            key={training.id}
-            className="training-card"
-            onClick={(e) => {
-              navigate(`${training.id}`);
-            }}
-            style={{ cursor: "pointer" }}
-          >
-            <div className="training-header">
-              <h3>{training.title}</h3>
-              <div className="training-actions">
-                <span
-                  className={`training-status ${getStatusColor(
-                    getTrainingStatus(training?.startDate, training?.endDate)
-                  )}`}
-                >
-                  {getTrainingStatus(training?.startDate, training?.endDate)}
-                </span>
-                <div className="action-buttons">
-                  <button
-                    className="action-button edit-button"
-                    onClick={(e) => {
-                      openEditModal(training);
-                      e.stopPropagation();
-                    }}
+        <h2>
+          Current Training Programs
+          {filteredTrainings.length !== trainings.length && 
+            ` (Showing ${filteredTrainings.length} of ${trainings.length})`
+          }
+        </h2>
+        
+        {filteredTrainings.length > 0 ? (
+          filteredTrainings.map((training) => (
+            <div
+              key={training.id}
+              className="training-card"
+              onClick={(e) => {
+                navigate(`${training.id}`);
+              }}
+              style={{ cursor: "pointer" }}
+            >
+              <div className="training-header">
+                <h3>{training.title}</h3>
+                <div className="training-actions">
+                  <span
+                    className={`training-status ${getStatusColor(
+                      getTrainingStatus(training?.startDate, training?.endDate)
+                    )}`}
                   >
-                    <Edit size={16} />
-                  </button>
-                  <button
-                    className="action-button delete-button"
-                    onClick={(e) => {
-                      openDeleteConfirm(training);
-                      e.stopPropagation();
-                    }}
-                  >
-                    <Trash size={16} />
-                  </button>
-                </div>
-              </div>
-            </div>
-            <p className="training-description">{training.description}</p>
-
-            <div className="training-details-row">
-              <div className="training-detail-item">
-                <p className="detail-title">Trainer</p>
-                <div className="trainer-info">
-                  <img
-                    src={training.trainer.avatar}
-                    alt={training.trainer.name}
-                    className="trainer-avatar"
-                  />
-                  <p className="detail-value">{training.trainer.name}</p>
-                </div>
-              </div>
-              <div className="training-detail-item">
-                <p className="detail-title">Duration</p>
-                <div className="detail-value-container">
-                  <p>
-                    {differenceInDays(
-                      new Date(training.endDate),
-                      new Date(training.startDate)
-                    )}{" "}
-                    days
-                  </p>
-                </div>
-              </div>
-              <div className="training-detail-item">
-                <p className="detail-title">Participants</p>
-                <p className="detail-value">
-                  {training.participants.length} enrolled
-                </p>
-              </div>
-              <div className="training-detail-item">
-                <p className="detail-title">Progress</p>
-                <div className="progress-bar-container">
-                  <div className="progress-bar">
-                    <div
-                      className="progress-filled"
-                      style={{
-                        width: `${calculateProgress(
-                          training.startDate,
-                          training.endDate
-                        )}%`,
+                    {getTrainingStatus(training?.startDate, training?.endDate)}
+                  </span>
+                  <div className="action-buttons">
+                    <button
+                      className="action-button edit-button"
+                      onClick={(e) => {
+                        openEditModal(training);
+                        e.stopPropagation();
                       }}
-                    />
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      className="action-button delete-button"
+                      onClick={(e) => {
+                        openDeleteConfirm(training);
+                        e.stopPropagation();
+                      }}
+                    >
+                      <Trash size={16} />
+                    </button>
                   </div>
-                  <p className="progress-percentage">
-                    {calculateProgress(training.startDate, training.endDate)}%
-                  </p>
                 </div>
               </div>
-            </div>
-            {/* <div className="training-resources">
-              {training.resources.map((resource, index) => (
-                <a key={index} href={resource.url} className="resource-link">
-                  {getResourceIcon(resource.type)}
-                  <span>{resource.title}</span>
-                </a>
-              ))}
-              {training.certificationAvailable && (
-                <div className="certification-available">
-                  <Award className="icon" />
-                  Certification Available
+              <p className="training-description">{training.description}</p>
+  
+              <div className="training-details-row">
+                <div className="training-detail-item">
+                  <p className="detail-title">Trainer</p>
+                  <div className="trainer-info">
+                    <img
+                      src={training.trainer.avatar}
+                      alt={training.trainer.name}
+                      className="trainer-avatar"
+                    />
+                    <p className="detail-value">{training.trainer.name}</p>
+                  </div>
                 </div>
-              )}
-            </div> */}
-
-            <div className="training-resources">
-              {[
-                ...new Map(
-                  training.resources.map((resource) => [
-                    resource.type,
-                    resource,
-                  ])
-                ).values(),
-              ].map((resource, index) => (
-                <a key={index} href={resource.url} className="resource-link">
-                  {getResourceIcon(resource.type)}
-                  <span>{resource.title}</span>
-                </a>
-              ))}
-              {training.certificationAvailable && (
-                <div className="certification-available">
-                  <Award className="icon" />
-                  Certification Available
+                <div className="training-detail-item">
+                  <p className="detail-title">Duration</p>
+                  <div className="detail-value-container">
+                    <p>
+                      {differenceInDays(
+                        new Date(training.endDate),
+                        new Date(training.startDate)
+                      )}{" "}
+                      days
+                    </p>
+                  </div>
                 </div>
-              )}
+                <div className="training-detail-item">
+                  <p className="detail-title">Participants</p>
+                  <p className="detail-value">
+                    {training.participants.length} enrolled
+                  </p>
+                </div>
+                <div className="training-detail-item">
+                  <p className="detail-title">Progress</p>
+                  <div className="progress-bar-container">
+                    <div className="progress-bar">
+                      <div
+                        className="progress-filled"
+                        style={{
+                          width: `${calculateProgress(
+                            training.startDate,
+                            training.endDate
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                    <p className="progress-percentage">
+                      {calculateProgress(training.startDate, training.endDate)}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+  
+              <div className="training-resources">
+                {[
+                  ...new Map(
+                    training.resources.map((resource) => [
+                      resource.type,
+                      resource,
+                    ])
+                  ).values(),
+                ].map((resource, index) => (
+                  <a key={index} href={resource.url} className="resource-link">
+                    {getResourceIcon(resource.type)}
+                    <span>{resource.title}</span>
+                  </a>
+                ))}
+                {training.certificationAvailable && (
+                  <div className="certification-available">
+                    <Award className="icon" />
+                    Certification Available
+                  </div>
+                )}
+              </div>
             </div>
+          ))
+        ) : (
+          <div className="no-results">
+            <p>No trainings match your filters. Please adjust your criteria or clear filters.</p>
           </div>
-        ))}
+        )}
       </div>
+      
+      {/* Add Training Modal */}
       {showAddTraining && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -837,48 +1475,7 @@ const TrainingAndLearning = () => {
                   required
                 ></textarea>
               </div>
-
-              {/* <div className="form-field">
-                <label>Trainer</label>
-                <select
-                  name="trainerId"
-                  value={formData.trainerId}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select Trainer</option>
-                  {trainings?.map((training) => (
-                    <option
-                      key={training.trainer.id}
-                      value={training.trainer.id}
-                    >
-                      {training.trainer.name}
-                    </option>
-                  ))}
-                </select>
-              </div> */}
-
-              {/* <div className="form-field">
-                <label>Trainer</label>
-                <select
-                  name="trainerId"
-                  value={formData.trainerId}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select Trainer</option>
-                  {[
-                    ...new Map(
-                      trainings?.map((t) => [t.trainer.id, t.trainer])
-                    ).values(),
-                  ].map((trainer) => (
-                    <option key={trainer.id} value={trainer.id}>
-                      {trainer.name}
-                    </option>
-                  ))}
-                </select>
-              </div> */}
-
+  
               <div className="form-field">
                 <label>Trainer</label>
                 <select
@@ -895,7 +1492,7 @@ const TrainingAndLearning = () => {
                   ))}
                 </select>
               </div>
-
+  
               {/* Start Date and End Date Fields */}
               <div className="form-field">
                 <label>Start Date</label>
@@ -917,7 +1514,7 @@ const TrainingAndLearning = () => {
                   required
                 />
               </div>
-
+  
               <div className="form-field">
                 <label>Material For Training</label>
                 <input
@@ -942,8 +1539,7 @@ const TrainingAndLearning = () => {
                   onChange={(e) => handleFileChange(e, "resourceFiles")}
                 />
               </div>
-              {/* <button onClick={handleUpload}>Upload Files</button> */}
-
+  
               <div className="field form-field checkbox-field">
                 <label>Certification Available</label>
                 <input
@@ -953,15 +1549,7 @@ const TrainingAndLearning = () => {
                   onChange={handleInputChange}
                 />
               </div>
-              {/* <div className="form-field checkbox-field">
-                <input
-                  type="checkbox"
-                  name="activeTraining"
-                  checked={formData.activeTraining}
-                  onChange={handleInputChange}
-                />
-                <label>Active Training</label>
-              </div> */}
+  
               <div className="modal-actions">
                 <button type="button" onClick={() => setShowAddTraining(false)}>
                   Cancel
@@ -971,7 +1559,8 @@ const TrainingAndLearning = () => {
             </form>
           </div>
         </div>
-      )}{" "}
+      )}
+      
       {/* Edit Training Modal */}
       {showEditTraining && (
         <div className="modal-overlay">
@@ -1007,78 +1596,7 @@ const TrainingAndLearning = () => {
                   required
                 ></textarea>
               </div>
-              {/* <div className="form-field">
-                <label>Trainer</label>
-                <select
-                  name="trainerId"
-                  value={formData.trainerId}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select Trainer</option>
-                  <option value="67b2efaafb83a0809e0552e9">Manager</option>
-                  <option value="67b2efaafb83a0809e0552ea">Michael Chen</option>
-                </select>
-              </div> */}
-
-              {/* <div className="form-field">
-                <label>Trainer</label>
-                <select
-                  name="trainerId"
-                  value={formData.trainerId}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select Trainer</option>
-                  {trainings?.map((training) => (
-                    <option
-                      key={training.trainer.id}
-                      value={training.trainer.id}
-                    >
-                      {training.trainer.name}
-                    </option>
-                  ))}
-                </select>
-              </div> */}
-              {/* 
-              <div className="form-field">
-                <label>Trainer</label>
-                <select
-                  name="trainerId"
-                  value={formData.trainerId}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select Trainer</option>
-                  {[
-                    ...new Map(
-                      trainings?.map((t) => [t.trainer.id, t.trainer])
-                    ).values(),
-                  ].map((trainer) => (
-                    <option key={trainer.id} value={trainer.id}>
-                      {trainer.name}
-                    </option>
-                  ))}
-                </select>
-              </div> */}
-              {/* <select
-  name="trainerId"
-  value={formData.trainerId}
-  onChange={handleInputChange}
-  required
->
-  <option value="">Select Trainer</option>
-  {trainers?.length > 0 ? (
-    trainers.map((trainer) => (
-      <option key={trainer.id} value={trainer.id}>
-        {trainer.name}
-      </option>
-    ))
-  ) : (
-    <option disabled>No Trainers Available</option>
-  )}
-</select> */}
-
+  
               <div className="form-field">
                 <label>Trainer</label>
                 <select
@@ -1095,7 +1613,7 @@ const TrainingAndLearning = () => {
                   ))}
                 </select>
               </div>
-
+  
               <div className="form-field">
                 <label>Start Date</label>
                 <input
@@ -1116,42 +1634,7 @@ const TrainingAndLearning = () => {
                   required
                 />
               </div>
-
-              {/* <div className="form-field">
-                <label>Material For Training</label>
-                <input
-                  type="file"
-                  multiple
-                  onChange={(e) => handleFileChange(e, "materialFiles")}
-                />
-              </div>
-              <div className="form-field">
-                <label>Lecture For Training</label>
-                <input
-                  type="file"
-                  multiple
-                  onChange={(e) => handleFileChange(e, "lectureFiles")}
-                />
-              </div>
-              <div className="form-field">
-                <label>Resource For Training</label>
-                <input
-                  type="file"
-                  multiple
-                  onChange={(e) => handleFileChange(e, "resourceFiles")}
-                />
-              </div>
-
-              <div className="form-field checkbox-field">
-                <input
-                  type="checkbox"
-                  name="certificationAvailable"
-                  checked={formData.certificationAvailable}
-                  onChange={handleInputChange}
-                />
-                <label>Certification Available</label>
-              </div> */}
-
+  
               <div className="form-field">
                 <label>Material For Training</label>
                 <input
@@ -1176,8 +1659,7 @@ const TrainingAndLearning = () => {
                   onChange={(e) => handleFileChange(e, "resourceFiles")}
                 />
               </div>
-              {/* <button onClick={handleUpload}>Upload Files</button> */}
-
+  
               <div className="field form-field checkbox-field">
                 <label>Certification Available</label>
                 <input
@@ -1187,7 +1669,7 @@ const TrainingAndLearning = () => {
                   onChange={handleInputChange}
                 />
               </div>
-
+  
               <div className="modal-actions">
                 <button
                   type="button"
@@ -1201,6 +1683,7 @@ const TrainingAndLearning = () => {
           </div>
         </div>
       )}
+      
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="modal-overlay">
@@ -1237,6 +1720,8 @@ const TrainingAndLearning = () => {
           </div>
         </div>
       )}
+      
+      {/* Add Trainer Modal */}
       {showAddTrainer && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -1267,7 +1752,7 @@ const TrainingAndLearning = () => {
                   ))}
                 </select>
               </div>
-
+  
               {/* Trainer Expertise */}
               <div className="form-field">
                 <label>Trainer Expertise</label>
@@ -1280,7 +1765,7 @@ const TrainingAndLearning = () => {
                   required
                 />
               </div>
-
+  
               <div className="modal-actions">
                 <button type="button" onClick={() => setShowAddTrainer(false)}>
                   Cancel
@@ -1293,6 +1778,308 @@ const TrainingAndLearning = () => {
       )}
     </div>
   );
+
+
+
+
+
 };
 
 export default TrainingAndLearning;
+
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useState, useEffect } from "react";
+// // ... existing imports
+
+// const TrainingAndLearning = () => {
+//   // ... existing state variables
+  
+//   // Add new state for filters
+  // const [filters, setFilters] = useState({
+  //   startDate: "",
+  //   endDate: "",
+  //   trainerId: "",
+  //   showFilters: false
+  // });
+  
+//   // Add state for filtered trainings
+  // const [filteredTrainings, setFilteredTrainings] = useState([]);
+  
+//   // Existing code...
+  
+//   // Apply filters and update filtered trainings
+  // useEffect(() => {
+  //   let result = [...trainings];
+    
+  //   // Apply trainer filter if selected
+  //   if (filters.trainerId) {
+  //     result = result.filter(training => training.trainer.id === filters.trainerId);
+  //   }
+    
+  //   // Apply date range filter if dates are selected
+  //   if (filters.startDate) {
+  //     const filterStartDate = new Date(filters.startDate);
+  //     result = result.filter(training => new Date(training.startDate) >= filterStartDate);
+  //   }
+    
+  //   if (filters.endDate) {
+  //     const filterEndDate = new Date(filters.endDate);
+  //     result = result.filter(training => new Date(training.endDate) <= filterEndDate);
+  //   }
+    
+  //   setFilteredTrainings(result);
+  // }, [trainings, filters.trainerId, filters.startDate, filters.endDate]);
+  
+//   // Handle filter changes
+  // const handleFilterChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setFilters(prev => ({
+  //     ...prev,
+  //     [name]: value
+  //   }));
+  // };
+  
+//   // Clear all filters
+  // const clearFilters = () => {
+  //   setFilters({
+  //     startDate: "",
+  //     endDate: "",
+  //     trainerId: "",
+  //     showFilters: true
+  //   });
+  // };
+  
+//   // Toggle filter visibility
+  // const toggleFilters = () => {
+  //   setFilters(prev => ({
+  //     ...prev,
+  //     showFilters: !prev.showFilters
+  //   }));
+  // };
+  
+//   // Rest of your existing code...
+  
+//   return (
+//     <div className="training-container">
+//       <div className="header-section">
+//         <div className="header-title">
+//           <div className="page-header">
+//             <h2 className="page-title">Training & Learning</h2>
+//             <p className="page-description">
+//               Enhance skills and track learning progress with tailored training programs.
+//             </p>
+//           </div>
+//         </div>
+//         <button onClick={toggleFilters} className="filter-btn">
+//           {filters.showFilters ? "Hide Filters" : "Show Filters"}
+//         </button>
+//         <button onClick={() => setShowAddTrainer(true)} className="add-training-btn">
+//           <Plus className="button-icon" />
+//           Add Trainer
+//         </button>
+//         <button onClick={() => setShowAddTraining(true)} className="add-training-btn">
+//           <Plus className="button-icon" />
+//           Add Training
+//         </button>
+//       </div>
+      
+//       {/* Filter Section */}
+//       {filters.showFilters && (
+//         <div className="filters-container">
+//           <div className="filter-group">
+//             <label>Start Date</label>
+//             <input
+//               type="date"
+//               name="startDate"
+//               value={filters.startDate}
+//               onChange={handleFilterChange}
+//             />
+//           </div>
+//           <div className="filter-group">
+//             <label>End Date</label>
+//             <input
+//               type="date"
+//               name="endDate"
+//               value={filters.endDate}
+//               onChange={handleFilterChange}
+//             />
+//           </div>
+//           <div className="filter-group">
+//             <label>Trainer</label>
+//             <select
+//               name="trainerId"
+//               value={filters.trainerId}
+//               onChange={handleFilterChange}
+//             >
+//               <option value="">All Trainers</option>
+//               {trainers?.map((trainer) => (
+//                 <option key={trainer.id} value={trainer.id}>
+//                   {trainer.name}
+//                 </option>
+//               ))}
+//             </select>
+//           </div>
+//           <button onClick={clearFilters} className="clear-filters-btn">
+//             Clear Filters
+//           </button>
+//         </div>
+//       )}
+      
+//       {/* Stats section (existing) */}
+//       <div className="training-stats-grid">
+//         {/* Your existing stat cards */}
+//       </div>
+      
+//       {/* Updated Training List */}
+//       <div className="training-list">
+//         <h2>
+//           Current Training Programs 
+//           {filteredTrainings.length !== trainings.length && 
+//             `(Showing ${filteredTrainings.length} of ${trainings.length})`
+//           }
+//         </h2>
+        
+//         {/* Use filteredTrainings instead of trainings */}
+//         {filteredTrainings.length > 0 ? (
+//           filteredTrainings.map((training) => (
+//             <div
+//               key={training.id}
+//               className="training-card"
+//               onClick={(e) => {
+//                 navigate(`${training.id}`);
+//               }}
+//               style={{ cursor: "pointer" }}
+//             >
+//               {/* Existing training card content */}
+//               <div className="training-header">
+//                 <h3>{training.title}</h3>
+//                 <div className="training-actions">
+//                   <span
+//                     className={`training-status ${getStatusColor(
+//                       getTrainingStatus(training?.startDate, training?.endDate)
+//                     )}`}
+//                   >
+//                     {getTrainingStatus(training?.startDate, training?.endDate)}
+//                   </span>
+//                   <div className="action-buttons">
+//                     <button
+//                       className="action-button edit-button"
+//                       onClick={(e) => {
+//                         openEditModal(training);
+//                         e.stopPropagation();
+//                       }}
+//                     >
+//                       <Edit size={16} />
+//                     </button>
+//                     <button
+//                       className="action-button delete-button"
+//                       onClick={(e) => {
+//                         openDeleteConfirm(training);
+//                         e.stopPropagation();
+//                       }}
+//                     >
+//                       <Trash size={16} />
+//                     </button>
+//                   </div>
+//                 </div>
+//               </div>
+//               <p className="training-description">{training.description}</p>
+
+//               <div className="training-details-row">
+//                 <div className="training-detail-item">
+//                   <p className="detail-title">Trainer</p>
+//                   <div className="trainer-info">
+//                     <img
+//                       src={training.trainer.avatar}
+//                       alt={training.trainer.name}
+//                       className="trainer-avatar"
+//                     />
+//                     <p className="detail-value">{training.trainer.name}</p>
+//                   </div>
+//                 </div>
+//                 <div className="training-detail-item">
+//                   <p className="detail-title">Duration</p>
+//                   <div className="detail-value-container">
+//                     <p>
+//                       {differenceInDays(
+//                         new Date(training.endDate),
+//                         new Date(training.startDate)
+//                       )}{" "}
+//                       days
+//                     </p>
+//                   </div>
+//                 </div>
+//                 <div className="training-detail-item">
+//                   <p className="detail-title">Participants</p>
+//                   <p className="detail-value">
+//                     {training.participants.length} enrolled
+//                   </p>
+//                 </div>
+//                 <div className="training-detail-item">
+//                   <p className="detail-title">Progress</p>
+//                   <div className="progress-bar-container">
+//                     <div className="progress-bar">
+//                       <div
+//                         className="progress-filled"
+//                         style={{
+//                           width: `${calculateProgress(
+//                             training.startDate,
+//                             training.endDate
+//                           )}%`,
+//                         }}
+//                       />
+//                     </div>
+//                     <p className="progress-percentage">
+//                       {calculateProgress(training.startDate, training.endDate)}%
+//                     </p>
+//                   </div>
+//                 </div>
+//               </div>
+
+//               <div className="training-resources">
+//                 {[
+//                   ...new Map(
+//                     training.resources.map((resource) => [
+//                       resource.type,
+//                       resource,
+//                     ])
+//                   ).values(),
+//                 ].map((resource, index) => (
+//                   <a key={index} href={resource.url} className="resource-link">
+//                     {getResourceIcon(resource.type)}
+//                     <span>{resource.title}</span>
+//                   </a>
+//                 ))}
+//                 {training.certificationAvailable && (
+//                   <div className="certification-available">
+//                     <Award className="icon" />
+//                     Certification Available
+//                   </div>
+//                 )}
+//               </div>
+//             </div>
+//           ))
+//         ) : (
+//           <div className="no-results">
+//             <p>No trainings match your filters. Please adjust your criteria or clear filters.</p>
+//           </div>
+//         )}
+//       </div>
+      
+//       {/* All your existing modals */}
+//       {/* ... */}
+//     </div>
+//   );
+// };
+
+// export default TrainingAndLearning;

@@ -29,23 +29,7 @@ export default function Attendance() {
 			</header>
 
 			<div className="tabs-container">
-				<div className="tabs-nav">
-					{tabs.map((tab) => {
-						const Icon = tab.icon;
-						return (
-							<NavLink
-								key={tab.path}
-								to={tab.path}
-								className={({ isActive }) =>
-									`tab-item ${isActive ? "tab-active" : ""}`
-								}
-							>
-								<Icon className="icon" />
-								{tab.label}
-							</NavLink>
-						);
-					})}
-				</div>
+
 				<div className="tabs-content">
 					<Outlet />
 				</div>

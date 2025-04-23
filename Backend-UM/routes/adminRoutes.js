@@ -1,5 +1,7 @@
 const express = require("express");
 const {authenticate, checkPermission} =require("../middlewares/authMiddleware")
+
+const { registerEmployeeUser } = require("../controllers/employeeRegisterController");
 //controllers
 const { assignRole, assignRolePermission,sendRegistrationLink,completeRegistration ,deleteUser} = require("../controllers/adminController");
 const { createRoleController, deleteRoleController, createPermissionController, deletePermissionController,removeRolePermission } = require("../controllers/rolePermissionController");
@@ -36,4 +38,11 @@ router.post("/complete-registration/:token", completeRegistration);
 // Route for deleting a user (Admin and Super Admin only)
 router.delete("/delete-user",authenticate,checkPermission("delete_user"), deleteUser);
 // authenticate, checkPermission("delete_user"), 
+
+
+
+router.post("/register-employee", registerEmployeeUser);
+
+
+
 module.exports = router;

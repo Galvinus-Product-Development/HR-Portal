@@ -115,8 +115,9 @@ const PrivateRoute = ({ children }) => {
         "user-agent": userAgent,
       };
 
-      console.log(headers);
-      if (!accessToken) {
+      console.log(accessToken);
+      if (accessToken) {
+        console.log("entered")
         setAuthChecked(true);
         return;
       }
@@ -153,6 +154,8 @@ const PrivateRoute = ({ children }) => {
   }, []);
 
   if (isLoading || !authChecked) {
+    console.log("this is is loading",isLoading)
+    console.log("this is is authChecked",!authChecked)
     return (
       <div className="private-route-container">
         <div className="private-route-loader"></div>

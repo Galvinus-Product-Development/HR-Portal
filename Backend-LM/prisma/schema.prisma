@@ -8,12 +8,12 @@ datasource db {
 }
 
 model Employee {
-    employeeId    String         @id @default(uuid())
-    name          String
-    jobTitle      String
-    department    String
-    location      String
-    phone         String         @unique
+    employeeId String @id @default(uuid())
+    name       String
+    jobTitle   String
+    department String
+    location   String
+    phone      String @unique
     // leaveRequests LeaveRequest[]
     // leaveHistory  LeaveHistory[]
 }
@@ -21,7 +21,7 @@ model Employee {
 model LeaveRequest {
     id             String        @id @default(uuid())
     employeeId     String
-    lineManagerId     String?
+    lineManagerId  String?
     leaveType      LeaveType
     startDate      DateTime
     endDate        DateTime
@@ -33,13 +33,21 @@ model LeaveRequest {
     decisionAt     DateTime? // New field: when a decision was made (approved or rejected)
     adminRemarks   String? // Admin remarks in case of rejection
     // employee       Employee      @relation(fields: [employeeId], references: [employeeId], onDelete: Cascade)
+    // leaveRequestTemp LeaveRequestTemp
+    startDateTemp  DateTime?
+    endDateTemp    DateTime?
+    reasonTemp     String?
+    editStatus     EditStatus?  @default(NULL)
 }
+
+
+
 
 model LeaveHistory {
     id             String      @id @default(uuid())
     employeeId     String
     leaveType      LeaveType
-    duration       Int
+    duration       Float
     appliedOn      DateTime
     startDate      DateTime?
     endDate        DateTime?
@@ -51,6 +59,15 @@ model LeaveHistory {
     // employee       Employee    @relation(fields: [employeeId], references: [employeeId], onDelete: Cascade)
 }
 
+model LeaveBalance {
+    id         String    @id @default(uuid())
+    employeeId String
+    leaveType  LeaveType
+    balance    Float
+
+    @@unique([employeeId, leaveType])
+}
+
 model LeavePolicy {
     id             String   @id @default(uuid())
     policyName     String
@@ -59,10 +76,19 @@ model LeavePolicy {
     createdAt      DateTime @default(now())
 }
 
+model Holiday {
+    id        String   @id @default(uuid())
+    date      DateTime @unique
+    title     String
+    createdAt DateTime @default(now())
+    location  String
+}
+
 enum LeaveType {
     CASUAL
     SICK
     COMPENSATORY
+    UNPAID
 }
 
 enum LeaveDuration {
@@ -76,4 +102,11 @@ enum LeaveStatus {
     APPROVED
     REJECTED
     ON_HOLD
+    CANCELLED
+}
+
+enum EditStatus {
+    NULL
+    CANCELLED
+    EDITED
 }

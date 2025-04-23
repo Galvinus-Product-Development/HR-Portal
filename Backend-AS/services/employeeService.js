@@ -6,14 +6,6 @@ exports.addEmployee = async (employeeData) => {
     return await prisma.employee.create({ data: employeeData });
 };
 
-// exports.getEmployee = async (id) => {
-//     console.log("comming here")
-//     return await prisma.employee.findUnique({ where: { id }, include: { attendance: true, monthlyAttendanceStats: true } });
-// };
-
-// exports.getAllEmployees = async () => {
-//     return await prisma.employee.findMany({ include: { attendance: true, monthlyAttendanceStats: true } });
-// };
 
 exports.updateEmployee = async (id, updateData) => {
     return await prisma.employee.update({ where: { id }, data: updateData });

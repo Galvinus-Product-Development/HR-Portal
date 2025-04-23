@@ -75,6 +75,7 @@
   border: 1px solid #d1d5db;
   border-radius: 8px;
   cursor: pointer;
+  color: black;
 }
 
 .filter-icon,
@@ -113,6 +114,7 @@
   font-size: 12px;
   border-radius: 9999px;
   font-weight: bold;
+  color: black;
 }
 
 .approved-status {

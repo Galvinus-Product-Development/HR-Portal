@@ -1,15 +1,77 @@
 const attendanceService = require('../services/attendanceService');
+const fetchHolidays = require('../utils/fetchHolidays');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 exports.markAttendance = async (req, res) => {
 	try {
+		const { employeeId, date } = req.body;
+		// Step 1: Get all holidays from leave management
+		const holidays = await fetchHolidays();
+
+		// Step 2: Format date to compare
+		const requestDate = new Date(date).toISOString().split("T")[0];
+
+		// Step 3: Get employee details (assuming you have a method)
+		const employee = await prisma.employee.findUnique({
+			where: { id: employeeId },
+		});
+
+		// Step 4: Check if the given date is a holiday for the employee
+		const isHoliday = holidays.some((holiday) => {
+			const holidayDate = holiday.date.split("T")[0];
+			const isLocationMatch =
+				holiday.location === "Global" || holiday.location === employee.location;
+			return holidayDate === requestDate && isLocationMatch;
+		});
+
+		// Step 5: Return error if it's a holiday
+		if (isHoliday) {
+			return res.status(400).json({ error: 'Cannot mark attendance on a holiday' });
+		}
+
 		const data = await attendanceService.markAttendance(req.body);
 		res.status(201).json(data);
 	} catch (error) {
 		res.status(500).json({ error: error.message });
 	}
 };
+
+exports.manuallyMarkAttendance = async (req, res) => {
+	try {
+		const { employeeId, date } = req.body;
+
+		// Step 1: Get all holidays from leave management
+		const holidays = await fetchHolidays();
+
+		// Step 2: Format date to compare
+		const requestDate = new Date(date).toISOString().split("T")[0];
+
+		// Step 3: Get employee details (assuming you have a method)
+		const employee = await prisma.employee.findUnique({
+			where: { id: employeeId },
+		});
+
+		// Step 4: Check if the given date is a holiday for the employee
+		const isHoliday = holidays.some((holiday) => {
+			const holidayDate = holiday.date.split("T")[0];
+			const isLocationMatch =
+				holiday.location === "Global" || holiday.location === employee.location;
+			return holidayDate === requestDate && isLocationMatch;
+		});
+
+		// Step 5: Return error if it's a holiday
+		if (isHoliday) {
+			return res.status(400).json({ error: 'Cannot mark attendance on a holiday' });
+		}
+
+		// Step 6: Proceed to mark attendance
+		const data = await attendanceService.manuallyMarkAttendance(req.body);
+		res.status(201).json(data);
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+}
 
 exports.getAllAttendance = async (req, res) => {
 	try {
@@ -24,17 +86,17 @@ exports.getAttendanceById = async (req, res) => {
 	try {
 		const { employeeId } = req.params;
 		const { year, month } = req.query;
-		const ISTOffsetMs = 5.5 * 60 * 60 * 1000; // Convert UTC to IST
+		// const ISTOffsetMs = 5.5 * 60 * 60 * 1000; // Convert UTC to IST
 
 		// Define first and last date of the month in UTC
 		const firstDateUTC = new Date(Date.UTC(year, month - 1, 1));
 		const lastDateUTC = new Date(Date.UTC(year, month, 0)); // Last day of the month
 
 		// Convert to IST
-		const firstDateIST = new Date(firstDateUTC.getTime() + ISTOffsetMs);
-		const lastDateIST = new Date(lastDateUTC.getTime() + ISTOffsetMs);
+		// const firstDateIST = new Date(firstDateUTC.getTime() + ISTOffsetMs);
+		// const lastDateIST = new Date(lastDateUTC.getTime() + ISTOffsetMs);
 
-		const attendanceData = await attendanceService.getAttendanceById(employeeId, firstDateIST, lastDateIST);
+		const attendanceData = await attendanceService.getAttendanceById(employeeId, firstDateUTC, lastDateUTC);
 
 		const formattedAttendance = attendanceData.map(record => ({
 			...record,
@@ -95,9 +157,6 @@ exports.deleteAttendance = async (req, res) => {
 	}
 }
 
-
-
-
 // Get count of employees present today
 exports.todayAttendanceCount = async (req, res) => {
     try {
@@ -118,3 +177,57 @@ exports.todayAttendanceCount = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+
+
+// Overtime Controller						// ------------------ CHANGED HERE --------------------
+
+exports.requestOvertime = async (req, res) => {
+	try {
+		const { employeeId } = req.params;
+		const data = await attendanceService.addOvertime(employeeId, req.body);
+		res.status(200).json(data);
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+}
+
+exports.overtimeCheckout = async (req, res) => {
+	try {
+		const { employeeId } = req.params;
+		const data = await attendanceService.overtimeCheckout(employeeId, req.body);
+		res.status(200).json(data);
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+}
+
+exports.isOvertimeApproved = async (req, res) => {
+	try {
+		const { employeeId } = req.params;
+		const data = await attendanceService.isOvertimeApproved(employeeId, req.body);
+		res.status(200).json(data);
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+}
+
+exports.getOvertimeById = async (req, res) => {
+	try {
+		const { employeeId } = req.params;
+		const { year, month } = req.query;
+		const data = await attendanceService.getOvertimeById(employeeId, year, month);
+		res.status(200).json(data);
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+}
+
+exports.getAllOvertime = async (req, res) => {
+	try {
+		const data = await attendanceService.getAllOvertime();
+		res.status(200).json(data);
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+}

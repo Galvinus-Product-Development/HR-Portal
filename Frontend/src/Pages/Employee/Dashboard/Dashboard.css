@@ -555,3 +555,161 @@ background-color: #dc2626;
   border: 1px dashed #ddd;
   font-size: 0.9rem;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* CSS for the Overtime Request Form */
+
+.overtime-request {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  /* margin: 24px auto; */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.section-title {
+  color: #1a1a2e;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 24px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f7;
+}
+
+.overtime-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.success-message {
+  display: flex;
+  align-items: center;
+  background-color: #ecfdf5;
+  color: #065f46;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.success-icon {
+  color: #10b981;
+  margin-right: 12px;
+  width: 20px;
+  height: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.form-group.half {
+  flex: 1;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.2s ease;
+  background-color: #fcfcfc;
+  color: #1f2937;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.submit-button {
+  padding: 14px 24px;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 12px;
+  height: 50px;
+}
+
+.submit-button:hover {
+  background-color: #4338ca;
+}
+
+.submit-button:disabled {
+  background-color: #a5b4fc;
+  cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .overtime-request {
+    padding: 24px 16px;
+    border-radius: 8px;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+}

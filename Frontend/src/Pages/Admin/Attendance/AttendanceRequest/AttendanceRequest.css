@@ -1,0 +1,272 @@
+/* AttendanceRequest.css */
+:root {
+  --primary-color: #3498db;
+  --primary-light: #eaf2f8;
+  --approved-color: #2ecc71;
+  --approved-bg: #e8f8f5;
+  --rejected-color: #e74c3c;
+  --rejected-bg: #fdedec;
+  --pending-color: #f39c12;
+  --pending-bg: #fef9e7;
+  --border-color: #e0e0e0;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --background-light: #f9f9f9;
+  --background-white: #ffffff;
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.attendance-request-container {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  color: var(--text-primary);
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+.filters-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.search-container {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 10px 10px 40px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  border-color: var(--primary-color);
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+}
+
+.dropdown-container {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.dropdown {
+  position: relative;
+  min-width: 150px;
+}
+
+.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px;
+  background-color: var(--background-white);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.dropdown-toggle:hover {
+  border-color: var(--primary-color);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: var(--background-white);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  z-index: 10;
+  margin-top: 5px;
+}
+
+.dropdown-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: var(--primary-light);
+}
+
+.dropdown-item.active {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.table-container {
+  overflow-x: auto;
+  background-color: var(--background-white);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.attendance-table th,
+.attendance-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.attendance-table th {
+  background-color: var(--background-light);
+  font-weight: 600;
+  color: var(--text-secondary);
+  position: sticky;
+  top: 0;
+}
+
+.attendance-table tr:last-child td {
+  border-bottom: none;
+}
+
+.attendance-table tr:hover {
+  background-color: var(--background-light);
+}
+
+.employee-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.employee-name {
+  font-weight: 500;
+}
+
+.employee-id {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-badge.approved {
+  background-color: var(--approved-bg);
+  color: var(--approved-color);
+}
+
+.status-badge.rejected {
+  background-color: var(--rejected-bg);
+  color: var(--rejected-color);
+}
+
+.status-badge.pending {
+  background-color: var(--pending-bg);
+  color: var(--pending-color);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.approve-button,
+.reject-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.approve-button {
+  background-color: var(--approved-color);
+  color: white;
+}
+
+.reject-button {
+  background-color: var(--rejected-color);
+  color: white;
+}
+
+.approve-button:hover,
+.reject-button:hover {
+  opacity: 0.9;
+}
+
+.loading,
+.no-data {
+  text-align: center;
+  padding: 30px;
+  color: var(--text-secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .filters-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .search-container,
+  .dropdown {
+    width: 100%;
+  }
+
+  .dropdown-container {
+    width: 100%;
+  }
+
+  .attendance-table {
+    font-size: 13px;
+  }
+
+  .attendance-table th,
+  .attendance-table td {
+    padding: 10px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+}

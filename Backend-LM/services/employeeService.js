@@ -5,20 +5,10 @@ require("dotenv").config(); // Load environment variables
 const axios = require("axios");
 
 
-
-
-
 exports.addEmployee = async (employeeData) => {
     return await prisma.employee.create({ data: employeeData });
 };
 
-// exports.getAllEmployees = async () => {
-//     return await prisma.employee.findMany({ include: { leaveRequests: true, leaveHistory: true } });
-// };
-
-// exports.getEmployee = async (employeeId) => {
-//     return await prisma.employee.findUnique({ where: { employeeId }, include: { leaveRequests: true, leaveHistory: true } });
-// };
 
 exports.updateEmployee = async (id, updateData) => {
     return await prisma.employee.update({ where: { id }, data: updateData });
@@ -33,9 +23,6 @@ exports.deleteEmployee = async (id) => {
 
 exports.getEmployee = async (employeeId) => {
     try {
-        // const { employeeId } = req.params;
-
-        // Fetch employee from the other microservice
         const employeeServiceUrl = `${process.env.EMPLOYEE_SERVICE_URL}/${employeeId}`;
         const { data: employee } = await axios.get(employeeServiceUrl);
         console.log("Here.....................................................................................")
@@ -72,6 +59,10 @@ exports.getAllEmployees = async () => {
         // Fetch all employees from the Employee Microservice
         const employeeServiceUrl = process.env.EMPLOYEE_SERVICE_URLL;
         const { data: employees } = await axios.get(employeeServiceUrl);
+
+
+        console.log("this is the employeees in the lm:-",employees);
+
 
         if (!employees || employees.length === 0) {
             return ([]); // Return an empty array if no employees found

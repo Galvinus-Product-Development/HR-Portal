@@ -3,32 +3,31 @@ import "./AttendanceDashboard.css";
 const API_BASE_URL_AT = import.meta.env.VITE_API_BASE_URL_AT;
 const API_BASE_URL_LM= import.meta.env.VITE_API_BASE_URL_LM;
 const AttendanceDashboard = () => {
-  // Extend filters to include month and displayMode.
+  // Extend filters to include month, year, and displayMode
   const [filters, setFilters] = useState({
     location: "",
     department: "",
     name: "",
     month: new Date().getMonth() + 1, // default to current month (1-12)
+		year: new Date().getFullYear(),   // default to current year				// ------------------ CHANGED HERE -----------------------
     displayMode: "monthly", // options: "monthly" or "weekly"
   });
 
   const [employees, setEmployees] = useState([]);
   const [leaveHistory, setLeaveHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [loadingLeaveHistory, setLoadingLeaveHistory] = useState(true);
   const [error, setError] = useState(null);
-  const [errorLeaveHistory, setErrorLeaveHistory] = useState(null);
   const [currentDate] = useState(new Date());
   const [isExporting, setIsExporting] = useState(false);
-
+  const errorLeaveHistory=""; 
   useEffect(() => {
     fetchEmployees();
   }, []);
 
-  // Fetch leave history whenever the month filter changes.
+  // Fetch leave history whenever the month or year filter changes
   useEffect(() => {
     fetchLeaveHistory();
-  }, [filters.month]);
+  }, [filters.month, filters.year]);
 
   const fetchEmployees = async () => {
     try {
@@ -40,7 +39,6 @@ const AttendanceDashboard = () => {
         );
       }
       const data = await response.json();
-      console.log("Fetched employees:---------", data);
       setEmployees(data);
       setLoading(false);
     } catch (error) {
@@ -64,7 +62,6 @@ const AttendanceDashboard = () => {
           `Failed to fetch leave history data: ${response.statusText}`
         );
       }
-
       const data = await response.json();
       setLeaveHistory(data);
     } catch (error) {
@@ -90,7 +87,10 @@ const AttendanceDashboard = () => {
   const getMonthlyLeaveCounts = (employeeId) => {
     // Match employee ID in the leave history data
     const employeeLeaves = leaveHistory.filter(
-      (record) => record.employeeId === employeeId
+      (record) =>
+      record.employeeId === employeeId &&
+      new Date(record.appliedOn).getFullYear() === Number(filters.year) &&
+      new Date(record.appliedOn).getMonth() + 1 === Number(filters.month)
     );
 
     // Use the paidLeave and unpaidLeave values from the leave history
@@ -105,12 +105,12 @@ const AttendanceDashboard = () => {
 
     // Only reset if we're viewing the current month AND it's the first day of that month
     const shouldReset =
-      filters.month === currentDate.getMonth() + 1 &&
+      Number(filters.month) === (currentDate.getMonth() + 1) &&
       currentDate.getDate() === 1;
 
     return {
       paid: shouldReset ? 0 : paid,
-      unpaid: shouldReset ? 0 : unpaid,
+      unpaid: shouldReset ? 0 : unpaid
     };
   };
 
@@ -118,7 +118,10 @@ const AttendanceDashboard = () => {
   const getWeeklyLeaveCounts = (employeeId) => {
     // Match employee ID in the leave history data
     const employeeLeaves = leaveHistory.filter(
-      (record) => record.employeeId === employeeId
+      (record) =>
+      record.employeeId === employeeId &&
+      new Date(record.appliedOn).getFullYear() === Number(filters.year) &&
+      new Date(record.appliedOn).getMonth() + 1 === Number(filters.month)
     );
 
     // Initialize weeks 1 to 5
@@ -132,7 +135,7 @@ const AttendanceDashboard = () => {
 
     // Only reset if we're viewing the current month AND it's the first day of that month
     const shouldReset =
-      filters.month === currentDate.getMonth() + 1 &&
+      Number(filters.month) === (currentDate.getMonth() + 1) &&
       currentDate.getDate() === 1;
 
     if (!shouldReset) {
@@ -156,12 +159,12 @@ const AttendanceDashboard = () => {
 
   // Calculate the number of weekend days (Saturdays and Sundays) in the given month
   const getWeekendDaysInMonth = () => {
+    // CHANGE: Use filters.year instead of current year
     const year = new Date().getFullYear();
     const month = filters.month - 1; // JavaScript months are 0-indexed
 
     // Get the number of days in the month
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-
     let weekendCount = 0;
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
@@ -172,7 +175,6 @@ const AttendanceDashboard = () => {
         weekendCount++;
       }
     }
-
     return weekendCount;
   };
 
@@ -185,7 +187,7 @@ const AttendanceDashboard = () => {
     ) {
       const currentMonthStats = employee.monthlyAttendanceStats.find(
         (stats) =>
-          stats.monthYear === `${new Date().getFullYear()}-${filters.month}`
+          stats.monthYear === `${filters.year}-${filters.month}`
       );
 
       if (currentMonthStats) {
@@ -196,36 +198,57 @@ const AttendanceDashboard = () => {
   };
 
   // Get the number of present days for an employee
-  const getPresentDays = (employee) => {
-    // Check if monthlyAttendanceStats exists and has data for the current month
-    if (
-      employee.monthlyAttendanceStats &&
-      employee.monthlyAttendanceStats.length > 0
-    ) {
-      const currentMonthStats = employee.monthlyAttendanceStats.find(
-        (stats) =>
-          stats.monthYear === `${new Date().getFullYear()}-${filters.month}`
-      );
+  // const getPresentDays = (employee) => {
+  //   // Check if monthlyAttendanceStats exists and has data for the current month
+  //   if (
+  //     employee.monthlyAttendanceStats &&
+  //     employee.monthlyAttendanceStats.length > 0
+  //   ) {
+  //     const currentMonthStats = employee.monthlyAttendanceStats.find(
+  //       (stats) =>
+  //         stats.monthYear === `${new Date().getFullYear()}-${filters.month}`
+  //     );
 
-      if (currentMonthStats) {
-        return currentMonthStats.presentDays || 0;
-      }
-    }
+  //     if (currentMonthStats) {
+  //       return currentMonthStats.presentDays || 0;
+  //     }
+  //   }
 
-    // Fallback to counting from attendance records
-    return employee.attendance
-      ? employee.attendance.reduce(
-          (sum, record) =>
-            sum + (record.attendanceStatus === "Present" ? 1 : 0),
-          0
-        )
-      : 0;
-  };
+  //   // Fallback to counting from attendance records
+  //   return employee.attendance
+  //     ? employee.attendance.reduce(
+  //         (sum, record) =>
+  //           sum + (record.attendanceStatus === "Present" ? 1 : 0),
+  //         0
+  //       )
+  //     : 0;
+  // };
+
+  const getPresentDays = (employee) => {				// ------------------ CHANGED HERE -----------------------
+		if (employee.monthlyAttendanceStats && employee.monthlyAttendanceStats.length > 0) {
+			const currentMonthStats = employee.monthlyAttendanceStats.find(stats => {
+				const [yearStr, monthStr] = stats.monthYear.split("-");
+				return Number(yearStr) === Number(filters.year) && Number(monthStr) === Number(filters.month);
+			});
+			return currentMonthStats ? currentMonthStats.presentDays || 0 : 0;
+		}
+		return 0;
+	};
+
+  const getAbsentDays = (employee) => {				// ------------------ CHANGED HERE -----------------------
+		if (employee.monthlyAttendanceStats && employee.monthlyAttendanceStats.length > 0) {
+			const currentMonthStats = employee.monthlyAttendanceStats.find(stats => {
+				const [yearStr, monthStr] = stats.monthYear.split("-");
+				return Number(yearStr) === Number(filters.year) && Number(monthStr) === Number(filters.month);
+			});
+			return currentMonthStats ? currentMonthStats.absentDays || 0 : 0;
+		}
+		return 0;
+	}
 
   // Handle downloading attendance report
   const handleDownloadReport = () => {
     setIsExporting(true);
-
     try {
       // Create CSV content
       let csvContent =
@@ -236,7 +259,7 @@ const AttendanceDashboard = () => {
         const presentDays = getPresentDays(employee);
         const halfDays = getHalfDays(employee);
         const weekOffs = getWeekendDaysInMonth();
-        const totalAbsences = paid + unpaid;
+        const totalAbsences = getAbsentDays(employee);
 
         const overtimeHours = employee.attendance
           ? employee.attendance.reduce(
@@ -293,7 +316,6 @@ const AttendanceDashboard = () => {
       console.error("Error generating report:", error);
       alert("Failed to generate report. Please try again.");
     }
-
     setIsExporting(false);
   };
 
@@ -401,6 +423,17 @@ const AttendanceDashboard = () => {
             ))}
           </select>
         </div>
+        <div className="filter-group">					{/* ------------------ CHANGED HERE --------------------- */}
+					<label>Year</label>
+					{/* CHANGE: Updated the name attribute to "year" and provided a range of years */}
+					<select name="year" onChange={handleFilterChange} value={filters.year}>
+						{Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
+							<option key={year} value={year}>
+								{year}
+							</option>
+						))}
+					</select>
+				</div>
         <div className="filter-group">
           <label>Display Mode</label>
           <select
@@ -449,8 +482,8 @@ const AttendanceDashboard = () => {
                   ))
                 )}
                 <th>Overtime</th>
-                <th>Working Hours</th>
-                <th>Late Coming</th>
+                {/* <th>Working Hours</th> */}
+                <th>Late Days</th>
                 <th>Early Leaving</th>
               </tr>
             </thead>
@@ -492,7 +525,7 @@ const AttendanceDashboard = () => {
                 }
 
                 // Calculate total absences as sum of paid and unpaid leaves
-                const totalAbsences = paidLeaves + unpaidLeaves;
+                const totalAbsences = getAbsentDays(employee);
 
                 // Get half days from monthly stats or default to 0
                 const halfDays = getHalfDays(employee);
@@ -504,7 +537,7 @@ const AttendanceDashboard = () => {
                   <tr key={employee.id}>
                     <td>{employee.name}</td>
                     <td>{employee.id}</td>
-                    <td>{employee.designation}</td>
+                    <td>{employee.jobTitle}</td>
                     <td>{employee.phone}</td>
                     <td>{employee.location}</td>
                     <td>{employee.department}</td>
@@ -515,14 +548,14 @@ const AttendanceDashboard = () => {
                     {/* Render leave history cells */}
                     {leaveCells}
                     <td>
-                      {employee.attendance
+                      {formatTimeToHoursMinutes(employee.attendance
                         ? employee.attendance.reduce(
                             (sum, record) => sum + (record.overtime || 0),
                             0
                           )
-                        : 0}
+                        : 0)}
                     </td>
-                    <td>
+                    {/* <td>
                       {formatTimeToHoursMinutes(
                         employee.attendance
                           ? employee.attendance.reduce(
@@ -531,9 +564,9 @@ const AttendanceDashboard = () => {
                             )
                           : 0
                       )}
-                    </td>
+                    </td> */}
                     <td>
-                      {formatTimeToHoursMinutes(
+                      {/* {formatTimeToHoursMinutes(
                         employee.monthlyAttendanceStats
                           ? employee.monthlyAttendanceStats.reduce(
                               (sum, record) =>
@@ -541,17 +574,21 @@ const AttendanceDashboard = () => {
                               0
                             )
                           : 0
-                      )}
+                      )} */}
+											{employee.monthlyAttendanceStats ? employee.monthlyAttendanceStats.map(record => record.lateDays || 0) : 0}
+
                     </td>
                     <td>
-                      {formatTimeToHoursMinutes(
+                      {/* {formatTimeToHoursMinutes(
                         employee.attendance
                           ? employee.attendance.reduce(
                               (sum, record) => sum + (record.earlyLeaving || 0),
                               0
                             )
                           : 0
-                      )}
+                      )} */}
+											{employee.monthlyAttendanceStats ? employee.monthlyAttendanceStats.map(record => record.earlyLeaving || 0) : 0}
+
                     </td>
                   </tr>
                 );

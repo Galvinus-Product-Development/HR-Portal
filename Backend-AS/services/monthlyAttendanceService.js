@@ -6,10 +6,15 @@ exports.getAllMonthlyAttendance = async () => {
 }
 
 exports.getMonthlyAttendanceById = async (employeeId, year, month) => {
-	return await prisma.monthlyAttendanceStats.findUnique({ where: {
-		employeeId: employeeId,
-		monthYear: `${year}-${month}`,
-	} });
+	console.log(employeeId);
+	return await prisma.monthlyAttendanceStats.findUnique({
+		where: {
+			employeeId_monthYear: {
+				employeeId: employeeId,
+				monthYear: `${year}-${month}`,
+			}
+		},
+	});
 }
 
 exports.addMonthlyAttendance = async (attendanceData) => {

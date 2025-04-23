@@ -3,7 +3,22 @@ import { UserCircle, Briefcase, CreditCard } from "lucide-react";
 const API_BASE_URL_ED = import.meta.env.VITE_API_BASE_URL_ED;
 const EmployeeModal = ({ employee, onClose, handleSave }) => {
   const [editedEmployee, setEditedEmployee] = useState({
-    personalDetails: {},
+    personalDetails: {
+      currentAddress: {
+        street: "",
+        city: "",
+        state: "",
+        postalCode: "",
+        country: ""
+      },
+      permanentAddress: {
+        street: "",
+        city: "",
+        state: "",
+        postalCode: "",
+        country: ""
+      }
+    },
     employmentDetails: {},
     bankDetails: {},
   });
@@ -13,9 +28,31 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
 
   useEffect(() => {
     if (employee) {
-      setEditedEmployee(employee);
+      // Ensure address objects exist with proper structure
+      const updatedEmployee = {
+        ...employee,
+        personalDetails: {
+          ...employee.personalDetails,
+          currentAddress: employee.personalDetails?.currentAddress || {
+            street: "",
+            city: "",
+            state: "",
+            postalCode: "",
+            country: ""
+          },
+          permanentAddress: employee.personalDetails?.permanentAddress || {
+            street: "",
+            city: "",
+            state: "",
+            postalCode: "",
+            country: ""
+          }
+        }
+      };
+      setEditedEmployee(updatedEmployee);
     }
   }, [employee]);
+
   const generateDeviceId = () => {
     const deviceId = `device-${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem("deviceId", deviceId);
@@ -63,6 +100,20 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
     }));
   };
 
+  // New handler for address fields
+  const handleAddressChange = (addressType, field, value) => {
+    setEditedEmployee((prev) => ({
+      ...prev,
+      personalDetails: {
+        ...prev.personalDetails,
+        [addressType]: {
+          ...prev.personalDetails[addressType],
+          [field]: value
+        }
+      }
+    }));
+  };
+
   const validate = () => {
     let newErrors = {};
     const phoneRegex = /^[6-9]\d{9}$/;
@@ -72,6 +123,7 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
     const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
     const uanPfEsicRegex = /^\d{12}$/;
     const accountNumberRegex = /^\d{8,18}$/;
+    const postalCodeRegex = /^\d{6}$/; // Indian postal code
 
     const { personalDetails, employmentDetails, bankDetails } = editedEmployee;
 
@@ -118,11 +170,44 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
     ) {
       newErrors.panNumber = "PAN format invalid (e.g., ABCDE1234F)";
     }
-    if (!personalDetails.currentAddress?.trim()) {
-      newErrors.currentAddress = "Current address is required";
+    
+    // Current Address validation
+    console.log(personalDetails)
+    if (!personalDetails.currentAddress?.street?.trim()) {
+      newErrors.currentAddressStreet = "Street is required";
     }
-    if (!personalDetails.permanentAddress?.trim()) {
-      newErrors.permanentAddress = "Permanent address is required";
+    if (!personalDetails.currentAddress?.city?.trim()) {
+      newErrors.currentAddressCity = "City is required";
+    }
+    if (!personalDetails.currentAddress?.state?.trim()) {
+      newErrors.currentAddressState = "State is required";
+    }
+    if (!personalDetails.currentAddress?.zipCode?.trim()) {
+      newErrors.currentAddressPostalCode = "Postal code is required";
+    } else if (!postalCodeRegex.test(personalDetails.currentAddress.zipCode)) {
+      newErrors.currentAddressPostalCode = "Postal code must be 6 digits";
+    }
+    if (!personalDetails.currentAddress?.country?.trim()) {
+      newErrors.currentAddressCountry = "Country is required";
+    }
+    
+    // Permanent Address validation
+    if (!personalDetails.permanentAddress?.street?.trim()) {
+      newErrors.permanentAddressStreet = "Street is required";
+    }
+    if (!personalDetails.permanentAddress?.city?.trim()) {
+      newErrors.permanentAddressCity = "City is required";
+    }
+    if (!personalDetails.permanentAddress?.state?.trim()) {
+      newErrors.permanentAddressState = "State is required";
+    }
+    if (!personalDetails.permanentAddress?.zipCode?.trim()) {
+      newErrors.permanentAddressPostalCode = "Postal code is required";
+    } else if (!postalCodeRegex.test(personalDetails.permanentAddress.zipCode)) {
+      newErrors.permanentAddressPostalCode = "Postal code must be 6 digits";
+    }
+    if (!personalDetails.permanentAddress?.country?.trim()) {
+      newErrors.permanentAddressCountry = "Country is required";
     }
 
     // **Employment Details Validation**
@@ -133,10 +218,10 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
       newErrors.jobTitle = "Job title is required";
     }
     if (!employmentDetails.department?.trim()) {
-      newErrors.jobTitle = "Department is required";
+      newErrors.department = "Department is required";
     }
     if (!employmentDetails.location?.trim()) {
-      newErrors.location = "Location is required";
+      newErrors.employmentLocation = "Location is required";
     }
     if (
       !employmentDetails.officeEmail ||
@@ -191,14 +276,49 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
     }
 
     setErrors(newErrors);
+    console.log(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSaveClick = () => {
+    console.log("Here.........")
     if (validate()) {
+      console.log("Here also........")
       handleSave(editedEmployee);
       onClose();
     }
+  };
+
+  // Helper function to render address fields
+  const renderAddressFields = (addressType, displayName) => {
+    const addressFields = [
+      { key: "street", label: "Street Address" },
+      { key: "city", label: "City" },
+      { key: "state", label: "State" },
+      { key: "zipCode", label: "Postal Code" },
+      { key: "country", label: "Country" }
+    ];
+
+    return (
+      <div className="address-container">
+        <h4>{displayName}</h4>
+        {addressFields.map((field) => (
+          <div key={`${addressType}_${field.key}`}>
+            <p className="detail-label">{field.label}</p>
+            <input
+              type="text"
+              value={editedEmployee.personalDetails[addressType][field.key] || ""}
+              onChange={(e) => 
+                handleAddressChange(addressType, field.key, e.target.value)
+              }
+            />
+            {errors[`${addressType}${field.key.charAt(0).toUpperCase() + field.key.slice(1)}`] && (
+              <p className="error">{errors[`${addressType}${field.key.charAt(0).toUpperCase() + field.key.slice(1)}`]}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -220,8 +340,6 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
               "phoneNumber",
               "aadharNumber",
               "panNumber",
-              "currentAddress",
-              "permanentAddress",
             ].map((key) => (
               <div key={key}>
                 <p className="detail-label">
@@ -306,6 +424,12 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
               )}
             </div>
           </div>
+
+          {/* Current Address Fields */}
+          {renderAddressFields("currentAddress", "Current Address")}
+          
+          {/* Permanent Address Fields */}
+          {renderAddressFields("permanentAddress", "Permanent Address")}
         </div>
 
         {/* Employment Details */}
@@ -389,8 +513,6 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
                 <option value="">Select Status</option>
                 <option value="ACTIVE">ACTIVE</option>
                 <option value="DEACTIVATED">DEACTIVATED</option>
-                {/* <option value="CONTRACT">CONTRACT</option>
-                <option value="INTERN">INTERN</option> */}
               </select>
               {errors.employmentType && (
                 <p className="error">{errors.employmentType}</p>
@@ -424,7 +546,6 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
         </div>
 
         {/* Bank Details */}
-
         <div className="details-card">
           <h3>
             <CreditCard className="icon" /> Bank Details
@@ -505,5 +626,3 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
 };
 
 export default EmployeeModal;
-
-

@@ -13,7 +13,7 @@ import {
   Bell
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-
+console.log("sidbar................")
 const Sidebar = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.pathname);
@@ -33,6 +33,7 @@ const Sidebar = () => {
       subMenu: [
         { name: "Daily Attendance ", path: "/admin/attendance/daily" },
         { name: "Attendance Dashboard", path: "/admin/attendance/dashboard" },
+        { name: "Overtime", path: "/admin/attendance/overtime" },
       ],
     },
     { name: "Employee Database", icon: Users, path: "/admin/employee" },
@@ -49,10 +50,10 @@ const Sidebar = () => {
     { name: "Training and Learning", icon: GraduationCap, path: "/admin/training" },
     { name: "Certification and Badges", icon: Award, path: "/admin/certification" },
     { name: "Role Permissions", icon: ShieldCheck, path: "/admin/role-permission" },
-    { name: "User Registration", icon: UserPlus, path: "/admin/register-page" },
-    { name: "Notifications", icon: Bell, path: "/admin/notification-page" }
+    
+    {name: "Holiday", icon: ShieldCheck, path: "/admin/holiday" }
   ];
-
+  console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh",activeTab)
   return activeTab && (
     <div className="sidebar-container">
       <nav className="sidebar-nav">

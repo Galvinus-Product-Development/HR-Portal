@@ -3,6 +3,9 @@ import { Upload } from "lucide-react";
 import "./RequestLeave.css";
 const API_BASE_URL_LM = import.meta.env.VITE_API_BASE_URL_LM;
 const API_BASE_URL_NS = import.meta.env.VITE_API_BASE_URL_NS;
+
+
+
 export default function Leave() {
   // Form states
   const [leaveType, setLeaveType] = useState("CASUAL");
@@ -44,7 +47,12 @@ export default function Leave() {
   const fetchLeaveBalance = async (id) => {
     try {
       const response = await fetch(
-        `${API_BASE_URL_LM}/api/leave-balance?employeeId=${id}`
+        `${API_BASE_URL_LM}/api/leave-balance?employeeId=${id}`,{
+          method:"GET",
+          headers:{
+            "Content-type":"application/json"
+          }
+        }
       );
       if (!response.ok) throw new Error("Failed to fetch leave balance");
       const data = await response.json();
@@ -81,76 +89,7 @@ export default function Leave() {
     }
   };
 
-  // const handleSubmit = async (e) => {
-  //     e.preventDefault();
-  //     setLoading(true);
-  //     setError(null);
-  //     setSuccessMessage("");
-
-  //     try {
-  //         // Prepare leave request data with employeeId from localStorage
-  //         const leaveRequestData = {
-  //             employeeId, // This value comes directly from local storage
-  //             leaveType,
-  //             startDate: new Date(startDate).toISOString(),
-  //             endDate: new Date(endDate).toISOString(),
-  //             reason,
-  //             leaveDuration,
-  //             status: "PENDING",
-  //         };
-
-  //         // Upload file if selected
-  //         if (selectedFile) {
-  //             const formData = new FormData();
-  //             formData.append("file", selectedFile);
-
-  //             const fileResponse = await fetch(
-  //                 `${API_BASE_URL_LM}/api/upload-leave-request-docs`,
-  //                 {
-  //                     method: "POST",
-  //                     body: formData,
-  //                 }
-  //             );
-
-  //             if (!fileResponse.ok) throw new Error("Failed to upload file");
-  //             const fileData = await fileResponse.json();
-  //             leaveRequestData.supportingDocs = fileData.url;
-  //         }
-
-  //         // Submit the leave request
-  //         const response = await fetch(
-  //             `${API_BASE_URL_LM}/api/leave-requests`,
-  //             {
-  //                 method: "POST",
-  //                 headers: { "Content-Type": "application/json" },
-  //                 body: JSON.stringify(leaveRequestData),
-  //             }
-  //         );
-
-  //         if (!response.ok) {
-  //             const errorData = await response.json();
-  //             throw new Error(
-  //                 errorData.error || "Failed to submit leave request"
-  //             );
-  //         }
-
-  //         // Reset form fields after successful submission
-  //         setStartDate("");
-  //         setEndDate("");
-  //         setReason("");
-  //         setSelectedFile(null);
-  //         setSuccessMessage("Leave request submitted successfully!");
-
-  //         // Refresh recent requests and leave balance
-  //         fetchRecentRequests(employeeId);
-  //         fetchLeaveBalance(employeeId);
-  //     } catch (err) {
-  //         setError(err.message);
-  //         console.error(err);
-  //     } finally {
-  //         setLoading(false);
-  //     }
-  // };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -211,15 +150,13 @@ export default function Leave() {
           throw new Error("Failed to fetch employee details");
         }
         data = await response.json();
-        console.log("...............................",data);
         setManagerId(data.employmentDetails.lineManagerId);
       } catch (err) {
-
         console.error("Error fetching employee details:", err);
         setError("Failed to load employee details");
       }
 
-      if (!data.employmentDetails.lineManagerId) throw new Error("Line manager not found for employee",data.employmentDetails);
+      if (!data?.employmentDetails?.lineManagerId) throw new Error("Line manager not found for employee",data.employmentDetails);
 
       // Send notification to the line manager
       const notificationResponse = await fetch(
@@ -289,6 +226,7 @@ export default function Leave() {
                   <option value="CASUAL">Casual Leave</option>
                   <option value="SICK">Sick Leave</option>
                   <option value="COMPENSATORY">Compensatory Leave</option>
+                  <option value="UNPAID">Unpaid Leave</option>
                 </select>
               </div>
 
@@ -389,10 +327,18 @@ export default function Leave() {
               </p>
             </div>
             <div className="leave-item">
-              <p className="leave-type">Total Compensation Leave Taken</p>
+              <p className="leave-type">Total Compensatory Leave Balance</p>
               <p className="leave-detail">
-                {leaveBalance.totalCompensatoryTaken} days
+                {leaveBalance.compensatoryBalance} days
               </p>
+              
+            </div>
+            <div className="leave-item">
+              <p className="leave-type">Total Overtime Hours </p>
+              <p className="leave-detail">
+                {leaveBalance.remainingOvertimeInHours} hr
+              </p>
+              
             </div>
           </div>
 

@@ -31,6 +31,7 @@ const Sidebar = () => {
       subMenu: [
         { name: "Attendance Tracker", path: "/employee/attendance/tracker" },
         { name: "Attendance Dashboard", path: "/employee/attendance/dashboard" },
+        {name: "Overtime", path: "/employee/attendance/overtime" },
       ],
     },
     { name: "Employee Database", icon: Users, path: "/employee/employee/personal" },
@@ -40,7 +41,7 @@ const Sidebar = () => {
       path: "/employee/leave-management",
       subMenu: [
         { name: "Request Leave", path: "/employee/leave-management/request-leave" },
-        { name: "Leave History", path: "/employee/leave-management/leave-history" },
+        { name: "Leave Details", path: "/employee/leave-management/leave-history" },
         { name: "Leave Policy", path: "/employee/leave-management/leave-policy" },
       ],
     },

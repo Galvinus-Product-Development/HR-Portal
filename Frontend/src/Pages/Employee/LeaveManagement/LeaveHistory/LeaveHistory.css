@@ -150,3 +150,196 @@
   color: #9ca3af;
   font-size: 0.875rem;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Add this to your LeaveHistory.css file */
+
+/* Action buttons styling */
+.leave-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.leave-edit-btn, .leave-cancel-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.leave-edit-btn {
+  color: #4f46e5;
+}
+
+.leave-cancel-btn {
+  color: #ef4444;
+}
+
+.leave-edit-btn:hover {
+  background-color: rgba(79, 70, 229, 0.1);
+}
+
+.leave-cancel-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.leave-edit-modal, .leave-cancel-modal {
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  width: 500px;
+  max-width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.close-modal {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.date-input-wrapper {
+  position: relative;
+}
+
+.date-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+}
+
+.form-group input[type="date"] {
+  width: 100%;
+  padding: 10px 10px 10px 38px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  resize: vertical;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.cancel-btn {
+  padding: 8px 16px;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.save-btn, .confirm-cancel-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+}
+
+.save-btn {
+  background-color: #4f46e5;
+}
+
+.confirm-cancel-btn {
+  background-color: #ef4444;
+}
+
+.modal-content {
+  margin-bottom: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .leave-edit-modal, .leave-cancel-modal {
+    width: 95%;
+    padding: 16px;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .cancel-btn, .save-btn, .confirm-cancel-btn {
+    width: 100%;
+  }
+}

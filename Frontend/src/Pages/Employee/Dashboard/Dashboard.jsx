@@ -11,12 +11,12 @@ import {
   Briefcase,
   ArrowRight,
 } from "lucide-react";
-
+import OvertimeManagementSystem from "./OvertimeManagementSystem";
 const VITE_API_BASE_URL_NS = import.meta.env.VITE_API_BASE_URL_NS;
 const VITE_API_BASE_URL_AT = import.meta.env.VITE_API_BASE_URL_AT;
 const VITE_SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 const API_BASE_URL_ED = import.meta.env.VITE_API_BASE_URL_ED;
-const API_BASE_URL_LM=import.meta.env.VITE_API_BASE_URL_LM;
+const API_BASE_URL_LM = import.meta.env.VITE_API_BASE_URL_LM;
 import io from "socket.io-client";
 import "./Dashboard.css";
 const token = localStorage.getItem("accessToken");
@@ -45,12 +45,31 @@ export default function Dashboard() {
   // New state to control the visibility of the checkout confirmation modal
   const [showModal, setShowModal] = useState(false);
 
+  // New state for overtime request form
+  const [overtimeRequest, setOvertimeRequest] = useState({
+    date: new Date().toISOString().split("T")[0],
+    hours: 1,
+    minutes: 0,
+    reason: "",
+  });
+  const [overtimeSubmitting, setOvertimeSubmitting] = useState(false);
+  const [overtimeSuccess, setOvertimeSuccess] = useState(false);
+  const [holidays, setHolidays] = useState([]);
+  const [employee, setEmployee] = useState();
+
   const employeeId = localStorage.getItem("userId"); // Storing the employee ID in local storage
   const userId = localStorage.getItem("userId");
+  const localStorageCheckInTime = localStorage.getItem("checkInTime");
   // This useEffect will hide the stats after 3 seconds whenever showTimeStats becomes true
-  const ISTOffsetMs = 5.5 * 60 * 60 * 1000;
+  // const ISTOffsetMs = 5.5 * 60 * 60 * 1000;
+
 
   const isCheckedInToday = () => {
+    const weekEnd = new Date().getDay(); // --------------------- CHANGED HERE -------------------------
+    if (weekEnd === 0 || weekEnd === 6) {
+      console.log("Today is a weekend. Skipping attendance check.");
+      return;
+    }
     if (!checkInTime) return false;
     const checkInDate = new Date(checkInTime);
     const today = new Date();
@@ -60,6 +79,44 @@ export default function Dashboard() {
       checkInDate.getDate() === today.getDate()
     );
   };
+
+  // Importing holidays and employee details here
+  useEffect(() => {
+    const fetchHolidays = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL_LM}/api/holiday/`);
+
+        if (!response.ok) {
+          console.error("Unable to fetch holidays");
+        }
+
+        const data = await response.json();
+        setHolidays(data);
+      } catch (error) {
+        console.error("Internal server error:", error);
+      }
+    };
+
+    const fetchEmployee = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL_ED}/api/employees/${employeeId}`
+        );
+
+        if (!response.ok) {
+          console.log("Unable to fetch employee details");
+        }
+
+        const data = await response.json();
+        setEmployee(data);
+      } catch (error) {
+        console.error("Internal server error:", error);
+      }
+    };
+
+    fetchHolidays();
+    fetchEmployee();
+  }, []);
 
   // This optional effect will ensure that once a new day starts, the app resets and enables the Check In button again.
   useEffect(() => {
@@ -74,12 +131,118 @@ export default function Dashboard() {
           checkInDate.getDate() !== today.getDate()
         ) {
           setCheckInTime(null);
+          setWorkTimer("00:00:00"); // -------------- CHANGED HERE ----------------
         }
       }
     }, 60000); // check every minute
 
     return () => clearInterval(timer);
   }, [checkInTime]);
+
+  // This useEffect will hide the stats after 3 seconds whenever showTimeStats becomes true
+  useEffect(() => {
+    if (showTimeStats) {
+      const timer = setTimeout(() => {
+        setShowTimeStats(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showTimeStats]);
+
+  // Fetch today's attendance on mount
+  useEffect(() => {
+    fetchTodayAttendance();
+  }, []);
+
+  // Update current time every second
+  useEffect(() => {
+    const timer1 = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer1);
+  }, []);
+
+  // Check if today is a weekend and mark absent if not checked in
+  useEffect(() => {
+    const today = new Date().getDay();
+    if (today === 0 || today === 6 || isTodayHoliday()) {
+      console.log("Today is a weekend or holiday. Skipping attendance check.");
+      return;
+    }
+
+    const absentTimer = setInterval(async () => {
+      const now = new Date();
+      const cutoffHour = 15;
+      const cutoffMinute = 12;
+      if (
+        now.getHours() > cutoffHour ||
+        (now.getHours() === cutoffHour && now.getMinutes() >= cutoffMinute)
+      ) {
+        if (!isCheckedIn) {
+          try {
+            console.log(employeeId);
+            const response = await fetch(
+              `${VITE_API_BASE_URL_AT}/api/attendance/manual`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  employeeId: employeeId,
+                  date: now.toLocaleString(),
+                  punchInTime: null,
+                  punchOutTime: null,
+                  attendanceStatus: "Absent",
+                  punchInMethod: null,
+                  punchOutMethod: null,
+                  workingHours: 0,
+                  lateComing: 0,
+                  overtime: 0,
+                }),
+              }
+            );
+
+            if (!response.ok) {
+              throw new Error(
+                `Failed to mark absent automatically. Status: ${response.status}`
+              );
+            }
+
+            const responseData = await response.json();
+
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            const monthlyAttendanceResponse = await fetch(
+              `${VITE_API_BASE_URL_AT}/api/monthlyAttendance/${employeeId}?year=${year}&month=${month}&day=${day}`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({}),
+              }
+            );
+
+            if (!monthlyAttendanceResponse.ok) {
+              throw new Error("Failed to save monthly attendance");
+            }
+          } catch (error) {
+            console.error("Auto absent error:", error);
+          }
+        } else {
+          console.log("Employee has already checked in. No action needed.");
+        }
+
+        clearInterval(absentTimer);
+      } else {
+        console.log("Current time is before the cutoff time. Waiting...");
+      }
+    }, 60000);
+
+    return () => {
+      console.log("Clearing interval on component unmount.");
+      clearInterval(absentTimer);
+    };
+  }, [isCheckedIn, employeeId]);
 
   const fetchLeaveBalance = async (id) => {
     try {
@@ -128,7 +291,7 @@ export default function Dashboard() {
         }
 
         const data = await response.json();
-        console.log("this is from data now...............",data);
+        console.log("this is from data now...............", data);
         setFormData(data);
       } catch (err) {
         console.error(err);
@@ -149,6 +312,17 @@ export default function Dashboard() {
     }
   }, [showTimeStats]);
 
+  // This useEffect will hide the overtime success message after 3 seconds
+  useEffect(() => {
+    if (overtimeSuccess) {
+      const timer = setTimeout(() => {
+        setOvertimeSuccess(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [overtimeSuccess]);
+
   // Fetch today's attendance on mount
   useEffect(() => {
     fetchTodayAttendance();
@@ -162,12 +336,9 @@ export default function Dashboard() {
     return () => clearInterval(timer1);
   }, []);
 
-  // Update work timer if checked in
   useEffect(() => {
     let timer;
-
     const checkedInTime = localStorage.getItem("checkInTime");
-
     if (checkedInTime) {
       setIsCheckedIn(true);
 
@@ -207,36 +378,6 @@ export default function Dashboard() {
       clearInterval(timer);
     };
   }, [isCheckedIn]);
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await fetch(
-          `${VITE_API_BASE_URL_NS}/api/notifications/${userId}`
-        );
-        if (!response.ok) throw new Error("Failed to fetch notifications");
-        const data = await response.json();
-        console.log(data);
-        setNotifications(data);
-      } catch (error) {
-        console.error("Error fetching notifications:", error);
-      }
-    };
-
-    fetchNotifications();
-
-    // Join WebSocket room for real-time notifications
-    socket.emit("join", userId);
-
-    socket.on("notification", (notification) => {
-      console.log("New Notification:", notification);
-      setNotifications((prev) => [notification, ...prev]);
-    });
-
-    return () => {
-      socket.off("notification"); // Cleanup listener on unmount
-    };
-  }, [userId]);
 
   // Fetch today's attendance record
   const fetchTodayAttendance = async () => {
@@ -280,16 +421,17 @@ export default function Dashboard() {
     }
   };
 
-  function convertToIST12HourFormat(isoString) {
-    const date = new Date(isoString);
+  function convertToIST12HourFormat(localeString) {
+    const date = new Date(localeString); // ------------------- CHANGED HERE -----------------------
 
     // Convert to IST (UTC +5:30)
-    const istOffset = 5.5 * 60 * 60 * 1000;
-    const istDate = new Date(date.getTime() + istOffset);
+    // const istOffset = 5.5 * 60 * 60 * 1000;
+    // const istDate = new Date(date.getTime() + istOffset);
+    const istDate = new Date(date.getTime());
 
-    let hours = istDate.getUTCHours();
-    const minutes = String(istDate.getUTCMinutes()).padStart(2, "0");
-    const seconds = String(istDate.getUTCSeconds()).padStart(2, "0");
+    let hours = istDate.getHours();
+    const minutes = String(istDate.getMinutes()).padStart(2, "0");
+    const seconds = String(istDate.getSeconds()).padStart(2, "0");
     const ampm = hours >= 12 ? "PM" : "AM";
 
     // Convert to 12-hour format
@@ -326,18 +468,19 @@ export default function Dashboard() {
         clearInterval(window.workTimerInterval);
       }
       const now = new Date();
-      setCheckInTime(now.toISOString());
+      setCheckInTime(now.toLocaleString());
       setIsCheckedIn(true);
       try {
+        // Create attendance record with status "Present"
         const dailyAttendanceResponse = await fetch(
-          `${VITE_API_BASE_URL_AT}/api/attendance`,
+          `${VITE_API_BASE_URL_AT}/api/attendance/manual`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               employeeId: employeeId,
-              date: now.toISOString(),
-              punchInTime: now.toISOString(),
+              date: now.toLocaleString(),
+              punchInTime: now.toLocaleString(),
               attendanceStatus: "Present",
               punchInMethod: "Dashboard",
             }),
@@ -348,16 +491,55 @@ export default function Dashboard() {
           throw new Error("Failed to check in");
         }
 
+        // Get current date parts
         const dateNow = new Date();
-        const year = dateNow.getUTCFullYear();
+        const year = dateNow.getFullYear();
         const month = dateNow.getMonth() + 1;
         const day = dateNow.getDate();
-        const monthlyAttendanceResponse = await fetch(
+
+        // Fetch current monthly attendance data
+        const getMonthlyAttendence = await fetch(
+          `${VITE_API_BASE_URL_AT}/api/monthlyAttendance/${employeeId}?year=${year}&month=${month}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        let monthlyAttendanceResponse;
+
+        if (!getMonthlyAttendence.ok) {
+          monthlyAttendanceResponse = await fetch(
+            `${VITE_API_BASE_URL_AT}/api/monthlyAttendance/${employeeId}?year=${year}&month=${month}&day=${day}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({}),
+            }
+          );
+
+          if (!monthlyAttendanceResponse.ok) {
+            throw new Error("Failed to save monthly attendance");
+          }
+        }
+
+        const getMonthlyAttendenceData = await getMonthlyAttendence.json();
+        console.log("Get Monthly Attendance Data", getMonthlyAttendenceData);
+
+        // Ensure absentDays is a number (defaulting to 0 if undefined)				// ---------------- CHANGED HERE -----------------
+        const currentAbsent = Number(getMonthlyAttendenceData.absentDays) || 0;
+        const newAbsent = Math.max(currentAbsent - 1, 0);
+        console.log("Current Absent:", currentAbsent, "New Absent:", newAbsent);
+
+        // Update monthly attendance by decrementing absentDays by 1
+        monthlyAttendanceResponse = await fetch(
           `${VITE_API_BASE_URL_AT}/api/monthlyAttendance/${employeeId}?year=${year}&month=${month}&day=${day}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({}), // Send an empty object if no body is required
+            body: JSON.stringify({
+              absentDays: newAbsent,
+            }), // Send an empty object if no body is required
           }
         );
 
@@ -365,30 +547,25 @@ export default function Dashboard() {
           throw new Error("Failed to save monthly attendance");
         }
 
-        // Get updated record to see if we were late
+        const monthlyAttendanceData = await monthlyAttendanceResponse.json();
+        console.log("Monthly Attendance Data", monthlyAttendanceData);
+
+        // Process daily attendance response data for additional stats
         const data = await dailyAttendanceResponse.json();
-        const istTime = new Date(now.getTime() + ISTOffsetMs); // Convert to IST
+        // const istTime = new Date(now); // Convert to IST		// ---------------------- CHANGED HERE -------------------------
 
-        const istISOString = new Date(
-          istTime.getTime() - istTime.getTimezoneOffset() * 60000
-        ).toISOString();
+        // let hours = istTime.getHours(); // ------------------------ CHANGED HERE -----------------------------
+        // const minutes = String(istTime.getMinutes()).padStart(2, "0");
+        // const seconds = String(istTime.getSeconds()).padStart(2, "0");
 
-        // Extract IST hours, minutes, and seconds
-        let hours = istTime.getUTCHours();
-        const minutes = String(istTime.getUTCMinutes()).padStart(2, "0");
-        const seconds = String(istTime.getUTCSeconds()).padStart(2, "0");
+        // const ampm = hours >= 12 ? "PM" : "AM";
+        // hours = hours % 12 || 12; // Convert '0' to '12'
 
-        // Convert to 12-hour format
-        const ampm = hours >= 12 ? "PM" : "AM";
-        hours = hours % 12 || 12; // Convert '0' to '12'
+        // const ist12HourTimeString = `${hours}:${minutes} ${ampm}`;
+        // const ist12HourWorkTimer = `${hours}:${minutes}:${seconds} ${ampm}`;
 
-        // Final formatted IST time in 12-hour format
-        const ist12HourTimeString = `${hours}:${minutes} ${ampm}`;
-        const ist12HourWorkTimer = `${hours}:${minutes}:${seconds} ${ampm}`;
-
-        localStorage.setItem("checkInTime", now.toISOString());
-        // localStorage.setItem("workTimer", ist12HourWorkTimer);
-        const checkInTime123 = convertToIST12HourFormat(now.toISOString());
+        localStorage.setItem("checkInTime", now.toLocaleString()); // -------------- CHANGED HERE ---------------------
+        const checkInTime123 = convertToIST12HourFormat(now.toLocaleString());
         setCheckInTime(checkInTime123);
         setWorkTimer("00:00:00");
         handleWorkTimer(now.getTime());
@@ -398,13 +575,11 @@ export default function Dashboard() {
           overtime: data.overtime || 0,
         });
 
-        // Show the time stats alert
         setShowTimeStats(true);
 
-        // Update notifications
         const newNotification = {
           id: Date.now(),
-          title: `Checked in at ${now.toLocaleTimeString("en-US", {
+          title: `Checked in at ${now.toLocaleTimeString("en-IN", {
             hour: "2-digit",
             minute: "2-digit",
           })}`,
@@ -423,7 +598,6 @@ export default function Dashboard() {
   const handleCheckOut = async () => {
     if (isCheckedIn) {
       const now = new Date();
-      console.log(now.toISOString());
 
       try {
         const dailyAttendanceResponse = await fetch(
@@ -432,7 +606,7 @@ export default function Dashboard() {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              punchOutTime: now.toISOString(),
+              punchOutTime: now.toLocaleString(),
               punchOutMethod: "Dashboard",
             }),
           }
@@ -454,7 +628,7 @@ export default function Dashboard() {
         // Update notifications
         const newNotification = {
           id: Date.now(),
-          title: `Checked out at ${now.toLocaleTimeString("en-US", {
+          title: `Checked out at ${now.toLocaleTimeString("en-IN", {
             hour: "2-digit",
             minute: "2-digit",
           })}`,
@@ -484,26 +658,95 @@ export default function Dashboard() {
     }
     return `${mins}m`;
   };
-  const username = localStorage.getItem("name") || generateDeviceId();
 
-  const markAsRead = async (id) => {
+  const dateTime = new Date(localStorageCheckInTime); // Example date-time		// --------------- CHANGED HERE -----------------
+  const timeOnly = dateTime.toLocaleTimeString(); // Get only the time
+
+  // Handle overtime request form submission
+  const handleOvertimeSubmit = async (e) => {
+    e.preventDefault();
+    setOvertimeSubmitting(true);
+
     try {
-      await fetch(`${VITE_API_BASE_URL_NS}/api/notifications/${id}/read`, {
-        method: "PATCH",
+      // Calculate total minutes
+      const totalMinutes =
+        parseInt(overtimeRequest.hours) * 60 +
+        parseInt(overtimeRequest.minutes);
+
+      const response = await fetch(
+        `${VITE_API_BASE_URL_AT}/api/overtime-requests`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            employeeId: employeeId,
+            date: overtimeRequest.date,
+            minutes: totalMinutes,
+            reason: overtimeRequest.reason,
+            status: "PENDING",
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to submit overtime request");
+      }
+
+      // Reset form
+      setOvertimeRequest({
+        date: new Date().toISOString().split("T")[0],
+        hours: 1,
+        minutes: 0,
+        reason: "",
       });
 
-      // Update UI Optimistically
-      setNotifications((prev) =>
-        prev.map((notification) =>
-          notification.id === id
-            ? { ...notification, status: "READ" }
-            : notification
-        )
-      );
+      // Show success message
+      setOvertimeSuccess(true);
+
+      // Update notifications
+      const newNotification = {
+        id: Date.now(),
+        title: `Overtime Request Submitted`,
+        message: `${overtimeRequest.hours}h ${
+          overtimeRequest.minutes
+        }m requested for ${new Date(
+          overtimeRequest.date
+        ).toLocaleDateString()}`,
+        time: "Just now",
+        type: "info",
+      };
+      // setNotifications((prev) => [newNotification, ...prev.slice(0, 5)]);
     } catch (error) {
-      console.error("Failed to mark notification as read:", error);
+      console.error("Overtime request error:", error);
+    } finally {
+      setOvertimeSubmitting(false);
     }
   };
+
+  // Handle overtime form input changes
+  const handleOvertimeChange = (e) => {
+    const { name, value } = e.target;
+    setOvertimeRequest((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const isTodayHoliday = () => {
+    if (!employee) return false; // Don't block if employee isn't loaded yet
+
+    const today = new Date().toISOString().split("T")[0]; // Format: "YYYY-MM-DD"
+
+    return holidays.some((holiday) => {
+      const holidayDate = holiday.date.split("T")[0];
+      const isLocationMatch =
+        holiday.location === "Global" || holiday.location === employee.location;
+
+      return holidayDate === today && isLocationMatch;
+    });
+  };
+  const username = localStorage.getItem("name") || "User";
+
   return (
     <div className="dashboard-container">
       {/* Welcome Section */}
@@ -560,7 +803,7 @@ export default function Dashboard() {
                   //       }
                   //   )
 
-                  checkInTime
+                  timeOnly // --------------------- CHANGED HERE ------------------------
                 : "--:--:--"}
             </p>
           </div>
@@ -575,9 +818,11 @@ export default function Dashboard() {
         <div className="checkin-actions">
           <button
             onClick={handleCheckIn}
-            disabled={isCheckedInToday()}
+            disabled={isCheckedInToday() || isTodayHoliday()}
             className={`checkin-button ${
-              isCheckedInToday() ? "button-disabled" : "button-enabled"
+              isCheckedInToday() || isTodayHoliday()
+                ? "button-disabled"
+                : "button-enabled"
             }`}
           >
             <CheckCircle className="button-icon" />
@@ -671,94 +916,7 @@ export default function Dashboard() {
           <p className="quick-stat-subtitle">Location</p>
         </div>
       </div>
-
-      {/* Main Content Grid */}
-      <div className="main-content-grid">
-        {/* <div className="notifications">
-                    <h3 className="section-title">Recent Updates</h3>
-                    {notifications.map((notification) => (
-                        <div
-                            key={notification.id}
-                            className="notification-card"
-                        >
-                            <div className="notification-icon">
-                                {notification.type === "success" && (
-                                    <CheckCircle className="notification-icon-img" />
-                                )}
-                                {notification.type === "warning" && (
-                                    <Bell className="notification-icon-img" />
-                                )}
-                                {notification.type === "info" && (
-                                    <Briefcase className="notification-icon-img" />
-                                )}
-                            </div>
-                            <div className="notification-text">
-                                <p className="notification-title">
-                                    {notification.title}
-                                </p>
-                                <p className="notification-time">
-                                    {notification.time}
-                                </p>
-                            </div>
-                            <ArrowRight className="notification-action" />
-                        </div>
-                    ))}
-                </div> */}
-
-        <div className="notifications">
-          <h3 className="section-title">Recent Updates</h3>
-          {notifications.length > 0 ? (
-            notifications.map((notification) => (
-              <div key={notification._id} className="notification-card">
-
-                <div className="notification-text">
-                  <p className="notification-title">{notification.title}</p>
-                  <p className="notification-message">{notification.message}</p>
-                  <p className="notification-time">
-                    {new Date(notification.createdAt).toLocaleString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true,
-                    })}
-                  </p>
-                </div>
-                {notification.status === "UNREAD" && (
-                  <button
-                    className="dashboard__notification-mark-read"
-                    onClick={() => {
-                      console.log("this is notification id:-", notification);
-                      markAsRead(notification.id);
-                    }}
-                  >
-                    Mark as Read
-                  </button>
-                )}
-              </div>
-            ))
-          ) : (
-            <p className="no-notifications">No new notifications</p>
-          )}
-        </div>
-
-        {/* Quick Actions */}
-        {/* <div className="quick-actions">
-          <h3 className="section-title">Quick Actions</h3>
-          <div className="quick-action">
-            <span className="action-title">Request Leave</span>
-            <Calendar className="action-icon" />
-          </div>
-          <div className="quick-action">
-            <span className="action-title">Submit Timesheet</span>
-            <Clock className="action-icon" />
-          </div>
-          <div className="quick-action">
-            <span className="action-title">View Schedule</span>
-            <Calendar className="action-icon" />
-          </div>
-        </div> */}
-      </div>
+      <OvertimeManagementSystem />
     </div>
   );
 }

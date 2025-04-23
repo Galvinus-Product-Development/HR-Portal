@@ -22,9 +22,9 @@ import LoginPage from "./Pages/Admin/auth/LoginPage";
 import ResetPassword from "./Pages/Admin/auth/ResetPassword";
 import NewPassword from "./Pages/Admin/auth/NewPassword";
 import RolePermissions from "./Pages/Admin/RoleManagement/RolePermission";
-import RegisterPage from "./Pages/Admin/auth/RegisterPage";
-import NotificationPage from "./Pages/Admin/Notification/NotificationPage";
 import TrainingDetails from "./Pages/Admin/TrainingAndLearning/TrainingDetails/TrainingDetails";
+import Overtime from "./Pages/Admin/Attendance/Overtime";
+import Holiday from "./Pages/Admin/Holiday/CreateHoliday"
 
 //Employee
 import EmpLayout from "./Components/Employee/layout";
@@ -46,7 +46,7 @@ import EmpAttendanceDashboard from "./Pages/Employee/Attendance/AttendanceDashbo
 import EmpTrainingDetails from "./Pages/Employee/TrainingAndLearning/TrainingDetails/TrainingDetails";
 import EmpAddBankDetails from "./Pages/Employee/Test/BankDetails";
 import CompleteRegistration from "./Pages/Employee/CompleteRegistration";
-
+import EmpOvertime from "./Pages/Employee/Attendance/Overtime";
 // import Auth from './Pages/Auth/Auth';
 
 function App() {
@@ -71,7 +71,7 @@ function App() {
               </PrivateRoute>
             }
           >
-            <Route index  element={<Dashboard />} />
+            <Route index element={<Dashboard />} />
             <Route path="attendance" element={<Attendance />} />
             <Route path="leave-management" element={<LeaveManagement />} />
 
@@ -96,11 +96,15 @@ function App() {
               path="attendance/dashboard"
               element={<AttendanceDashboard />}
             />
+            <Route
+              path="attendance/overtime"
+              element={<Overtime />}
+            />
             <Route path="training" element={<TrainingAndLearning />} />
             <Route path="training/:id" element={<TrainingDetails />} />
             <Route path="certification" element={<Certification />} />
-            <Route path="register-page" element={<RegisterPage />} />
-            <Route path="notification-page" element={<NotificationPage />} />
+            <Route path="holiday" element={<Holiday />} />
+            
           </Route>
 
           {/* Employee Routes */}
@@ -131,6 +135,8 @@ function App() {
             <Route path="attendance" element={<EmpAttendance />}>
               <Route path="tracker" element={<EmpAttendanceTracker />} />
               <Route path="dashboard" element={<EmpAttendanceDashboard />} />
+              <Route path="overtime" element={<EmpOvertime />} />
+              
             </Route>
             <Route path="training" element={<EmpTraining />} />
             <Route path="training/:id" element={<EmpTrainingDetails />} />

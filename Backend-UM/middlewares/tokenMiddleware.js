@@ -146,9 +146,10 @@ const verifyTokens = async (req, res, next) => {
         const isRefreshTokenBlacklisted = await redisClient.get(refreshToken);
         if (isRefreshTokenBlacklisted) {
           console.log("Refresh token is blacklisted.");
-          return res
-            .status(401)
-            .json({ message: "Refresh token is blacklisted." });
+          return next();
+          // return res
+          //   .status(401)
+          //   .json({ message: "Refresh token is blacklisted." });
         }
 
         try {
@@ -204,15 +205,17 @@ const verifyTokens = async (req, res, next) => {
           });
         } catch (refreshErr) {
           console.log("Refresh token is invalid or expired.");
-          return res
-            .status(401)
-            .json({ message: "Invalid or expired refresh token." });
+          return next();
+          // return res
+          //   .status(401)
+          //   .json({ message: "Invalid or expired refresh token." });
         }
       } else {
         console.log("Invalid tokens. Proceeding to login/register.");
-        return res
-          .status(401)
-          .json({ message: "Invalid or expired access token." });
+        return next();
+        // return res
+        //   .status(401)
+        //   .json({ message: "Invalid or expired access token." });
       }
     }
   } catch (err) {
