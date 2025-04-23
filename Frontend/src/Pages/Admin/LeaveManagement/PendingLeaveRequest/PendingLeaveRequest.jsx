@@ -381,9 +381,15 @@
 //   );
 // }
 
-
 import React, { useState, useEffect } from "react";
-import { Eye, CheckCircle, XCircle, User, PauseCircle, Edit } from "lucide-react";
+import {
+  Eye,
+  CheckCircle,
+  XCircle,
+  User,
+  PauseCircle,
+  Edit,
+} from "lucide-react";
 import "./PendingLeaveRequest.css";
 
 const API_BASE_URL_LM = import.meta.env.VITE_API_BASE_URL_LM;
@@ -428,11 +434,16 @@ export default function PendingLeaveRequests() {
         startDate: emp.startDate,
         endDate: emp.endDate,
         appliedOn: emp.appliedOn,
+        editStatus:emp.editStatus,
+        startDateTemp:emp.startDateTemp,
+        endDateTemp:emp.endDateTemp,
+        reasonTemp:emp.reasonTemp,
         reason: emp.reason,
         supportingDocs: emp.supportingDocs,
       }));
       // ✅ Set the entire leaveRequests array in state at once
       setLeaveRequests(leaveRequestsWithNames);
+      console.log(leaveRequests)
     } catch (err) {
       console.error("Error fetching employees:", err);
     }
@@ -505,9 +516,7 @@ export default function PendingLeaveRequests() {
   useEffect(() => {
     try {
       const fetchHolidays = async () => {
-        const response = await fetch(
-          "http://localhost:4000/api/holiday/"
-        );
+        const response = await fetch("http://localhost:4000/api/holiday/");
 
         if (!response.ok) {
           console.error("Unable to fetch holidays");
@@ -544,13 +553,13 @@ export default function PendingLeaveRequests() {
       const isHoliday = holidayDates.includes(iso);
 
       if (!isWeekOff && !isHoliday) {
-        count++;    // Only increment if not a weekend and not a holiday
+        count++; // Only increment if not a weekend and not a holiday
       }
     }
 
     return count;
   };
-
+  console.log("SELECTED REQUEST for edit",selectedRequest)
   // Fetch both leave requests and employee data on component mount
   useEffect(() => {
     fetchEmployees();
@@ -659,26 +668,32 @@ export default function PendingLeaveRequests() {
                     {formatDate(request.appliedOn)}
                   </td>
                   <td className="leave-table-cell">
-                  {request.editStatus === "EDITED" && (
-    <button
-      onClick={() => {
-        setSelectedRequest(request);
-        setIsEditStatusModalOpen(true);
-      }}
-      className="leave-edit-button"
-    >
-      <Edit className="leave-icon" /> Edited
-    </button>
-  )}
-  {request.editStatus === "CANCELLED" && (
-    <button className="leave-cancelled-button" disabled>
-      Cancelled
-    </button>
-  )}
-  {(request.editStatus === null || request.editStatus === "NULL") && (
-    <span>--</span>
-  )}
-                    
+                    {request.editStatus === "EDITED" && (
+                      <button
+                        onClick={() => {
+                          setSelectedRequest(request);
+                          setIsEditStatusModalOpen(true);
+                        }}
+                        className="leave-edit-button"
+                      >
+                        <Edit className="leave-icon" /> Edited
+                      </button>
+                    )}
+                    {request.editStatus === "CANCELLED" && (
+                      <button
+                        onClick={() => {
+                          setSelectedRequest(request);
+                          setIsEditStatusModalOpen(true);
+                        }}
+                        className="leave-cancelled-button"
+                        disabled
+                      >
+                        Cancelled
+                      </button>
+                    )}
+                    {(request.editStatus === null ||
+                      request.editStatus === "NULL") && <span>--</span>}
+
                     {/* <button
                       onClick={() => {
                         setSelectedRequest(request);
@@ -724,14 +739,13 @@ export default function PendingLeaveRequests() {
             </p>
             <div className="leave-modal-body">
               <p>
-                <strong>Employee Name:</strong>{" "}
-                {selectedRequest.name || "N/A"}
+                <strong>Employee Name:</strong> {selectedRequest.name || "N/A"}
               </p>
               <p>
-                <strong>Leave Type:</strong>{" "}{selectedRequest.leaveType}
+                <strong>Leave Type:</strong> {selectedRequest.leaveType}
               </p>
               <p>
-                <strong>Reason:</strong>{" "}{selectedRequest.reason}
+                <strong>Reason:</strong> {selectedRequest.reason}
               </p>
               <p>
                 <strong>Leave Dates:</strong>{" "}
@@ -747,7 +761,7 @@ export default function PendingLeaveRequests() {
                 days
               </p>
               <p>
-                <strong>Status:</strong>{" "}{formatStatus(selectedRequest.status)}
+                <strong>Status:</strong> {formatStatus(selectedRequest.status)}
               </p>
               {/* Check for supporting documents and display a download link if available */}
               {selectedRequest.supportingDocs && (
@@ -818,34 +832,63 @@ export default function PendingLeaveRequests() {
               </p>
               <p>
                 <strong>Current Status:</strong>{" "}
-                <span className={`status-badge ${getStatusColor(selectedRequest.status)}`}>
-                  {selectedRequest.status === "On_Hold" ? "On Hold" : selectedRequest.status}
+                <span
+                  className={`status-badge ${getStatusColor(
+                    selectedRequest.status
+                  )}`}
+                >
+                  {selectedRequest.status === "On_Hold"
+                    ? "On Hold"
+                    : selectedRequest.status}
                 </span>
               </p>
               <p>
-                <strong>Duration:</strong> {formatDate(selectedRequest.startDate)} - {formatDate(selectedRequest.endDate)}
-                ({calculateDays(selectedRequest.startDate, selectedRequest.endDate)} days)
+                <strong>Previous Duration:</strong>{" "}
+                {formatDate(selectedRequest.startDate)} -{" "}
+                {formatDate(selectedRequest.endDate)}(
+                {calculateDays(
+                  selectedRequest.startDate,
+                  selectedRequest.endDate
+                )}{" "}
+                days)
+              </p>
+
+              <p>
+                <strong>New Duration:</strong>{" "}
+                {formatDate(selectedRequest.startDateTemp)} -{" "}
+                {formatDate(selectedRequest.endDateTemp)}(
+                {calculateDays(
+                  selectedRequest.startDateTemp,
+                  selectedRequest.endDateTemp
+                )}{" "}
+                days)
               </p>
               <p>
-                <strong>Reason:</strong> {selectedRequest.reason}
+                <strong>Reason:</strong> {selectedRequest.reasonTemp}
               </p>
             </div>
             <div className="leave-modal-footer">
               <button
                 className="leave-approve-button"
-                onClick={() => handleFinalDecision(selectedRequest.id, "approved")}
+                onClick={() =>
+                  handleFinalDecision(selectedRequest.id, "approved")
+                }
               >
                 <CheckCircle className="leave-icon" /> Approve
               </button>
               <button
                 className="leave-reject-button"
-                onClick={() => handleFinalDecision(selectedRequest.id, "rejected")}
+                onClick={() =>
+                  handleFinalDecision(selectedRequest.id, "rejected")
+                }
               >
                 <XCircle className="leave-icon" /> Reject
               </button>
               <button
                 className="leave-hold-button"
-                onClick={() => handleFinalDecision(selectedRequest.id, "onHold")}
+                onClick={() =>
+                  handleFinalDecision(selectedRequest.id, "onHold")
+                }
               >
                 <PauseCircle className="leave-icon" /> On Hold
               </button>
