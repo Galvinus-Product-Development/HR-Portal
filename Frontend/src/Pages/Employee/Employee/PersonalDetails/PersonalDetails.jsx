@@ -445,7 +445,7 @@ export default function PersonalDetails() {
           location: data.personalDetails.location,
           dateOfBirth: data.personalDetails.dateOfBirth,
           bloodGroup: data.personalDetails.bloodGroup,
-          email: data.personalDetails.email,
+          // email: data.personalDetails.email,
           phone: data.personalDetails.phoneNumber,
           alternatePhone: data.personalDetails.alternatePhoneNumber,
           emergencyContact: data.emergencyContact.phoneNumber,

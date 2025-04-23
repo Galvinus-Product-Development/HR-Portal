@@ -659,8 +659,27 @@ export default function PendingLeaveRequests() {
                     {formatDate(request.appliedOn)}
                   </td>
                   <td className="leave-table-cell">
+                  {request.editStatus === "EDITED" && (
+    <button
+      onClick={() => {
+        setSelectedRequest(request);
+        setIsEditStatusModalOpen(true);
+      }}
+      className="leave-edit-button"
+    >
+      <Edit className="leave-icon" /> Edited
+    </button>
+  )}
+  {request.editStatus === "CANCELLED" && (
+    <button className="leave-cancelled-button" disabled>
+      Cancelled
+    </button>
+  )}
+  {(request.editStatus === null || request.editStatus === "NULL") && (
+    <span>--</span>
+  )}
                     
-                    <button
+                    {/* <button
                       onClick={() => {
                         setSelectedRequest(request);
                         setIsEditStatusModalOpen(true);
@@ -668,7 +687,7 @@ export default function PendingLeaveRequests() {
                       className="leave-edit-button"
                     >
                       <Edit className="leave-icon" /> Edit
-                    </button>
+                    </button> */}
                   </td>
                   <td className="leave-table-cell leave-text-right">
                     <button
