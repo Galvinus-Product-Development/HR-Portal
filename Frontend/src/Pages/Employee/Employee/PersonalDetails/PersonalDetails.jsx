@@ -405,7 +405,6 @@ export default function PersonalDetails() {
     maritalStatus: "",
     aadhaar: "",
     pan: "",
-    email:""
   });
 
   const [errors, setErrors] = useState({});

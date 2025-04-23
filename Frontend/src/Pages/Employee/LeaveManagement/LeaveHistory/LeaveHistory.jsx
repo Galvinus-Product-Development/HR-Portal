@@ -258,6 +258,7 @@ const LeaveHistory = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [currentLeave, setCurrentLeave] = useState(null);
     const [editFormData, setEditFormData] = useState({
+		editStatus:"",
         startDate: "",
         endDate: "",
         comment: ""
@@ -374,23 +375,24 @@ const LeaveHistory = () => {
         try {
             setLoading(true);
             // Calculate new duration based on start and end dates
-            const startDate = new Date(editFormData.startDate);
-            const endDate = new Date(editFormData.endDate);
+            const formattedStartDate = new Date(`${editFormData.startDate}T00:00:00Z`).toISOString();
+  const formattedEndDate = new Date(`${editFormData.endDate}T00:00:00Z`).toISOString();
+
             const diffTime = Math.abs(endDate - startDate);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Add 1 to include both start and end dates
             
             // Prepare data for API
             const updateData = {
                 leaveId: currentLeave.id,
-                startDate: editFormData.startDate,
-                endDate: editFormData.endDate,
-                duration: diffDays,
-                modificationComment: editFormData.comment
+                startDateTemp: formattedStartDate,
+                endDateTemp: formattedEndDate,
+				editStatus:"EDITED",  
+                reasonTemp: editFormData.comment
             };
             
             // API call to update leave request
-            const response = await fetch(`${API_BASE_URL_LM}/api/leaves/modify`, {
-                method: 'PUT',
+            const response = await fetch(`${API_BASE_URL_LM}/api/leave-requests/${currentLeave.id}`, {
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -403,6 +405,9 @@ const LeaveHistory = () => {
             
             // Refresh employee data to get updated leave history
             await fetchEmployee();
+			
+			const data=await response.json()
+			console.log("this is edit data for leave request",data)
             
             // Close modal and show success message
             setIsEditModalOpen(false);
@@ -453,10 +458,6 @@ const LeaveHistory = () => {
             setLoading(false);
         }
     };
-
-	const handleEdit=()=>{
-		
-	}
     
     // Check if leave can be modified (e.g., only pending leaves)
     const canModifyLeave = (leave) => {
@@ -700,7 +701,7 @@ const LeaveHistory = () => {
                                 <button type="button" className="cancel-btn" onClick={() => setIsEditModalOpen(false)}>
                                     Cancel
                                 </button>
-                                <button type="submit" className="save-btn" onClick={()=>handleEdit}>
+                                <button type="submit" className="save-btn" >
                                     Save Changes
                                 </button>
                             </div>

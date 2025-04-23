@@ -122,6 +122,7 @@ exports.editLeaveRequest = async (req, res) => {
   try {
     const { id } = req.params;
     const { editStatus, startDateTemp, endDateTemp, reasonTemp } = req.body;
+    console.log(req.body)
     const editLeaveRequest = await leaveRequestService.editLeaveRequest(
       id,
       editStatus,

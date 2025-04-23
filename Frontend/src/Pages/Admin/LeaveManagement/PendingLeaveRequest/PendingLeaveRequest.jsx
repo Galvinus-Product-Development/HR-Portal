@@ -659,6 +659,7 @@ export default function PendingLeaveRequests() {
                     {formatDate(request.appliedOn)}
                   </td>
                   <td className="leave-table-cell">
+                    
                     <button
                       onClick={() => {
                         setSelectedRequest(request);
