@@ -120,7 +120,7 @@ on:
       - "Backend-TL/**"
       - "Frontend/**"
     branches:
-      - master
+      - dev
 
   workflow_dispatch: # 🔹 Allows manual triggering
 

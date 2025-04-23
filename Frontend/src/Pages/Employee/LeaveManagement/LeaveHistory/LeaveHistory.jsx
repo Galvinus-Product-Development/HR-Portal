@@ -453,6 +453,10 @@ const LeaveHistory = () => {
             setLoading(false);
         }
     };
+
+	const handleEdit=()=>{
+		
+	}
     
     // Check if leave can be modified (e.g., only pending leaves)
     const canModifyLeave = (leave) => {
@@ -696,7 +700,7 @@ const LeaveHistory = () => {
                                 <button type="button" className="cancel-btn" onClick={() => setIsEditModalOpen(false)}>
                                     Cancel
                                 </button>
-                                <button type="submit" className="save-btn">
+                                <button type="submit" className="save-btn" onClick={()=>handleEdit}>
                                     Save Changes
                                 </button>
                             </div>
