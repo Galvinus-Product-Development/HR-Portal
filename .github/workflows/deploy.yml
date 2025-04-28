@@ -306,7 +306,6 @@
 
 
 
-
 name: Deploy to ECS
 
 on:
@@ -364,8 +363,8 @@ jobs:
             const repo = "hr-app";  # Repo name updated
             const exec = require('child_process').execSync;
             const fs = require('fs');
-            const ECR_REGISTRY = `${process.env.ECR_REGISTRY || '${{ steps.login-ecr.outputs.registry }}'}`;
-            const IMAGE_TAG = `${process.env.IMAGE_TAG || '${{ github.sha }}'}`;
+            const ECR_REGISTRY = process.env.ECR_REGISTRY || '${{ steps.login-ecr.outputs.registry }}';
+            const IMAGE_TAG = process.env.IMAGE_TAG || '${{ github.sha }}';
 
             if (process.env.changed_Backend_UM === 'true') {
               const taskDefJson = `taskdef-${repo}.json`;
@@ -406,4 +405,3 @@ jobs:
             }
         env:
           changed_Backend_UM: ${{ steps.changed.outputs.Backend-UM }}
-
