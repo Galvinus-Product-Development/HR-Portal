@@ -14,7 +14,7 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
+      CLUSTER_NAME: hr-ecs-cluster
       SERVICE_NAME: hr-app-service  # Moved service name here for clarity
       SUBNETS: subnet-abc123,subnet-def456
       SECURITY_GROUPS: sg-abc123
