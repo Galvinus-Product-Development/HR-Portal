@@ -25,7 +25,7 @@ const DailyAttendance = () => {
   const today = new Date();
   const currentYear = today.getFullYear();
   const currentMonth = String(today.getMonth() + 1).padStart(2, "0");
-  const currentDay = today.getDate();
+  const currentDay = String(today.getDate()).padStart(2, '0');
   // const ISTOffsetMs = 5.5 * 60 * 60 * 1000; // Convert UTC to IST
 
   // API base URLs for different services
@@ -168,94 +168,6 @@ const DailyAttendance = () => {
     onLeave: employees.filter((emp) => getEmployeeStatus(emp) === "On Leave")
       .length,
   };
-
-  // Modal component
-  // const AttendanceModal = () => {
-  //   if (!selectedEmployee) return null;
-
-  //   const todayAttendance = getTodayAttendance(selectedEmployee);
-
-  //   return (
-  //     <div className="modal-backdrop">
-  //       <div className="attendance-modal">
-  //         <div className="modal-header">
-  //           <h3>Employee Attendance Details</h3>
-  //           <button onClick={() => setShowAttendanceModal(false)}>×</button>
-  //         </div>
-  //         <div className="modal-content">
-  //           <h4>{selectedEmployee.name}</h4>
-  //           <p>Department: {selectedEmployee.department || "Not assigned"}</p>
-  //           <p>Job Title: {selectedEmployee.jobTitle || "Not assigned"}</p>
-  //           <p>Location: {selectedEmployee.location || "Not assigned"}</p>
-
-  //           <h4>Today's Attendance</h4>
-  //           {todayAttendance ? (
-  //             <div>
-  //               <p>Status: {todayAttendance.attendanceStatus}</p>
-  //               <p>
-  //                 Punch In:{" "}
-  //                 {new Date(todayAttendance.punchInTime).toLocaleTimeString()}
-  //               </p>
-  //               <p>
-  //                 Punch Out:{" "}
-  //                 {todayAttendance.punchOutTime
-  //                   ? new Date(
-  //                       todayAttendance.punchOutTime
-  //                     ).toLocaleTimeString()
-  //                   : "Not punched out"}
-  //               </p>
-  //               <p>Punch In Method: {todayAttendance.punchInMethod}</p>
-  //               <p>Working Hours: {todayAttendance.workingHours || 0} hours</p>
-  //               {todayAttendance.lateComing > 0 && (
-  //                 <p>
-  //                   Late by: {Math.floor(todayAttendance.lateComing / 60)}{" "}
-  //                   minutes
-  //                 </p>
-  //               )}
-  //               {todayAttendance.overtime > 0 && (
-  //                 <p>Overtime: {todayAttendance.overtime} hours</p>
-  //               )}
-  //             </div>
-  //           ) : (
-  //             <p>No attendance record for today</p>
-  //           )}
-
-  //           <h4>Monthly Statistics</h4>
-  //           {selectedEmployee.monthlyAttendanceStats &&
-  //           selectedEmployee.monthlyAttendanceStats.length > 0 ? (
-  //             <div>
-  //               <p>
-  //                 Month: {selectedEmployee.monthlyAttendanceStats[0].monthYear}
-  //               </p>
-  //               <p>
-  //                 Working Days:{" "}
-  //                 {selectedEmployee.monthlyAttendanceStats[0].workingDays}
-  //               </p>
-  //               <p>
-  //                 Present Days:{" "}
-  //                 {selectedEmployee.monthlyAttendanceStats[0].presentDays}
-  //               </p>
-  //               <p>
-  //                 Absent Days:{" "}
-  //                 {selectedEmployee.monthlyAttendanceStats[0].absentDays}
-  //               </p>
-  //               <p>
-  //                 Half Days:{" "}
-  //                 {selectedEmployee.monthlyAttendanceStats[0].halfDays}
-  //               </p>
-  //               <p>
-  //                 Late Days:{" "}
-  //                 {selectedEmployee.monthlyAttendanceStats[0].lateDays}
-  //               </p>
-  //             </div>
-  //           ) : (
-  //             <p>No monthly statistics available</p>
-  //           )}
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // };
 
   if (loading) return <div className="loading">Loading employee data...</div>;
   if (error) return <div className="error">Error: {error}</div>;
@@ -416,28 +328,6 @@ const DailyAttendance = () => {
 					onClose={() => setShowAttendanceModal(false)}
 					onSubmit={async (attendanceData) => {
 						try {
-							// // If status is "On Leave", we handle it differently
-							// if (attendanceData.status === "On Leave") {
-							//     // You may want to make an API call to mark employee on leave
-							//     console.log(
-							//         "Marking employee on leave:",
-							//         attendanceData
-							//     );
-							//     // Update UI without making an API call for this example
-							//     const updatedEmployees = employees.map(
-							//         (emp) => {
-							//             if (emp.id === attendanceData.employeeId) {
-							//                 // Create or update leave record logic here
-											
-							//                 return emp;
-							//             }
-							//             return emp;
-							//         }
-							//     );
-							//     setEmployees(updatedEmployees);
-							//     return;
-							// }
-
 							// Regular attendance submission
 							const response = await fetch(
 								`${ATTENDANCE_API_BASE_URL}/attendance/manual`,

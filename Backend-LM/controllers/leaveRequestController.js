@@ -41,6 +41,20 @@ exports.getAllLeaveRequests = async (req, res) => {
   }
 };
 
+exports.getAllLeaveRequestsForAdmin= async (req, res) => {
+  try {
+    // Expect a query parameter employeeId that corresponds to the unique field in Employee.
+    // const { id } = req.params;
+   
+    const leaveRequests = await leaveRequestService.getAllLeaveRequestsForAdmin();
+    
+    res.status(200).json(leaveRequests);
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.getPendingLeaveRequests = async (req, res) => {
   try {
     // Expect a query parameter employeeId that corresponds to the unique field in Employee.
@@ -137,10 +151,27 @@ exports.editLeaveRequest = async (req, res) => {
   }
 };
 
+exports.cancelLeaveRequest=async(req,res)=>{
+  try {
+    const { id } = req.params;
+    const { editStatus,reasonTemp } = req.body;
+    console.log(req.body)
+    const cancelLeaveRequest = await leaveRequestService.cancelLeaveRequest(
+      id,
+      editStatus,
+      reasonTemp
+    );
+    return res.status(200).json({ cancelLeaveRequest });
+  } catch (error) {
+    console.error("Error editing leave request", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 exports.approveEditedRequest = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const { editStatus, startDateTemp, endDateTemp, reasonTemp } = req.body;
+		const { editStatus, startDateTemp, endDateTemp, reasonTemp,actionStatus } = req.body;
 		const approveEditedRequest = await leaveRequestService.approveEditedRequest(
 		  id,
 		  editStatus,

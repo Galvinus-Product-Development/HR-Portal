@@ -10,9 +10,10 @@ require("dotenv").config();
 const router = express.Router();
 
 // Route to get dashboard stats
-router.get("/dashboard-stats", async (req, res) => {
+router.get("/dashboard-stats/:id", async (req, res) => {
   try {
-    const stats = await getDashboardStats();
+    const {id}=req.params;
+    const stats = await getDashboardStats(id);
     res.status(200).json(stats);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch dashboard stats" });
@@ -69,6 +70,7 @@ router.get("/:userId", async (req, res) => {
 
 router.patch("/:id/read", async (req, res) => {
   try {
+    console.log("I came here....!!!!!!!!!")
     const notification = await markAsRead(req.params.id);
     res.status(200).json(notification);
   } catch (error) {
@@ -81,14 +83,14 @@ const LEAVE_SERVICE_URL = `${process.env.LEAVE_SERVICE_URL}`;
 const ATTENDANCE_SERVICE_URL = `${process.env.ATTENDANCE_SERVICE_URL}`;
 const PENDING_LEAVE_REQUEST_URL = `${process.env.PENDING_LEAVE_REQUEST_URL}`;
 
-const getDashboardStats = async () => {
+const getDashboardStats = async (id) => {
   try {
     const [totalEmployeesRes, onLeaveRes, pendingLeavesRes] = await Promise.all(
       [
         axios.get(`${EMPLOYEE_SERVICE_URL}`), // Total employees
 
         axios.get(`${LEAVE_SERVICE_URL}`), // Employees on leave today
-        axios.get(`${PENDING_LEAVE_REQUEST_URL}`),
+        axios.get(`${PENDING_LEAVE_REQUEST_URL}/pending/${id}`),
         // 0, // Pending leave requests
       ]
     );
@@ -104,6 +106,9 @@ const getDashboardStats = async () => {
       "this is on totla employee data on NS:-  ",
       totalEmployeesRes.data.data
     );
+
+    console.log("This is pending leave res:---->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",pendingLeavesRes);
+
     const stats = {
       totalEmployees: totalEmployeesRes.data.data.length,
       onLeaveToday: onLeaveRes.data.count,

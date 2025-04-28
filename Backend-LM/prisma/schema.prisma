@@ -101,6 +101,7 @@ enum LeaveStatus {
     PENDING
     APPROVED
     REJECTED
+    EDITED
     ON_HOLD
     CANCELLED
 }

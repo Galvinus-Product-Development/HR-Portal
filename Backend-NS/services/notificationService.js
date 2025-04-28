@@ -66,7 +66,7 @@ const createNotification = async (
   recipientType="EMPLOYEE"
 ) => {
   try {
-    console.log("Creating notifications...", userIds, type, title, message, priority);
+    // console.log("Creating notifications...", userIds, type, title, message, priority);
 
     if (!Array.isArray(userIds)) {
       throw new Error('userIds must be an array');
@@ -92,7 +92,7 @@ const createNotification = async (
     const createdNotifications = await prisma.notification.createMany({
       data: notificationsData,
     });
-
+    console.log("This is create notification:----->",createdNotifications);
     // Fetch the inserted notifications (to get their IDs)
     const insertedNotifications = await prisma.notification.findMany({
       where: { 

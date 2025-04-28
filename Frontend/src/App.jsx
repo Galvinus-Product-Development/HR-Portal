@@ -8,6 +8,7 @@ import Layout from "./Components/Admin/Layout";
 import Attendance from "./Pages/Admin/Attendance/Attendance";
 import DailyAttendance from "./Pages/Admin/Attendance/DailyAttendance/DailyAttendance";
 import AttendanceDashboard from "./Pages/Admin/Attendance/AttendanceDashboard/AttendanceDashboard";
+import AttendanceRequest from "./Pages/Admin/Attendance/AttendanceRequest/AttendanceRequest";
 import TrainingAndLearning from "./Pages/Admin/TrainingAndLearning/TrainingAndLearning";
 import Certification from "./Pages/Admin/Certification/Certification";
 import Dashboard from "./Pages/Admin/Dashboard/Dashboard";
@@ -24,7 +25,7 @@ import NewPassword from "./Pages/Admin/auth/NewPassword";
 import RolePermissions from "./Pages/Admin/RoleManagement/RolePermission";
 import TrainingDetails from "./Pages/Admin/TrainingAndLearning/TrainingDetails/TrainingDetails";
 import Overtime from "./Pages/Admin/Attendance/Overtime";
-import Holiday from "./Pages/Admin/Holiday/CreateHoliday"
+import Holiday from "./Pages/Admin/Holiday/CreateHoliday";
 
 //Employee
 import EmpLayout from "./Components/Employee/layout";
@@ -96,15 +97,12 @@ function App() {
               path="attendance/dashboard"
               element={<AttendanceDashboard />}
             />
-            <Route
-              path="attendance/overtime"
-              element={<Overtime />}
-            />
+            <Route path="attendance/overtime" element={<Overtime />} />
+            <Route path="attendance/request" element={<AttendanceRequest />} />
             <Route path="training" element={<TrainingAndLearning />} />
             <Route path="training/:id" element={<TrainingDetails />} />
             <Route path="certification" element={<Certification />} />
             <Route path="holiday" element={<Holiday />} />
-            
           </Route>
 
           {/* Employee Routes */}
@@ -136,7 +134,6 @@ function App() {
               <Route path="tracker" element={<EmpAttendanceTracker />} />
               <Route path="dashboard" element={<EmpAttendanceDashboard />} />
               <Route path="overtime" element={<EmpOvertime />} />
-              
             </Route>
             <Route path="training" element={<EmpTraining />} />
             <Route path="training/:id" element={<EmpTrainingDetails />} />

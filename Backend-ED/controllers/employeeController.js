@@ -33,6 +33,21 @@ exports.getEmployeeById = async (req, res) => {
   }
 };
 
+exports.fetchEmployeeByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params; // Extracted from JWT in middleware
+    const employee = await employeeService.fetchEmployeeByUserId(userId);
+    if (!employee) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Employee not found" });
+    }
+    res.status(200).json({ success: true, data: employee });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.updateEmployee = async (req, res) => {
   try {
     const updatedEmployee = await employeeService.updateEmployee(
@@ -200,7 +215,25 @@ exports.getEmploymentDetails = async (req, res) => {
   }
 };
 
+exports.getEmploymentDetailss = async (req, res) => {
+  try {
+    const { userId } = req.params; // Extracted from JWT in middleware
 
+    // Verify and decode JWT token
+    const employmentDetails = await employeeService.getEmploymentByUserId(
+      userId
+    );
+
+    if (!employmentDetails) {
+      return res.status(404).json({ error: "Employment details not found" });
+    }
+
+    res.json(employmentDetails);
+  } catch (error) {
+    console.error("Error fetching employment details:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 exports.getBankDetails = async (req, res) => {
 

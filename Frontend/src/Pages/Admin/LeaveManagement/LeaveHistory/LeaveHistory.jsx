@@ -68,7 +68,7 @@ export default function LeaveHistory() {
     try {
       setLoading(true);
       const [year, month] = selectedMonth.split("-");
-      let url = `${API_BASE_URL_LM}/api/leave-history`;
+      let url = `${API_BASE_URL_LM}/api/leave-requests/admin`;
       const queryParams = new URLSearchParams();
       if (year && month) {
         queryParams.append("year", year);
@@ -87,6 +87,7 @@ export default function LeaveHistory() {
         );
       }
       const data = await response.json();
+      console.log(data)
       // Process data: if appliedOn and duration are provided, compute start and end dates
       const processedData = data.map((record) => {
         if (record.appliedOn && record.duration) {
@@ -248,8 +249,9 @@ export default function LeaveHistory() {
              className="status-selector"
            >
              <option value="All">All Status</option>
-             <option value="Approved">Approved</option>
-             <option value="Rejected">Rejected</option>
+             <option value="APPROVED">Approved</option>
+             <option value="REJECTED">Rejected</option>
+             <option value="CANCELLED">Cancelled</option>
              {/* <option value="pending">Pending</option> */}
            </select>
            <button className="export-button" onClick={handleExport}>

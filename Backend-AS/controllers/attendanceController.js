@@ -65,6 +65,13 @@ exports.manuallyMarkAttendance = async (req, res) => {
 			return res.status(400).json({ error: 'Cannot mark attendance on a holiday' });
 		}
 
+		const today = new Date().getDay();
+
+		// Check if today is Saturday or Sunday
+		if (today === 0 || today === 6) {
+			return res.status(400).json({ error: 'Cannot mark attendance on weekends' });
+		}
+
 		// Step 6: Proceed to mark attendance
 		const data = await attendanceService.manuallyMarkAttendance(req.body);
 		res.status(201).json(data);
@@ -72,6 +79,25 @@ exports.manuallyMarkAttendance = async (req, res) => {
 		res.status(500).json({ error: error.message });
 	}
 }
+
+exports.getUncheckedOutEmployees = async (req, res) => {
+	const { date } = req.query;
+	console.log("Date", date);
+  
+	if (!date) {
+	  return res
+		.status(400)
+		.json({ message: "Date query parameter is required" });
+	}
+  
+	try {
+	  const uncheckedOut = await attendanceService.findUncheckedOutByDate(date);
+	  res.status(200).json(uncheckedOut);
+	} catch (error) {
+	  console.error("Error fetching unchecked-out employees:", error);
+	  res.status(500).json({ message: "Server error" });
+	}
+  };
 
 exports.getAllAttendance = async (req, res) => {
 	try {

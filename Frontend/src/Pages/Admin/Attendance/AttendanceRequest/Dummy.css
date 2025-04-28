@@ -16,21 +16,21 @@
     --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.attendance-request-container1 {
+.attendance-request-container {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     /* margin: 0 auto; */
     /* padding: 20px; */
     color: var(--text-primary);
 }
 
-.attendance-request-container1 h1 {
+h1 {
     font-size: 24px;
     font-weight: 600;
     margin-bottom: 20px;
     color: var(--text-primary);
 }
 
-.attendance-request-container1 .filters-container {
+.filters-container {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
@@ -38,13 +38,13 @@
     align-items: center;
 }
 
-.attendance-request-container1 .search-container {
+.search-container {
     position: relative;
     flex: 1;
     min-width: 250px;
 }
 
-.attendance-request-container1 .search-input {
+.search-input {
     width: 100%;
     padding: 10px 10px 10px 40px;
     border: 1px solid var(--border-color);
@@ -54,11 +54,11 @@
     transition: border-color 0.2s;
 }
 
-.attendance-request-container1 .search-input:focus {
+.search-input:focus {
     border-color: var(--primary-color);
 }
 
-.attendance-request-container1 .search-icon {
+.search-icon {
     position: absolute;
     left: 12px;
     top: 50%;
@@ -66,18 +66,18 @@
     color: var(--text-secondary);
 }
 
-.attendance-request-container1 .dropdown-container {
+.dropdown-container {
     display: flex;
     gap: 15px;
     flex-wrap: wrap;
 }
 
-.attendance-request-container1 .dropdown {
+.dropdown {
     position: relative;
     min-width: 150px;
 }
 
-.attendance-request-container1 .dropdown-toggle {
+.dropdown-toggle {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -92,11 +92,11 @@
     transition: border-color 0.2s;
 }
 
-.attendance-request-container1 .dropdown-toggle:hover {
+.dropdown-toggle:hover {
     border-color: var(--primary-color);
 }
 
-.attendance-request-container1 .dropdown-menu {
+.dropdown-menu {
     position: absolute;
     top: 100%;
     left: 0;
@@ -111,43 +111,43 @@
     margin-top: 5px;
 }
 
-.attendance-request-container1 .dropdown-item {
+.dropdown-item {
     padding: 10px 12px;
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
-.attendance-request-container1 .dropdown-item:hover {
+.dropdown-item:hover {
     background-color: var(--primary-light);
 }
 
-.attendance-request-container1 .dropdown-item.active {
+.dropdown-item.active {
     background-color: var(--primary-light);
     color: var(--primary-color);
     font-weight: 500;
 }
 
-.attendance-request-container1 .table-container {
+.table-container {
     overflow-x: auto;
     background-color: var(--background-white);
     border-radius: 8px;
     box-shadow: var(--shadow);
 }
 
-.attendance-request-container1 .attendance-table {
+.attendance-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
 }
 
-.attendance-request-container1 .attendance-table th,
+.attendance-table th,
 .attendance-table td {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
 }
 
-.attendance-request-container1 .attendance-table th {
+.attendance-table th {
     background-color: var(--background-light);
     font-weight: 600;
     color: var(--text-secondary);
@@ -155,30 +155,30 @@
     top: 0;
 }
 
-.attendance-request-container1 .attendance-table tr:last-child td {
+.attendance-table tr:last-child td {
     border-bottom: none;
 }
 
-.attendance-request-container1 .attendance-table tr:hover {
+.attendance-table tr:hover {
     background-color: var(--background-light);
 }
 
-.attendance-request-container1 .employee-info {
+.employee-info {
     display: flex;
     flex-direction: column;
 }
 
-.attendance-request-container1 .employee-name {
+.employee-name {
     font-weight: 500;
 }
 
-.attendance-request-container1 .employee-id {
+.employee-id {
     font-size: 12px;
     color: var(--text-secondary);
     margin-top: 2px;
 }
 
-.attendance-request-container1 .status-badge {
+.status-badge {
     display: inline-block;
     padding: 4px 12px;
     border-radius: 20px;
@@ -187,28 +187,28 @@
     text-transform: capitalize;
 }
 
-.attendance-request-container1 .status-badge.approved {
+.status-badge.approved {
     background-color: var(--approved-bg);
     color: var(--approved-color);
 }
 
-.attendance-request-container1 .status-badge.rejected {
+.status-badge.rejected {
     background-color: var(--rejected-bg);
     color: var(--rejected-color);
 }
 
-.attendance-request-container1 .status-badge.pending {
+.status-badge.pending {
     background-color: var(--pending-bg);
     color: var(--pending-color);
 }
 
-.attendance-request-container1 .action-buttons {
+.action-buttons {
     display: flex;
     gap: 8px;
 }
 
-.attendance-request-container1 .approve-button,
-.attendance-request-container1 .reject-button {
+.approve-button,
+.reject-button {
     padding: 6px 12px;
     border: none;
     border-radius: 4px;
@@ -218,23 +218,23 @@
     transition: opacity 0.2s;
 }
 
-.attendance-request-container1 .approve-button {
+.approve-button {
     background-color: var(--approved-color);
     color: white;
 }
 
-.attendance-request-container1 .reject-button {
+.reject-button {
     background-color: var(--rejected-color);
     color: white;
 }
 
-.attendance-request-container1 .approve-button:hover,
-.attendance-request-container1 .reject-button:hover {
+.approve-button:hover,
+.reject-button:hover {
     opacity: 0.9;
 }
 
-.attendance-request-container1 .loading,
-.attendance-request-container1 .no-data {
+.loading,
+.no-data {
     text-align: center;
     padding: 30px;
     color: var(--text-secondary);
@@ -242,30 +242,30 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .attendance-request-container1 .filters-container {
+    .filters-container {
         flex-direction: column;
         align-items: flex-start;
     }
 
-    .attendance-request-container1 .search-container,
-    .attendance-request-container1 .dropdown {
+    .search-container,
+    .dropdown {
         width: 100%;
     }
 
-    .attendance-request-container1 .dropdown-container {
+    .dropdown-container {
         width: 100%;
     }
 
-    .attendance-request-container1 .attendance-table {
+    .attendance-table {
         font-size: 13px;
     }
 
-    .attendance-request-container1 .attendance-table th,
-    .attendance-request-container1 .attendance-table td {
+    .attendance-table th,
+    .attendance-table td {
         padding: 10px;
     }
 
-    .attendance-request-container1 .action-buttons {
+    .action-buttons {
         flex-direction: column;
     }
 }

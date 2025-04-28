@@ -134,9 +134,6 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
     if (!personalDetails.gender?.trim()) {
       newErrors.gender = "Gender is required";
     }
-    if (!personalDetails.location?.trim()) {
-      newErrors.location = "Location is required";
-    }
     if (!personalDetails.dateOfBirth) {
       newErrors.dateOfBirth = "Date of Birth is required";
     }
@@ -210,67 +207,72 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
       newErrors.permanentAddressCountry = "Country is required";
     }
 
-    // **Employment Details Validation**
-    if (!employmentDetails.employeeId?.trim()) {
-      newErrors.employeeId = "Employee ID is required";
+    const companyEmployeeId = parseInt(employmentDetails.companyEmployeeId, 10);
+
+    if (!Number.isInteger(companyEmployeeId)) {
+      console.log("This.............", employmentDetails.companyEmployeeId);
+      newErrors.companyEmployeeId = "Valid Employee ID is required";
     }
-    if (!employmentDetails.jobTitle?.trim()) {
+
+    // if (!Number.isInteger(employmentDetails.companyEmployeeId)) {
+    //   console.log("This.............",employmentDetails.companyEmployeeId);
+    //   newErrors.companyEmployeeId = "Valid Employee ID is required";
+    // }
+    if (!employmentDetails?.jobTitle?.trim()) {
       newErrors.jobTitle = "Job title is required";
     }
-    if (!employmentDetails.department?.trim()) {
+    if (!employmentDetails?.department?.trim()) {
       newErrors.department = "Department is required";
     }
-    if (!employmentDetails.location?.trim()) {
-      newErrors.employmentLocation = "Location is required";
-    }
+
     if (
-      !employmentDetails.officeEmail ||
-      !emailRegex.test(employmentDetails.officeEmail)
+      !employmentDetails?.officeEmail ||
+      !emailRegex.test(employmentDetails?.officeEmail)
     ) {
       newErrors.officeEmail = "Invalid office email format";
     }
-    if (!employmentDetails.dateOfJoining) {
+    if (!employmentDetails?.dateOfJoining) {
       newErrors.dateOfJoining = "Date of Joining is required";
     }
-    if (!employmentDetails.employmentType?.trim()) {
+    if (!employmentDetails?.employmentType?.trim()) {
       newErrors.employmentType = "Employment type is required";
     }
     if (
-      !employmentDetails.uanNumber ||
-      !uanPfEsicRegex.test(employmentDetails.uanNumber)
+      !employmentDetails?.uanNumber ||
+      !uanPfEsicRegex.test(employmentDetails?.uanNumber)
     ) {
       newErrors.uanNumber = "UAN must be 12 digits";
     }
     if (
-      !employmentDetails.pfNumber ||
-      !uanPfEsicRegex.test(employmentDetails.pfNumber)
+      !employmentDetails?.pfNumber ||
+      !uanPfEsicRegex.test(employmentDetails?.pfNumber)
     ) {
       newErrors.pfNumber = "PF number must be 12 digits";
     }
     if (
-      !employmentDetails.esicNumber ||
-      !uanPfEsicRegex.test(employmentDetails.esicNumber)
+      !employmentDetails?.esicNumber ||
+      !uanPfEsicRegex.test(employmentDetails?.esicNumber)
     ) {
       newErrors.esicNumber = "ESIC number must be 12 digits";
     }
-    if (!employmentDetails.lineManagerId) {
+    if (!employmentDetails?.lineManagerId) {
       newErrors.lineManager = "Line manager selection is required";
     }
 
     // **Bank Details Validation**
-    if (!bankDetails.accountHolder?.trim()) {
+    if (!bankDetails?.accountHolder?.trim()) {
       newErrors.accountHolder = "Account holder name is required";
     }
-    if (!bankDetails.bankName?.trim()) {
+    if (!bankDetails?.bankName?.trim()) {
       newErrors.bankName = "Bank name is required";
     }
-    if (!bankDetails.ifscCode || !ifscRegex.test(bankDetails.ifscCode)) {
+    if (!bankDetails?.ifscCode || !ifscRegex.test(bankDetails?.ifscCode)) {
       newErrors.ifscCode =
         "Invalid IFSC Code (11 characters, e.g., SBIN0001234)";
     }
     if (
-      !bankDetails.accountNumber ||
-      !accountNumberRegex.test(bankDetails.accountNumber)
+      !bankDetails?.accountNumber ||
+      !accountNumberRegex.test(bankDetails?.accountNumber)
     ) {
       newErrors.accountNumber = "Account Number must be 8-18 digits";
     }
@@ -334,7 +336,6 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
           <div className="details-grid">
             {[
               "name",
-              "location",
               "dateOfBirth",
               "personalEmail",
               "phoneNumber",
@@ -439,10 +440,9 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
           </h3>
           <div className="details-grid">
             {[
-              "employeeId",
+              "companyEmployeeId",
               "jobTitle",
               "department",
-              "location",
               "officeEmail",
               "dateOfJoining",
               "uanNumber",
@@ -468,7 +468,7 @@ const EmployeeModal = ({ employee, onClose, handleSave }) => {
                     if (key === "jobTitle") {
                       value = value.replace(/[^a-zA-Z\s]/g, ""); // Allow only letters & spaces
                     } else if (
-                      ["uanNumber", "pfNumber", "esicNumber"].includes(key)
+                      ["uanNumber", "pfNumber", "esicNumber","companyEmployeeId"].includes(key)
                     ) {
                       value = value.replace(/\D/g, ""); // Allow only numbers
                     }

@@ -69,7 +69,7 @@ export default function AttendanceDashboard() {
       } catch (error) {
         console.error("Internal server error:", error);
       }
-    };
+    }
 
     fetchHolidays();
   }, []);
@@ -80,7 +80,6 @@ export default function AttendanceDashboard() {
     try {
       const year = selectedMonth.getFullYear();
       const month = String(selectedMonth.getMonth() + 1).padStart(2, "0");
-      const month1 = String(selectedMonth.getMonth() + 1);
 
       const response = await fetch(
         `${API_BASE_URL_LM}/api/leave-history/employee/${employeeId}/${year}/${month}`
@@ -137,6 +136,7 @@ export default function AttendanceDashboard() {
       if (!response.ok) throw new Error("Failed to fetch employee data");
 
       const data = await response.json();
+
       // Set employee basic data
       setEmployeeData({
         id: data.id,
@@ -187,14 +187,13 @@ export default function AttendanceDashboard() {
     // Loop through monthlyAttendanceStats to find the matching monthYear
     for (const stat of data.monthlyAttendanceStats || []) {
       if (stat.monthYear === currentMonth) {
-        console.log("Here u go again...........",stat.overtimeHours*1000*60);
         setMonthlyStats({
           workingDays: stat.workingDays || 0,
           presentDays: stat.presentDays || 0,
           absentDays: stat.absentDays || 0,
           halfDays: stat.halfDays || 0,
           lateDays: stat.lateDays || 0,
-          overtimeHours: stat.overtimeHours|| 0,
+          overtimeHours: stat.overtimeHours || 0,
           paidLeaves: monthlyStats.paidLeaves, // leave values will be updated separately
           unpaidLeaves: monthlyStats.unpaidLeaves,
         });
@@ -202,6 +201,10 @@ export default function AttendanceDashboard() {
       }
     }
   };
+
+	function getLocalDateStart(date) {
+		return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+	}
 
   const generateCalendarDays = () => {
     const year = selectedMonth.getFullYear();
@@ -213,7 +216,7 @@ export default function AttendanceDashboard() {
     // Build a lookup of holidayDate -> holidayTitle
     const holidayLookup = holidays.reduce((map, holiday) => {
       const key = new Date(holiday.date).toISOString().split("T")[0];
-      map[key] = holiday.title; // { "01/01/2025": "New Year" }
+      map[key] = holiday.title;       // { "01/01/2025": "New Year" }
       return map;
     }, {});
 
@@ -247,6 +250,7 @@ export default function AttendanceDashboard() {
         }
       });
     }
+    
     // Loop through each day of the month
     for (let date = 1; date <= lastDay.getDate(); date++) {
       const currentDate = new Date(year, month, date);
@@ -283,35 +287,38 @@ export default function AttendanceDashboard() {
 
       // Attendance
       const record = attendanceData.find((att) => {
-        const attDate = new Date(att.date).toISOString().split("T")[0];
-        const currentDateStr = currentDate.toISOString().split("T")[0];
-        return attDate === currentDateStr;
-      });
+				const attDate = new Date(att.date);
+				return (
+					attDate.getFullYear() === currentDate.getFullYear() &&
+					attDate.getMonth() === currentDate.getMonth() &&
+					attDate.getDate() === currentDate.getDate()
+				);
+			});
+
+      const today = getLocalDateStart(new Date());
+			const recordDate = getLocalDateStart(currentDate); // currentDate is your loop date
 
       if (record) {
         const status = record.attendanceStatus || "Present";
         days.push({
           date,
           status,
-          isLate: record.lateComing > 0,
+          isLate: record.lateDays > 0,
           checkIn: record.punchInTime
-            ? new Date(record.punchInTime).toLocaleTimeString([], {
+            ? new Date(record.punchInTime).toLocaleTimeString("en-IN", {
                 hour: "2-digit",
                 minute: "2-digit",
-                timeZone: "Asia/Kolkata",
               })
             : "N/A",
           checkOut: record.punchOutTime
-            ? new Date(record.punchOutTime).toLocaleTimeString([], {
+            ? new Date(record.punchOutTime).toLocaleTimeString("en-IN", {
                 hour: "2-digit",
                 minute: "2-digit",
-                timeZone: "Asia/Kolkata",
               })
             : "N/A",
         });
       } else {
-        const isPastDay =
-          currentDate < new Date(new Date().setHours(0, 0, 0, 0));
+        const isPastDay = recordDate < today;
         days.push({
           date,
           status: isPastDay ? "" : "",
@@ -324,6 +331,7 @@ export default function AttendanceDashboard() {
 
     return days;
   };
+
   const calendarDays = generateCalendarDays();
 
   // Returns the appropriate CSS class based on the status
@@ -339,9 +347,6 @@ export default function AttendanceDashboard() {
         return "att-status-half-day";
       case "on Leave":
         return "att-status-leave";
-        {
-          /* -----------------------------Changed here----------------------------------- */
-        }
       case "unpaid-leave":
         return "att-status-unpaid-leave";
       default:
@@ -509,12 +514,10 @@ export default function AttendanceDashboard() {
           </div>
           <div className="att-legend-item">
             <div className="att-legend-dot att-dot-leave"></div>{" "}
-            {/* -----------------------------Changed here----------------------------------- */}
             <span className="att-legend-text">On Leave</span>
           </div>
           <div className="att-legend-item">
             <div className="att-legend-dot att-dot-holiday"></div>{" "}
-            {/* -----------------------------Changed here----------------------------------- */}
             <span className="att-legend-text">Holiday</span>
           </div>
         </div>

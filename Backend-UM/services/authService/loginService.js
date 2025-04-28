@@ -1,4 +1,4 @@
-
+const axios = require('axios');
 
 // const loginService = async (email, password, deviceId, userAgent, ipAddress) => {
 //   // Fetch the user along with role and permissions
@@ -65,6 +65,7 @@ const bcrypt = require('bcryptjs');
 const prisma = require('../../models/prisma/prismaClient');
 const { generateTokens } = require('../../utils/tokenUtils');
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const loginService = async (email, password, deviceId, userAgent, ipAddress) => {
   // Fetch the user along with role and permissions
@@ -84,7 +85,20 @@ const loginService = async (email, password, deviceId, userAgent, ipAddress) => 
   if (!user) {
     throw new Error('User not found');
   }
+  const baseUrl = process.env.EMPLOYMENT_API;
+  const employement = await axios.get(`${baseUrl}/employeeRoutes/employmentt/${user.id}`);
+  
+  // const employement = await axios.get(`http://localhost:5001/ed/api/employeeRoutes/employmentt/${user.id}`);
 
+  if (!employement) {
+    throw new Error('Employee not found');
+  }
+
+  console.log('Employee:>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', employement.data.status);
+  if(employement.data.status!=="ACTIVE")
+  {
+    throw new Error("Your accout is not activated yet" );
+  }
   // Compare the provided password with the stored hash
   let isPasswordValid = user.passwordHash ? await bcrypt.compare(password, user.passwordHash) : false;
   if (!isPasswordValid) {

@@ -24,7 +24,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import io from "socket.io-client";
 import "./Dashboard.css";
 import "../Notification/NotificationPage";
-
+import dayjs from "dayjs";
 const generateDeviceId = () => {
   const deviceId = `device-${Math.random().toString(36).substr(2, 9)}`;
   localStorage.setItem("deviceId", deviceId);
@@ -68,34 +68,34 @@ const cardTemplates = [
     colorClass: "dashboard__stats-icon-purple",
     dataKey: "activeEmployees",
   },
-  {
-    id: "newHires",
-    label: "New Hires",
-    icon: User,
-    colorClass: "dashboard__stats-icon-pink",
-    dataKey: "newHires",
-  },
-  {
-    id: "presentToday",
-    label: "Present Today",
-    icon: Calendar,
-    colorClass: "dashboard__stats-icon-orange",
-    dataKey: "presentToday",
-  },
-  {
-    id: "absentToday",
-    label: "Absent Today",
-    icon: Calendar,
-    colorClass: "dashboard__stats-icon-orange",
-    dataKey: "absentToday",
-  },
-  {
-    id: "halfDay",
-    label: "Half Day",
-    icon: Calendar,
-    colorClass: "dashboard__stats-icon-orange",
-    dataKey: "halfDay",
-  },
+  // {
+  //   id: "newHires",
+  //   label: "New Hires",
+  //   icon: User,
+  //   colorClass: "dashboard__stats-icon-pink",
+  //   dataKey: "newHires",
+  // },
+  // {
+  //   id: "presentToday",
+  //   label: "Present Today",
+  //   icon: Calendar,
+  //   colorClass: "dashboard__stats-icon-orange",
+  //   dataKey: "presentToday",
+  // },
+  // {
+  //   id: "absentToday",
+  //   label: "Absent Today",
+  //   icon: Calendar,
+  //   colorClass: "dashboard__stats-icon-orange",
+  //   dataKey: "absentToday",
+  // },
+  // {
+  //   id: "halfDay",
+  //   label: "Half Day",
+  //   icon: Calendar,
+  //   colorClass: "dashboard__stats-icon-orange",
+  //   dataKey: "halfDay",
+  // },
 ];
 
 // Card component with drag and drop functionality
@@ -454,60 +454,313 @@ const Dashboard = () => {
   // const [pendingLeaves, setPendingLeaves] = useState([]);
   const [overtimeRequests, setOvertimeRequests] = useState([]);
 
+  // const handleFinalDecision = async (id, decision) => {
+  //   let statusToUpdate = decision;
+  //   if (decision === "onHold") {
+  //     statusToUpdate = "ON_HOLD";
+  //   } else if (decision === "approved") {
+  //     statusToUpdate = "APPROVED";
+  //   } else if (decision === "rejected") {
+  //     statusToUpdate = "REJECTED";
+  //   }
+  //   try {
+  //     const response = await fetch(
+  //       `${API_BASE_URL_LM}/api/leave-requests/${id}`,
+  //       {
+  //         method: "PUT",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({ status: statusToUpdate }),
+  //       }
+  //     );
+  //     if (!response.ok) {
+  //       throw new Error(`Failed to update leave request to ${statusToUpdate}`);
+  //     } else {
+  //       setIsDecisionTaken((prev) => !prev);
+  //     }
+  //     // Close both modals after update
+  //     setIsDetailsModalOpen(false);
+  //     setIsEditStatusModalOpen(false);
+  //     setIsCancelStatusModalOpen(false);
+  //   } catch (err) {
+  //     console.error(err);
+  //     setError(err.message);
+  //   }
+  // };
+
+  const fetchEmployees = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL_LM}/api/employees`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch employees");
+      }
+      const data = await response.json();
+
+      // Create a mapping from employeeId to employee details
+      const empMap = data?.map((emp) => ({
+        employeeId: emp.id,
+        name: emp.name,
+      }));
+
+      // Extract all leaveRequests from employees
+      const allLeaveRequests = data.flatMap((emp) => emp.leaveRequests || []);
+      console.log("All leave requests", allLeaveRequests);
+
+      // Map leave requests and assign employee names correctly
+      // const leaveRequestsWithNames = allLeaveRequests.map((emp) => {
+      //   const start = dayjs(emp.startDate);
+      //   const end = dayjs(emp.endDate);
+      //   const duration = end.diff(start, "day") + 1; // inclusive of both start & end dates
+
+      //   return {
+      //     id: emp.id,
+      //     name:
+      //       empMap.find((employee) => employee.employeeId === emp.employeeId)?.name ||
+      //       "N/A",
+      //     employeeId: emp.employeeId,
+      //     status: emp.status,
+      //     type: emp.leaveType,
+      //     startDate: emp.startDate,
+      //     endDate: emp.endDate,
+      //     appliedOn: emp.appliedOn,
+      //     editStatus: emp.editStatus,
+      //     startDateTemp: emp.startDateTemp,
+      //     endDateTemp: emp.endDateTemp,
+      //     reasonTemp: emp.reasonTemp,
+      //     reason: emp.reason,
+      //     supportingDocs: emp.supportingDocs,
+      //     decisionAt: emp.decisionAt,
+      //     duration, // 🆕 Duration in days
+      //     employee: { avatar: "/api/placeholder/40/40" },
+      //   };
+      // });
+
+      const leaveRequestsWithNames = allLeaveRequests
+        .filter((emp) => emp.status === "PENDING") // ✅ Only keep pending requests
+        .map((emp) => {
+          const start = dayjs(emp.startDate);
+          const end = dayjs(emp.endDate);
+          const duration = end.diff(start, "day") + 1; // inclusive of both start & end dates
+
+          return {
+            id: emp.id,
+            name:
+              empMap.find((employee) => employee.employeeId === emp.employeeId)
+                ?.name || "N/A",
+            employeeId: emp.employeeId,
+            status: emp.status,
+            type: emp.leaveType,
+            startDate: emp.startDate,
+            endDate: emp.endDate,
+            appliedOn: emp.appliedOn,
+            editStatus: emp.editStatus,
+            startDateTemp: emp.startDateTemp,
+            endDateTemp: emp.endDateTemp,
+            reasonTemp: emp.reasonTemp,
+            reason: emp.reason,
+            supportingDocs: emp.supportingDocs,
+            decisionAt: emp.decisionAt,
+            duration,
+            employee: { avatar: "/api/placeholder/40/40" },
+          };
+        });
+
+      // ✅ Set the entire leaveRequests array in state at once
+      setPendingLeaves(leaveRequestsWithNames);
+    } catch (err) {
+      console.error("Error fetching employees:", err);
+    }
+  };
+
+
+  const fetchOvertimeRequests = async () => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL_AT}/api/overtime/getOvertime`,
+        {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+
+      console.log("this is overtime data:-",data);
+
+
+
+      const formattedData = data
+      .filter((req) => req.overtimeStatus === "REQUESTED") // ✅ Only include requested overtime
+      .map((req) => {
+        const startTime = dayjs(req.startTime);
+        const endTime = dayjs(req.endTime);
+    
+        const diffInMinutes = endTime.diff(startTime, "minute");
+        const hours = (diffInMinutes / 60).toFixed(2);
+    
+        return {
+          id: req.id,
+          name: req.employee?.name || "N/A",
+          department: req.employee?.department || "Unknown",
+          hours: parseFloat(hours),
+          date: dayjs(req.date).format("YYYY-MM-DD"),
+          timeRange: `${startTime.format("HH:mm")} - ${endTime.format("HH:mm")}`,
+          reason: req.reason,
+          appliedOn: req.appliedOn,
+          employee: {
+            avatar: "/api/placeholder/40/40",
+          },
+        };
+      });
+    
+
+
+
+
+      console.log(
+        "🕒 Filtered & Calculated Overtime Requests:",
+        formattedData
+      );
+      setOvertimeRequests(formattedData);
+    } catch (error) {
+      console.error("❌ Error fetching overtime requests:", error);
+    }
+  };
+
   useEffect(() => {
     // Fetch data logic would go here
     // Sample data for demonstration
-    setPendingLeaves([
-      {
-        id: 1,
-        name: "John Doe",
-        department: "Engineering",
-        type: "Annual Leave",
-        duration: "3 days",
-        startDate: "2025-04-15",
-        endDate: "2025-04-17",
-        reason: "Family vacation",
-        appliedOn: "2025-04-10T09:30:00",
-        employee: { avatar: "/api/placeholder/40/40" },
-      },
-      {
-        id: 2,
-        name: "Jane Smith",
-        department: "Marketing",
-        type: "Sick Leave",
-        duration: "1 day",
-        startDate: "2025-04-14",
-        endDate: "2025-04-14",
-        reason: "Doctor's appointment",
-        appliedOn: "2025-04-13T15:20:00",
-        employee: { avatar: "/api/placeholder/40/40" },
-      },
-    ]);
 
-    setOvertimeRequests([
-      {
-        id: 101,
-        name: "Michael Brown",
-        department: "Operations",
-        hours: 3.5,
-        date: "2025-04-13",
-        timeRange: "17:30 - 21:00",
-        reason: "End of month report preparation",
-        appliedOn: "2025-04-12T14:15:00",
-        employee: { avatar: "/api/placeholder/40/40" },
-      },
-      {
-        id: 102,
-        name: "Sarah Johnson",
-        department: "Customer Support",
-        hours: 2,
-        date: "2025-04-14",
-        timeRange: "18:00 - 20:00",
-        reason: "System upgrade assistance",
-        appliedOn: "2025-04-13T09:45:00",
-        employee: { avatar: "/api/placeholder/40/40" },
-      },
-    ]);
+    // setOvertimeRequests([
+    //   {
+    //     id: 101,
+    //     name: "Michael Brown",
+    //     department: "Operations",
+    //     hours: 3.5,
+    //     date: "2025-04-13",
+    //     timeRange: "17:30 - 21:00",
+    //     reason: "End of month report preparation",
+    //     appliedOn: "2025-04-12T14:15:00",
+    //     employee: { avatar: "/api/placeholder/40/40" },
+    //   },
+    //   {
+    //     id: 102,
+    //     name: "Sarah Johnson",
+    //     department: "Customer Support",
+    //     hours: 2,
+    //     date: "2025-04-14",
+    //     timeRange: "18:00 - 20:00",
+    //     reason: "System upgrade assistance",
+    //     appliedOn: "2025-04-13T09:45:00",
+    //     employee: { avatar: "/api/placeholder/40/40" },
+    //   },
+    // ]);
+
+    // const fetchOvertimeRequests = async () => {
+    //   try {
+    //     const response = await fetch(
+    //       `${API_BASE_URL_AT}/api/overtime/getOvertime`,
+    //       {
+    //         method: "GET",
+    //         headers: {
+    //           "Content-type": "application/json",
+    //         },
+    //       }
+    //     );
+    //     const data = await response.json();
+    //     console.log("This is the overtime request:--------------------",data);
+    //     setOvertimeRequests(data);
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // };
+
+    // const fetchOvertimeRequests = async () => {
+    //   try {
+    //     const response = await fetch(
+    //       `${API_BASE_URL_AT}/api/overtime/getOvertime`,
+    //       {
+    //         method: "GET",
+    //         headers: {
+    //           "Content-type": "application/json",
+    //         },
+    //       }
+    //     );
+    //     const data = await response.json();
+
+    //     console.log("this is overtime data:-",data);
+
+
+
+    //     const formattedData = data
+    //     .filter((req) => req.overtimeStatus === "REQUESTED") // ✅ Only include requested overtime
+    //     .map((req) => {
+    //       const startTime = dayjs(req.startTime);
+    //       const endTime = dayjs(req.endTime);
+      
+    //       const diffInMinutes = endTime.diff(startTime, "minute");
+    //       const hours = (diffInMinutes / 60).toFixed(2);
+      
+    //       return {
+    //         id: req.id,
+    //         name: req.employee?.name || "N/A",
+    //         department: req.employee?.department || "Unknown",
+    //         hours: parseFloat(hours),
+    //         date: dayjs(req.date).format("YYYY-MM-DD"),
+    //         timeRange: `${startTime.format("HH:mm")} - ${endTime.format("HH:mm")}`,
+    //         reason: req.reason,
+    //         appliedOn: req.appliedOn,
+    //         employee: {
+    //           avatar: "/api/placeholder/40/40",
+    //         },
+    //       };
+    //     });
+      
+
+
+
+
+    //     console.log(
+    //       "🕒 Filtered & Calculated Overtime Requests:",
+    //       formattedData
+    //     );
+    //     setOvertimeRequests(formattedData);
+    //   } catch (error) {
+    //     console.error("❌ Error fetching overtime requests:", error);
+    //   }
+    // };
+
+    // setPendingLeaves([
+    //   {
+    //     id: 1,
+    //     name: "John Doe",
+    //     department: "Engineering",
+    //     type: "Annual Leave",
+    //     duration: "3 days",
+    //     startDate: "2025-04-15",
+    //     endDate: "2025-04-17",
+    //     reason: "Family vacation",
+    //     appliedOn: "2025-04-10T09:30:00",
+    //     employee: { avatar: "/api/placeholder/40/40" },
+    //   },
+    //   {
+    //     id: 2,
+    //     name: "Jane Smith",
+    //     department: "Marketing",
+    //     type: "Sick Leave",
+    //     duration: "1 day",
+    //     startDate: "2025-04-14",
+    //     endDate: "2025-04-14",
+    //     reason: "Doctor's appointment",
+    //     appliedOn: "2025-04-13T15:20:00",
+    //     employee: { avatar: "/api/placeholder/40/40" },
+    //   },
+    // ]);
+
+    fetchEmployees();
+    fetchOvertimeRequests();
   }, []);
 
   // const getLeaveTypeColor = (type) => {
@@ -868,7 +1121,7 @@ const Dashboard = () => {
           "user-agent": userAgent, // Send user agent in headers
         };
         const response = await fetch(
-          `${API_BASE_URL_NS}/api/notifications/dashboard-stats`,
+          `${API_BASE_URL_NS}/api/notifications/dashboard-stats/${userId}`,
           {
             method: "GET",
             headers,
@@ -895,7 +1148,7 @@ const Dashboard = () => {
         data.presentToday = attendanceCounts.present;
         data.absent = attendanceCounts.absent;
         data.halfDay = attendanceCounts.halfDay;
-        console.log(data);
+        console.log("This is dashboard stats:---",data);
         setDashboardStats(data);
       } catch (error) {
         console.error("Error fetching dashboard stats:", error);
@@ -1055,6 +1308,79 @@ const Dashboard = () => {
     }
   };
 
+  // const handleFinalDecision = async (id, decision) => {
+  //   let statusToUpdate = decision;
+  //   if (decision === "onHold") {
+  //     statusToUpdate = "ON_HOLD";
+  //   } else if (decision === "approved") {
+  //     statusToUpdate = "APPROVED";
+  //   } else if (decision === "rejected") {
+  //     statusToUpdate = "REJECTED";
+  //   }
+  //   try {
+  //     const response = await fetch(
+  //       `${API_BASE_URL_LM}/api/leave-requests/${id}`,
+  //       {
+  //         method: "PUT",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({ status: statusToUpdate }),
+  //       }
+  //     );
+  //     if (!response.ok) {
+  //       throw new Error(`Failed to update leave request to ${statusToUpdate}`);
+  //     } else {
+  //       setIsDecisionTaken((prev) => !prev);
+  //     }
+  //     // Close both modals after update
+  //     setIsDetailsModalOpen(false);
+  //     setIsEditStatusModalOpen(false);
+  //     setIsCancelStatusModalOpen(false);
+  //   } catch (err) {
+  //     console.error(err);
+  //     setError(err.message);
+  //   }
+  // };
+
+  const handleOvertimeFinalDecision = async (id, decision) => {
+    let statusToUpdate = decision;
+    // if (decision === "approved") {
+    //     statusToUpdate = "REQUESTACCEPTED";
+    // } else if (decision === "rejected") {
+    //     statusToUpdate = "REQUESTREJECTED";
+    // }
+    try {
+      const response = await fetch(
+        `${API_BASE_URL_AT}/api/overtime/updateStatus/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ overtimeStatus: statusToUpdate }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error(
+          `Failed to update overtime request to ${statusToUpdate}`
+        );
+      } else {
+        console.log("successfully done");
+        const data = await response.json();
+        console.log(data);
+        // setIsDecisionTaken((prev) => !prev);
+      }
+      // Refresh the list after update
+      // fetchOvertimeRequests();
+      fetchOvertimeRequests()
+      // setIsDetailsModalOpen(false);
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    }
+  };
+
   const handleFinalDecision = async (id, decision) => {
     let statusToUpdate = decision;
     if (decision === "onHold") {
@@ -1087,19 +1413,19 @@ const Dashboard = () => {
       if (!response.ok) {
         throw new Error(`Failed to update leave request to ${statusToUpdate}`);
       }
-
+      fetchEmployees();
       // Refresh leaves after update
-      const refreshResponse = await fetch(
-        `${API_BASE_URL_LM}/api/leave-requests/pending/${userId}`,
-        {
-          method: "GET",
-          headers,
-        }
-      );
-      if (refreshResponse.ok) {
-        const data = await refreshResponse.json();
-        setPendingLeaves(data);
-      }
+      // const refreshResponse = await fetch(
+      //   `${API_BASE_URL_LM}/api/leave-requests/pending/${userId}`,
+      //   {
+      //     method: "GET",
+      //     headers,
+      //   }
+      // );
+      // if (refreshResponse.ok) {
+      //   const data = await refreshResponse.json();
+      //   setPendingLeaves(data);
+      // }
     } catch (err) {
       console.error(err);
     }
@@ -1482,7 +1808,7 @@ const Dashboard = () => {
                       <button
                         className="dashboard__leave-action-reject"
                         onClick={() =>
-                          handleOvertimeDecision(overtime.id, "rejected")
+                          handleOvertimeFinalDecision(overtime.id, "rejected")
                         }
                         title="Reject"
                       >
@@ -1491,7 +1817,7 @@ const Dashboard = () => {
                       <button
                         className="dashboard__leave-action-approve"
                         onClick={() =>
-                          handleOvertimeDecision(overtime.id, "approved")
+                          handleOvertimeFinalDecision(overtime.id, "approved")
                         }
                         title="Approve"
                       >

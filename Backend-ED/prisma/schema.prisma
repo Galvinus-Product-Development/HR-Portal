@@ -8,14 +8,14 @@ datasource db {
 }
 
 model Employee {
-  employee_id            String         @id @default(uuid())
+  employee_id            String   @id @default(uuid())
   first_name             String
   last_name              String
   date_of_birth          DateTime
   gender                 Gender
   phone_number           String
   alternate_phone_number String?
-  email                  String         @unique
+  email                  String   @unique
 
   // Current Address Fields (optional)
   current_street_details String?
@@ -31,13 +31,13 @@ model Employee {
   permanent_country        String?
   permanent_zip            String?
 
-  nationality      String
-  marital_status   MaritalStatus
-  blood_group      String?
-  profile_pic_url  String
-  approval_status  ApprovalStatus @default(PENDING)
-  created_at       DateTime       @default(now())
-  updated_at       DateTime       @updatedAt
+  nationality     String
+  marital_status  MaritalStatus
+  blood_group     String?
+  profile_pic_url String
+  approval_status ApprovalStatus @default(PENDING)
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
 
   employment        Employment?
   bankAccounts      Bank[]
@@ -48,17 +48,21 @@ model Employee {
 }
 
 model Employment {
-  employee_id      String           @id @map("employee_id")
-  designation      String
-  department       String
-  date_of_joining  DateTime
-  employment_type  EmploymentType
-  manager_id       String?
-  work_location    String
-  status           EmploymentStatus
-  base_salary      Decimal
-  stock_bonus      Decimal
-  termination_date DateTime?
+  employee_id String @id @map("employee_id")
+
+  company_name        String? // Optional
+  company_employee_id Int? // Optional and specific to the company
+  Grade               String?
+  designation         String
+  department          String
+  date_of_joining     DateTime
+  employment_type     EmploymentType
+  manager_id          String?
+  work_location       String
+  status              EmploymentStatus
+  base_salary         Decimal
+  stock_bonus         Decimal
+  termination_date    DateTime?
 
   official_email String   @unique
   created_at     DateTime @default(now())
@@ -151,15 +155,15 @@ model Certification {
 //
 
 model PersonalDetailsSubmission {
-  id                      String         @id @default(uuid())
-  user_id                 String
-  first_name              String
+  id                     String   @id @default(uuid())
+  user_id                String
+  first_name             String
   last_name              String
-  date_of_birth           DateTime
-  gender                  Gender
-  phone_number            String
-  alternate_phone_number  String?
-  email                   String
+  date_of_birth          DateTime
+  gender                 Gender
+  phone_number           String
+  alternate_phone_number String?
+  email                  String
 
   // Current Address Fields (optional)
   current_street_details String?
@@ -175,45 +179,45 @@ model PersonalDetailsSubmission {
   permanent_country        String?
   permanent_zip            String?
 
-  nationality             String
-  marital_status          MaritalStatus
-  blood_group             String?
-  profile_pic_url         String?
-  approval_status         ApprovalStatus @default(PENDING)
-  created_at              DateTime       @default(now())
-  updated_at              DateTime       @updatedAt
+  nationality     String
+  marital_status  MaritalStatus
+  blood_group     String?
+  profile_pic_url String?
+  approval_status ApprovalStatus @default(PENDING)
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
 
-  emergencyContacts       EmergencySubmission[]
-  documents               DocumentSubmission[]
+  emergencyContacts EmergencySubmission[]
+  documents         DocumentSubmission[]
 }
 
 model EmergencySubmission {
-  id                    String         @id @default(uuid())
-  personal_details_id   String
-  contact_name          String
-  relationship          String
-  contact_phone         String
-  contact_email         String
-  approval_status       ApprovalStatus @default(PENDING)
-  created_at            DateTime       @default(now())
-  updated_at            DateTime       @updatedAt
+  id                  String         @id @default(uuid())
+  personal_details_id String
+  contact_name        String
+  relationship        String
+  contact_phone       String
+  contact_email       String
+  approval_status     ApprovalStatus @default(PENDING)
+  created_at          DateTime       @default(now())
+  updated_at          DateTime       @updatedAt
 
-  personalDetails       PersonalDetailsSubmission @relation(fields: [personal_details_id], references: [id], onDelete: Cascade)
+  personalDetails PersonalDetailsSubmission @relation(fields: [personal_details_id], references: [id], onDelete: Cascade)
 }
 
 model DocumentSubmission {
-  id                    String         @id @default(uuid())
-  personal_details_id   String
-  document_type         DocumentType
-  document_number       String
-  issue_date            DateTime
-  expiry_date           DateTime?
-  document_path         String
-  approval_status       ApprovalStatus @default(PENDING)
-  created_at            DateTime       @default(now())
-  updated_at            DateTime       @updatedAt
+  id                  String         @id @default(uuid())
+  personal_details_id String
+  document_type       DocumentType
+  document_number     String
+  issue_date          DateTime
+  expiry_date         DateTime?
+  document_path       String
+  approval_status     ApprovalStatus @default(PENDING)
+  created_at          DateTime       @default(now())
+  updated_at          DateTime       @updatedAt
 
-  personalDetails       PersonalDetailsSubmission @relation(fields: [personal_details_id], references: [id], onDelete: Cascade)
+  personalDetails PersonalDetailsSubmission @relation(fields: [personal_details_id], references: [id], onDelete: Cascade)
 }
 
 //

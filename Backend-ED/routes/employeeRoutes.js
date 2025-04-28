@@ -11,6 +11,7 @@ router.get("/formatted", employeeController.getFormattedEmployees);
 router.put("/update-all/:id", checkPermission("edit_employee_details"), employeeController.updateAllEmployeeDetails);
 router.put("/approval-status/:id", checkPermission("approve_employee_details"), employeeController.updateApprovalStatus);
 router.get("/fetchEmployeeDetailsById/:id", employeeController.fetchEmployeeDetailsById);
+router.get("/fetchEmployeeByUserId/:userId", employeeController.fetchEmployeeByUserId);
 router.get("/fetchEmployeeDetailsByyId/:id",employeeController.fetchEmployeeDetailsById);
 router.delete('/:employeeId',employeeController.deleteEmployeeById);
 router.post('/bulk-import', employeeController.bulkImportEmployees);
@@ -20,5 +21,6 @@ router.post('/add', employeeController.addEmployee);
 // Employee Routes (No Permission Required)
 router.post("/personal-details", employeeController.submitPersonalDetails);
 router.get("/employment/:userId", employeeController.getEmploymentDetails);
+router.get("/employmentt/:userId", employeeController.getEmploymentDetailss);
 router.get("/bank-details/:userId", employeeController.getBankDetails);
 module.exports = router;

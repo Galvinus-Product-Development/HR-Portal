@@ -80,7 +80,7 @@ exports.createOvertime = async ({
       title: "New Overtime Request Submitted",
       message: `Employee ${employee?.personalDetails?.name} has submitted an overtime request.`,
       priority: "NORMAL",
-      redirectUrl: `${process.env.APP_URL}/employees/`,
+      redirectUrl: `${process.env.APP_URL}/attendance/overtime`,
       recipientType: "ADMIN",
     });
     console.log("Notification sent successfully!!!");

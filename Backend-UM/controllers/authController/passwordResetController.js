@@ -9,8 +9,10 @@ const requestPasswordReset = async (req, res) => {
 
   try {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) return res.status(404).json({ error: "User not found." });
-
+    if (!user) {
+      console.log("No user found for the email:-",email);
+      return res.status(404).json({ error: "User not found." });
+    }
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 

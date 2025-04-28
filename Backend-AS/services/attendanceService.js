@@ -95,15 +95,14 @@ exports.manuallyMarkAttendance = async (attendanceData) => {			// --------------
 	let workingHours = 0;
 	let earlyLeaving = 0;
 	let overtime = 0;
-	console.log(date);
 
 	// Normalize the date to the start of the day
 	const normalizedDate = new Date(date);
 	normalizedDate.setHours(0, 0, 0, 0);
 
-	startDate = new Date(normalizedDate);
+	startDate = normalizedDate;
 	startDate.setHours(0, 0, 0, 0); // Start of the day
-	endDate = new Date(normalizedDate);
+	endDate = normalizedDate;
 	endDate.setHours(23, 59, 59, 999); // End of the day
 
 	// Check if the employee has already checked in today							// --------------- CHANGED HERE ---------------------
@@ -117,7 +116,7 @@ exports.manuallyMarkAttendance = async (attendanceData) => {			// --------------
 		}, 
 	});
 
-	if (existingAttendance && !existingAttendance.attendanceStatus === "Absent") {
+	if (existingAttendance && existingAttendance.attendanceStatus !== "Absent") {
 		throw new Error("Attendance already marked for today. Multiple check-ins are not allowed.");
 	}
 
@@ -150,12 +149,12 @@ exports.manuallyMarkAttendance = async (attendanceData) => {			// --------------
 		where: {
 			employeeId_date: {
 				employeeId,
-				date: normalizedDate,
+				date: new Date(new Date(normalizedDate).setHours(5, 30, 0, 0)),
 			}
 		},
 		create: {
 			employeeId,
-			date: normalizedDate, // Store normalized date		// --------- CHANGED HERE --------------
+			date: new Date(new Date(normalizedDate).setHours(5, 30, 0, 0)), // Store normalized date		// --------- CHANGED HERE --------------
 			punchInTime: punchInTime ? new Date(punchInTime) : null,
 			punchOutTime: punchOutTime ? new Date(punchOutTime) : null,
 			attendanceStatus,
@@ -183,6 +182,41 @@ exports.manuallyMarkAttendance = async (attendanceData) => {			// --------------
 
 	return attendance;
 };
+
+exports.findUncheckedOutByDate = async (dateStr) => {
+	try {
+	  // Ensure the input date is valid
+	  const targetDate = dayjs.utc(dateStr).toDate();
+	  if (!targetDate || isNaN(targetDate.getTime())) {
+		throw new Error(`Invalid date string provided: ${dateStr}`);
+	  }
+  
+	  // Adjusting to find records that match the day ignoring the time
+	  const startOfDay = dayjs.utc(dateStr).startOf("day").toDate(); // 2025-04-23T00:00:00.000Z
+	  const endOfDay = dayjs.utc(dateStr).endOf("day").toDate(); // 2025-04-23T23:59:59.999Z
+  
+	  console.log("Start Date:", startOfDay);
+	  console.log("End Date:", endOfDay);
+  
+	  const result = await prisma.attendance.findMany({
+		where: {
+		  date: {
+			gte: startOfDay,
+			lte: endOfDay,
+		  },
+		  punchInTime: {
+			not: null,
+		  },
+		  punchOutTime: null,
+		},
+	  });
+  
+	  return result;
+	} catch (error) {
+	  console.error("Error fetching unchecked-out employees:", error.message);
+	  throw error.message;
+	}
+  };
 
 exports.updateAttendance = async (id, updateData) => {
 	let workingHours = 0;

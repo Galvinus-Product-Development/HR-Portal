@@ -53,7 +53,7 @@ model Notification {
   priority      NotificationPriority @default(NORMAL)
   readAt        DateTime?
   redirectUrl   String?              // 🆕 Optional field for redirection
-  recipientType RecipientType        // 🆕 Indicates if for ADMIN or EMPLOYEE
+  recipientType RecipientType?        // 🆕 Indicates if for ADMIN or EMPLOYEE
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
 

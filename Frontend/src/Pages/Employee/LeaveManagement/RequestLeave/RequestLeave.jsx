@@ -98,6 +98,14 @@ export default function Leave() {
     setSuccessMessage("");
 
     try {
+
+       // Validate HALF_DAY duration dates
+    if (
+      leaveDuration === "HALF_DAY" &&
+      new Date(startDate).toDateString() !== new Date(endDate).toDateString()
+    ) {
+      throw new Error("For HALF_DAY leave, start and end dates must be the same.");
+    }
       // Prepare leave request data with employeeId from localStorage
       const leaveRequestData = {
         employeeId, // This value comes directly from local storage

@@ -72,7 +72,7 @@ const EmployeeDatabase = () => {
       status: "ACTIVE",
       dateOfJoining: new Date().toISOString(),
       lineManager: "",
-      lineManagerId:"",
+      lineManagerId: "",
       employmentType: "",
       uanNumber: "",
       pfNumber: "",
@@ -102,43 +102,93 @@ const EmployeeDatabase = () => {
       zipCode: "",
     },
   });
+  const [errors, setErrors] = useState({
+    personalDetails: {},
+    employmentDetails: {},
+    emergencyContact: {},
+    bankDetails: {},
+  });
 
   // Updated input change handler for nested objects
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
 
-    // Handle nested properties (e.g., "personalDetails.name")
-    if (name.includes(".")) {
-      const [section, field] = name.split(".");
-      setNewEmployee((prev) => ({
-        ...prev,
-        [section]: {
-          ...prev[section],
-          [field]: value,
-        },
-      }));
-    } else {
-      // Handle top-level properties
-      setNewEmployee((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-  };
+  //   // Handle nested properties (e.g., "personalDetails.name")
+  //   if (name.includes(".")) {
+  //     const [section, field] = name.split(".");
+  //     setNewEmployee((prev) => ({
+  //       ...prev,
+  //       [section]: {
+  //         ...prev[section],
+  //         [field]: value,
+  //       },
+  //     }));
+  //   } else {
+  //     // Handle top-level properties
+  //     setNewEmployee((prev) => ({
+  //       ...prev,
+  //       [name]: value,
+  //     }));
+  //   }
+  // };
+
+  // const handleAddEmployeeSubmit = (e) => {
+  //   e.preventDefault();
+
+  //   // Check if required fields are filled and valid
+  //   const requiredFieldsValid =
+  //     newEmployee.personalDetails?.name &&
+  //     newEmployee.employmentDetails?.officeEmail &&
+  //     validateEmail(newEmployee.employmentDetails?.officeEmail);
+
+  //   // Check if there are any validation errors
+  //   const hasValidationErrors = Object.values(errors).some(
+  //     section => Object.keys(section).length > 0
+  //   );
+
+  //   if (!requiredFieldsValid || hasValidationErrors) {
+  //     // Handle validation failure
+  //     alert("Please correct all errors before submitting");
+  //     return;
+  //   }
+
+  //   // Continue with your existing form submission logic
+  //   // ...
+
+  //   // Close the modal after successful submission
+  //   setShowAddModal(false);
+  // };
 
   // Updated submit function
   const handleAddEmployeeSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic validation
-    if (
-      !newEmployee.personalDetails?.name ||
-      !newEmployee.employmentDetails?.officeEmail
-      // !newEmployee.employmentDetails?.lineManager
-    ) {
-      alert("Name and  Email are required fields");
+    // Check if required fields are filled and valid
+    const requiredFieldsValid =
+      newEmployee.personalDetails?.name &&
+      newEmployee.employmentDetails?.officeEmail &&
+      validateEmail(newEmployee.employmentDetails?.officeEmail);
+
+    // Check if there are any validation errors
+    const hasValidationErrors = Object.values(errors).some(
+      (section) => Object.keys(section).length > 0
+    );
+
+    if (!requiredFieldsValid || hasValidationErrors) {
+      // Handle validation failure
+      alert("Please correct all errors before submitting");
       return;
     }
+
+    // // Basic validation
+    // if (
+    //   !newEmployee.personalDetails?.name ||
+    //   !newEmployee.employmentDetails?.officeEmail
+    //   // !newEmployee.employmentDetails?.lineManager
+    // ) {
+    //   alert("Name and  Official Email are required fields");
+    //   return;
+    // }
 
     // Process department if "Add New" was selected
     let finalDepartment = newEmployee.employmentDetails.department;
@@ -440,6 +490,7 @@ const EmployeeDatabase = () => {
             const dbKeys = [
               "name",
               "officialEmail", //change
+              "employeeId",
               "phone",
               "department",
               "designation",
@@ -516,7 +567,7 @@ const EmployeeDatabase = () => {
 
   const validateImport = (data) => {
     // Check required fields
-    const requiredFields = ["name", "officialEmail", "lineManagerId"];
+    const requiredFields = ["name", "officialEmail"];
     const missingFields = [];
 
     requiredFields.forEach((field) => {
@@ -539,9 +590,9 @@ const EmployeeDatabase = () => {
 
       const hasName = row[columnMappings.name]?.trim();
       const hasEmail = row[columnMappings.officialEmail]?.trim();
-      const hasLineManager = row[columnMappings.lineManagerId]?.trim();
+      // const hasLineManager = row[columnMappings.lineManagerId]?.trim();
 
-      if (!hasName || !hasEmail || !hasLineManager) {
+      if (!hasName || !hasEmail) {
         invalidRows.push(rowNum);
       }
     });
@@ -574,7 +625,8 @@ const EmployeeDatabase = () => {
           panNumber: getValue("panNumber"),
         },
         employmentDetails: {
-          employeeId: getValue("employeeId"),
+          // employeeId: getValue("employeeId"),
+          companyEmployeeId: getValue("employeeId"),
           officeEmail: getValue("officialEmail"),
           department: getValue("department"),
           jobTitle: getValue("designation"),
@@ -694,6 +746,167 @@ const EmployeeDatabase = () => {
   if (loading) return <p>Loading employees...</p>;
   if (error) return <p>Error: {error}</p>;
 
+  const validatePhoneNumber = (phone) => {
+    const phoneRegex = /^\d{10}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validateAadharNumber = (aadhar) => {
+    const aadharRegex = /^\d{12}$/;
+    return aadharRegex.test(aadhar);
+  };
+
+  const validatePanNumber = (pan) => {
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    return panRegex.test(pan);
+  };
+
+  const validateUANNumber = (uan) => {
+    const uanRegex = /^\d{12}$/;
+    return uanRegex.test(uan);
+  };
+
+  const validatePFNumber = (pf) => {
+    const pfRegex = /^\d{12}$/;
+    return pfRegex.test(pf);
+  };
+
+  const validateESICNumber = (esic) => {
+    const esicRegex = /^\d{12}$/;
+    return esicRegex.test(esic);
+  };
+
+  const validateAccountNumber = (account) => {
+    const accountRegex = /^\d{9,18}$/;
+    return accountRegex.test(account);
+  };
+
+  const validateIFSCCode = (ifsc) => {
+    const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+    return ifscRegex.test(ifsc);
+  };
+
+  const validateNameField = (name) => {
+    // Name fields should not contain numbers
+    const nameRegex = /^[^0-9]+$/;
+    return nameRegex.test(name);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    const nameParts = name.split(".");
+    const section = nameParts[0];
+    const field = nameParts[1];
+
+    // Create a new validation errors object
+    const newErrors = { ...errors };
+
+    // Validate based on field
+    if (name === "personalDetails.phoneNumber") {
+      if (value && !validatePhoneNumber(value)) {
+        newErrors.personalDetails.phoneNumber =
+          "Phone number must be 10 digits";
+      } else {
+        delete newErrors.personalDetails.phoneNumber;
+      }
+    } else if (name === "personalDetails.personalEmail") {
+      if (value && !validateEmail(value)) {
+        newErrors.personalDetails.personalEmail = "Invalid email format";
+      } else {
+        delete newErrors.personalDetails.personalEmail;
+      }
+    } else if (name === "emergencyContact.phoneNumber") {
+      if (value && !validatePhoneNumber(value)) {
+        newErrors.emergencyContact.phoneNumber =
+          "Emergency contact must be 10 digits";
+      } else {
+        delete newErrors.emergencyContact.phoneNumber;
+      }
+    } else if (name === "personalDetails.aadharNumber") {
+      if (value && !validateAadharNumber(value)) {
+        newErrors.personalDetails.aadharNumber =
+          "Aadhar number must be 12 digits";
+      } else {
+        delete newErrors.personalDetails.aadharNumber;
+      }
+    } else if (name === "personalDetails.panNumber") {
+      if (value && !validatePanNumber(value)) {
+        newErrors.personalDetails.panNumber =
+          "Invalid PAN format (e.g., ABCDE1234F)";
+      } else {
+        delete newErrors.personalDetails.panNumber;
+      }
+    } else if (name === "employmentDetails.officeEmail") {
+      if (!value || !validateEmail(value)) {
+        newErrors.employmentDetails.officeEmail =
+          "Valid office email is required";
+      } else {
+        delete newErrors.employmentDetails.officeEmail;
+      }
+    } else if (name === "employmentDetails.uanNumber") {
+      if (value && !validateUANNumber(value)) {
+        newErrors.employmentDetails.uanNumber = "UAN number must be 12 digits";
+      } else {
+        delete newErrors.employmentDetails.uanNumber;
+      }
+    } else if (name === "employmentDetails.pfNumber") {
+      if (value && !validatePFNumber(value)) {
+        newErrors.employmentDetails.pfNumber = "PF number must be 12 digits";
+      } else {
+        delete newErrors.employmentDetails.pfNumber;
+      }
+    } else if (name === "employmentDetails.esicNumber") {
+      if (value && !validateESICNumber(value)) {
+        newErrors.employmentDetails.esicNumber =
+          "ESIC number must be 12 digits";
+      } else {
+        delete newErrors.employmentDetails.esicNumber;
+      }
+    } else if (name === "bankDetails.accountNumber") {
+      if (value && !validateAccountNumber(value)) {
+        newErrors.bankDetails.accountNumber =
+          "Account number must be 9-18 digits";
+      } else {
+        delete newErrors.bankDetails.accountNumber;
+      }
+    } else if (name === "bankDetails.ifscCode") {
+      if (value && !validateIFSCCode(value)) {
+        newErrors.bankDetails.ifscCode = "Invalid IFSC code format";
+      } else {
+        delete newErrors.bankDetails.ifscCode;
+      }
+    } else if (
+      name === "personalDetails.name" ||
+      name === "employmentDetails.jobTitle" ||
+      name === "bankDetails.accountHolder" ||
+      name === "bankDetails.bankName"
+    ) {
+      if (value && !validateNameField(value)) {
+        newErrors[section][field] = "Should not contain numbers";
+      } else {
+        delete newErrors[section][field];
+      }
+    }
+
+    // Update the error state
+    setErrors(newErrors);
+
+    // Update the employee data
+    setNewEmployee((prevState) => {
+      const newState = { ...prevState };
+      if (!newState[section]) {
+        newState[section] = {};
+      }
+      newState[section][field] = value;
+      return newState;
+    });
+  };
+
   return (
     <div className="employee-db-container">
       <div className="employee-db-header">
@@ -792,7 +1005,9 @@ const EmployeeDatabase = () => {
                     />
                     <div>
                       <div className="employee-db-name">{employee.name}</div>
-                      <div className="employee-db-id">{employee.id}</div>
+                      <div className="employee-db-id">
+                        {employee?.companyEmployeeId}
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -970,7 +1185,27 @@ const EmployeeDatabase = () => {
                     </div>
 
                     <div className="mapping-row">
-                      <label>Line Manager Id*:</label>
+                      <label>Employee Id</label>
+                      <select
+                        value={columnMappings.employeeId || ""}
+                        onChange={(e) =>
+                          handleColumnMappingChange(
+                            "employeeId",
+                            e.target.value
+                          )
+                        }
+                      >
+                        <option value="">Select column</option>
+                        {availableColumns.map((col) => (
+                          <option key={col} value={col}>
+                            {col}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="mapping-row">
+                      <label>Line Manager Id:</label>
                       <select
                         value={columnMappings.lineManagerId || ""}
                         onChange={(e) =>
@@ -978,9 +1213,6 @@ const EmployeeDatabase = () => {
                             "lineManagerId",
                             e.target.value
                           )
-                        }
-                        className={
-                          !columnMappings.lineManagerId ? "required-field" : ""
                         }
                       >
                         <option value="">Select column</option>
@@ -1397,8 +1629,6 @@ const EmployeeDatabase = () => {
         </div>
       )}
 
-      {/* Add Employee Modal */}
-      {/* Add Employee Modal */}
       {showAddModal && (
         <div className="modal-overlay">
           <div className="modal-content large-modal">
@@ -1443,8 +1673,15 @@ const EmployeeDatabase = () => {
                             value={newEmployee.personalDetails?.name || ""}
                             onChange={handleInputChange}
                             required
-                            className="form-control"
+                            className={`form-control ${
+                              errors.personalDetails?.name ? "error-input" : ""
+                            }`}
                           />
+                          {errors.personalDetails?.name && (
+                            <div className="error-message">
+                              {errors.personalDetails.name}
+                            </div>
+                          )}
                         </div>
 
                         <div className="form-group half">
@@ -1507,15 +1744,24 @@ const EmployeeDatabase = () => {
                         <div className="form-group half">
                           <label htmlFor="phoneNumber">Phone Number</label>
                           <input
-                            type="tel"
+                            type="number"
                             id="phoneNumber"
                             name="personalDetails.phoneNumber"
                             value={
                               newEmployee.personalDetails?.phoneNumber || ""
                             }
                             onChange={handleInputChange}
-                            className="form-control"
+                            className={`form-control ${
+                              errors.personalDetails?.phoneNumber
+                                ? "error-input"
+                                : ""
+                            }`}
                           />
+                          {errors.personalDetails?.phoneNumber && (
+                            <div className="error-message">
+                              {errors.personalDetails.phoneNumber}
+                            </div>
+                          )}
                         </div>
 
                         <div className="form-group half">
@@ -1528,8 +1774,17 @@ const EmployeeDatabase = () => {
                               newEmployee.personalDetails?.personalEmail || ""
                             }
                             onChange={handleInputChange}
-                            className="form-control"
+                            className={`form-control ${
+                              errors.personalDetails?.personalEmail
+                                ? "error-input"
+                                : ""
+                            }`}
                           />
+                          {errors.personalDetails?.personalEmail && (
+                            <div className="error-message">
+                              {errors.personalDetails.personalEmail}
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -1558,15 +1813,24 @@ const EmployeeDatabase = () => {
                             Emergency Contact Number
                           </label>
                           <input
-                            type="tel"
+                            type="number"
                             id="emergencyPhoneNumber"
                             name="emergencyContact.phoneNumber"
                             value={
                               newEmployee.emergencyContact?.phoneNumber || ""
                             }
                             onChange={handleInputChange}
-                            className="form-control"
+                            className={`form-control ${
+                              errors.emergencyContact?.phoneNumber
+                                ? "error-input"
+                                : ""
+                            }`}
                           />
+                          {errors.emergencyContact?.phoneNumber && (
+                            <div className="error-message">
+                              {errors.emergencyContact.phoneNumber}
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -1574,15 +1838,24 @@ const EmployeeDatabase = () => {
                         <div className="form-group half">
                           <label htmlFor="aadharNumber">Aadhar Number</label>
                           <input
-                            type="text"
+                            type="number"
                             id="aadharNumber"
                             name="personalDetails.aadharNumber"
                             value={
                               newEmployee.personalDetails?.aadharNumber || ""
                             }
                             onChange={handleInputChange}
-                            className="form-control"
+                            className={`form-control ${
+                              errors.personalDetails?.aadharNumber
+                                ? "error-input"
+                                : ""
+                            }`}
                           />
+                          {errors.personalDetails?.aadharNumber && (
+                            <div className="error-message">
+                              {errors.personalDetails.aadharNumber}
+                            </div>
+                          )}
                         </div>
 
                         <div className="form-group half">
@@ -1593,8 +1866,17 @@ const EmployeeDatabase = () => {
                             name="personalDetails.panNumber"
                             value={newEmployee.personalDetails?.panNumber || ""}
                             onChange={handleInputChange}
-                            className="form-control"
+                            className={`form-control ${
+                              errors.personalDetails?.panNumber
+                                ? "error-input"
+                                : ""
+                            }`}
                           />
+                          {errors.personalDetails?.panNumber && (
+                            <div className="error-message">
+                              {errors.personalDetails.panNumber}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1618,8 +1900,40 @@ const EmployeeDatabase = () => {
                             }
                             onChange={handleInputChange}
                             required
-                            className="form-control"
+                            className={`form-control ${
+                              errors.employmentDetails?.officeEmail
+                                ? "error-input"
+                                : ""
+                            }`}
                           />
+                          {errors.employmentDetails?.officeEmail && (
+                            <div className="error-message">
+                              {errors.employmentDetails.officeEmail}
+                            </div>
+                          )}
+                        </div>
+                        <div className="form-group half">
+                          <label htmlFor="companyEmployeeId">Employee ID</label>
+                          <input
+                            type="number"
+                            id="companyEmployeeId"
+                            name="employmentDetails.companyEmployeeId"
+                            value={
+                              newEmployee.employmentDetails
+                                ?.companyEmployeeId || ""
+                            }
+                            onChange={handleInputChange}
+                            className={`form-control ${
+                              errors.employmentDetails?.companyEmployeeId
+                                ? "error-input"
+                                : ""
+                            }`}
+                          />
+                          {errors.employmentDetails?.companyEmployeeId && (
+                            <div className="error-message">
+                              {errors.employmentDetails.companyEmployeeId}
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -1666,8 +1980,17 @@ const EmployeeDatabase = () => {
                               newEmployee.employmentDetails?.jobTitle || ""
                             }
                             onChange={handleInputChange}
-                            className="form-control"
+                            className={`form-control ${
+                              errors.employmentDetails?.jobTitle
+                                ? "error-input"
+                                : ""
+                            }`}
                           />
+                          {errors.employmentDetails?.jobTitle && (
+                            <div className="error-message">
+                              {errors.employmentDetails.jobTitle}
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -1741,27 +2064,8 @@ const EmployeeDatabase = () => {
                           />
                         </div>
 
-                        {/* <div className="form-group half">
-                          <label htmlFor="lineManager">
-                            Line Manager <span className="required">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            id="lineManager"
-                            name="employmentDetails.lineManager"
-                            value={
-                              newEmployee.employmentDetails?.lineManager || ""
-                            }
-                            onChange={handleInputChange}
-                            required
-                            className="form-control"
-                          />
-                        </div> */}
-
                         <div className="form-group half">
-                          <label htmlFor="lineManagerId">
-                            Line Manager <span className="required">*</span>
-                          </label>
+                          <label htmlFor="lineManagerId">Line Manager</label>
                           <select
                             id="lineManagerId"
                             name="employmentDetails.lineManagerId"
@@ -1809,15 +2113,24 @@ const EmployeeDatabase = () => {
                         <div className="form-group half">
                           <label htmlFor="uanNumber">UAN Number</label>
                           <input
-                            type="text"
+                            type="number"
                             id="uanNumber"
                             name="employmentDetails.uanNumber"
                             value={
                               newEmployee.employmentDetails?.uanNumber || ""
                             }
                             onChange={handleInputChange}
-                            className="form-control"
+                            className={`form-control ${
+                              errors.employmentDetails?.uanNumber
+                                ? "error-input"
+                                : ""
+                            }`}
                           />
+                          {errors.employmentDetails?.uanNumber && (
+                            <div className="error-message">
+                              {errors.employmentDetails.uanNumber}
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -1825,29 +2138,47 @@ const EmployeeDatabase = () => {
                         <div className="form-group half">
                           <label htmlFor="pfNumber">PF Number</label>
                           <input
-                            type="text"
+                            type="number"
                             id="pfNumber"
                             name="employmentDetails.pfNumber"
                             value={
                               newEmployee.employmentDetails?.pfNumber || ""
                             }
                             onChange={handleInputChange}
-                            className="form-control"
+                            className={`form-control ${
+                              errors.employmentDetails?.pfNumber
+                                ? "error-input"
+                                : ""
+                            }`}
                           />
+                          {errors.employmentDetails?.pfNumber && (
+                            <div className="error-message">
+                              {errors.employmentDetails.pfNumber}
+                            </div>
+                          )}
                         </div>
 
                         <div className="form-group half">
                           <label htmlFor="esicNumber">ESIC Number</label>
                           <input
-                            type="text"
+                            type="number"
                             id="esicNumber"
                             name="employmentDetails.esicNumber"
                             value={
                               newEmployee.employmentDetails?.esicNumber || ""
                             }
                             onChange={handleInputChange}
-                            className="form-control"
+                            className={`form-control ${
+                              errors.employmentDetails?.esicNumber
+                                ? "error-input"
+                                : ""
+                            }`}
                           />
+                          {errors.employmentDetails?.esicNumber && (
+                            <div className="error-message">
+                              {errors.employmentDetails.esicNumber}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -2026,8 +2357,17 @@ const EmployeeDatabase = () => {
                           name="bankDetails.accountHolder"
                           value={newEmployee.bankDetails?.accountHolder || ""}
                           onChange={handleInputChange}
-                          className="form-control"
+                          className={`form-control ${
+                            errors.bankDetails?.accountHolder
+                              ? "error-input"
+                              : ""
+                          }`}
                         />
+                        {errors.bankDetails?.accountHolder && (
+                          <div className="error-message">
+                            {errors.bankDetails.accountHolder}
+                          </div>
+                        )}
                       </div>
 
                       <div className="form-group">
@@ -2038,21 +2378,37 @@ const EmployeeDatabase = () => {
                           name="bankDetails.bankName"
                           value={newEmployee.bankDetails?.bankName || ""}
                           onChange={handleInputChange}
-                          className="form-control"
+                          className={`form-control ${
+                            errors.bankDetails?.bankName ? "error-input" : ""
+                          }`}
                         />
+                        {errors.bankDetails?.bankName && (
+                          <div className="error-message">
+                            {errors.bankDetails.bankName}
+                          </div>
+                        )}
                       </div>
 
                       <div className="form-row">
                         <div className="form-group half">
                           <label htmlFor="accountNumber">Account Number</label>
                           <input
-                            type="text"
+                            type="number"
                             id="accountNumber"
                             name="bankDetails.accountNumber"
                             value={newEmployee.bankDetails?.accountNumber || ""}
                             onChange={handleInputChange}
-                            className="form-control"
+                            className={`form-control ${
+                              errors.bankDetails?.accountNumber
+                                ? "error-input"
+                                : ""
+                            }`}
                           />
+                          {errors.bankDetails?.accountNumber && (
+                            <div className="error-message">
+                              {errors.bankDetails.accountNumber}
+                            </div>
+                          )}
                         </div>
 
                         <div className="form-group half">
@@ -2063,8 +2419,15 @@ const EmployeeDatabase = () => {
                             name="bankDetails.ifscCode"
                             value={newEmployee.bankDetails?.ifscCode || ""}
                             onChange={handleInputChange}
-                            className="form-control"
+                            className={`form-control ${
+                              errors.bankDetails?.ifscCode ? "error-input" : ""
+                            }`}
                           />
+                          {errors.bankDetails?.ifscCode && (
+                            <div className="error-message">
+                              {errors.bankDetails.ifscCode}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

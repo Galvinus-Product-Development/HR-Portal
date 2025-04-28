@@ -2,6 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
+const { response } = require("express");
 require("dotenv").config();
 
 exports.createEmployee = async (data) => {
@@ -15,6 +16,12 @@ exports.getAllEmployees = async () => {
 exports.getEmployeeById = async (employeeId) => {
   return await prisma.employee.findUnique({
     where: { employee_id: employeeId },
+  });
+};
+
+exports.fetchEmployeeByUserId = async (userId) => {
+  return await prisma.employee.findUnique({
+    where: { employee_id: userId },
   });
 };
 
@@ -42,6 +49,7 @@ exports.getFormattedEmployees = async () => {
 
     return employees.map((emp) => ({
       id: `${emp.employee_id}`,
+      companyEmployeeId: emp.employment?.company_employee_id || "Not Assigned",
       name: `${emp.first_name} ${emp.last_name}`,
       email: emp.email,
       phone: emp.phone_number, // You may also want to include alternate_phone_number if relevant
@@ -278,6 +286,8 @@ exports.fetchEmployeeDetailsById = async (employeeId) => {
 
         employmentDetails: {
           id: employee.employment?.employee_id,
+          companyEmployeeId:
+            employee.employment?.company_employee_id || "Not Assigned",
           employeeId: employee.employee_id,
           jobTitle: employee.employment?.designation,
           department: employee.employment?.department,
@@ -1337,6 +1347,7 @@ exports.createPersonalDetails = async (data) => {
 
     const existingEmployee = await prisma.employee.findUnique({
       where: { employee_id: userId },
+      include:{employment:true}
     });
 
     let newEmployee;
@@ -1423,18 +1434,30 @@ exports.createPersonalDetails = async (data) => {
         },
       });
 
-      const employees = await prisma.employee.findMany();
-      for (let employee of employees) {
-        await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
-          userIds: [employee.employee_id],
-          title: "New Personal Details Submission",
-          message: `Employee ${firstName} ${lastName} has submitted their personal details.`,
-          priority: "NORMAL",
-          redirectUrl: `${process.env.APP_URL}/employees/${userId}`,
-          recipientType: "ADMIN",
-        });
-      }
 
+      // const employees = await prisma.employee.findMany();
+      // for (let employee of employees) {
+        // await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
+        //   userIds: [employee.manager_id],
+        //   title: "New Personal Details Submission",
+        //   message: `Employee ${firstName} ${lastName} has submitted their personal details.`,
+        //   priority: "NORMAL",
+        //   redirectUrl: `${process.env.APP_URL}/employees/${userId}`,
+        //   recipientType: "ADMIN",
+        // });
+      // }
+
+      // const existingEmployee = await prisma.employee.findUnique({
+      //   where: { employee_id: userId },
+      // });
+      await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
+        userIds: [existingEmployee?.employment?.manager_id],
+        title: "New Personal Details Submission",
+        message: `Employee ${firstName} ${lastName} has submitted their personal details.`,
+        priority: "NORMAL",
+        redirectUrl: `${process.env.APP_URL}/employees/${userId}`,
+        recipientType: "ADMIN",
+      });
       return {
         status: 201,
         data: {
@@ -1544,17 +1567,26 @@ exports.createPersonalDetails = async (data) => {
       },
     });
 
-    const employees = await prisma.employee.findMany();
-    for (let employee of employees) {
-      await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
-        userIds: [employee.employee_id],
-        title: "New Personal Details Submission",
-        message: `Employee ${firstName} ${lastName} has submitted their personal details for review.`,
-        priority: "NORMAL",
-        redirectUrl: `${process.env.APP_URL}/employees/${userId}`,
-        recipientType: "ADMIN",
-      });
-    }
+    // const employees = await prisma.employee.findMany();
+    // for (let employee of employees) {
+    //   await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
+    //     userIds: [employee.employee_id],
+    //     title: "New Personal Details Submission",
+    //     message: `Employee ${firstName} ${lastName} has submitted their personal details for review.`,
+    //     priority: "NORMAL",
+    //     redirectUrl: `${process.env.APP_URL}/employees/${userId}`,
+    //     recipientType: "ADMIN",
+    //   });
+    // }
+    console.log("THis is line manager Id:----------->??????&&&&&&&&&%%%%5",existingEmployee);
+    await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
+      userIds: [existingEmployee?.employment?.manager_id],
+      title: "New Personal Details Submission",
+      message: `Employee ${firstName} ${lastName} has submitted their personal details.`,
+      priority: "NORMAL",
+      redirectUrl: `${process.env.APP_URL}/employees/${userId}`,
+      recipientType: "ADMIN",
+    });
 
     return {
       status: 201,
@@ -1688,9 +1720,9 @@ const validateEmployeeData = (data) => {
   if (!personalDetails.gender?.trim()) {
     errors.gender = "Gender is required";
   }
-  if (!personalDetails.location?.trim()) {
-    errors.location = "Location is required";
-  }
+  // if (!personalDetails.location?.trim()) {
+  //   errors.location = "Location is required";
+  // }
   if (!personalDetails.dateOfBirth) {
     errors.dateOfBirth = "Date of Birth is required";
   }
@@ -1770,9 +1802,9 @@ const validateEmployeeData = (data) => {
   if (!employmentDetails.department?.trim()) {
     errors.department = "Department is required";
   }
-  if (!employmentDetails.location?.trim()) {
-    errors.employmentLocation = "Location is required";
-  }
+  // if (!employmentDetails.location?.trim()) {
+  //   errors.employmentLocation = "Location is required";
+  // }
   if (
     !employmentDetails.officeEmail ||
     !emailRegex.test(employmentDetails.officeEmail)
@@ -2061,8 +2093,10 @@ exports.updateAllEmployeeDetails = async (id, data) => {
     documents = [],
   } = data;
 
-  console.log(data);
-
+  console.log("THis is the data:------------>>><<>>", data);
+  const existingEmployment = await prisma.employment.findUnique({
+    where: { employee_id: id },
+  });
   try {
     const current = personalDetails.currentAddress || {};
     const permanent = personalDetails.permanentAddress || {};
@@ -2105,6 +2139,7 @@ exports.updateAllEmployeeDetails = async (id, data) => {
     await prisma.employment.upsert({
       where: { employee_id: id },
       update: {
+        company_employee_id: Number(employmentDetails.companyEmployeeId) || 0,
         designation: employmentDetails.jobTitle || "Not Assigned",
         department: employmentDetails.department || "General",
         date_of_joining: employmentDetails.dateOfJoining
@@ -2116,7 +2151,7 @@ exports.updateAllEmployeeDetails = async (id, data) => {
           employmentDetails.lineManagerId ||
           null,
         work_location: employmentDetails.location || "Head Office",
-        status: employmentDetails.status || "ACTIVE",
+        status: employmentDetails.status || "DEACTIVATED",
         base_salary: employmentDetails.base_salary || 30000,
         stock_bonus: employmentDetails.stock_bonus || 0,
         official_email:
@@ -2128,6 +2163,7 @@ exports.updateAllEmployeeDetails = async (id, data) => {
       },
       create: {
         employee_id: id,
+        company_employee_id: Number(employmentDetails.companyEmployeeId) || 0,
         designation: employmentDetails.jobTitle || "Not Assigned",
         department: employmentDetails.department || "General",
         date_of_joining: employmentDetails.dateOfJoining
@@ -2139,7 +2175,7 @@ exports.updateAllEmployeeDetails = async (id, data) => {
           employmentDetails.lineManagerId ||
           null,
         work_location: employmentDetails.location || "Head Office",
-        status: employmentDetails.status || "ACTIVE",
+        status: employmentDetails.status || "DEACTIVATED",
         base_salary: employmentDetails.base_salary || 30000,
         stock_bonus: employmentDetails.stock_bonus || 0,
         official_email:
@@ -2179,7 +2215,7 @@ exports.updateAllEmployeeDetails = async (id, data) => {
     }
 
     // Update Emergency Contact
-    if (Object.keys(emergencyContact).length > 0) {
+    if (emergencyContact && Object.keys(emergencyContact).length > 0) {
       await prisma.emergency.upsert({
         where: { contact_id: emergencyContact.id || id },
         update: {
@@ -2266,6 +2302,23 @@ exports.updateAllEmployeeDetails = async (id, data) => {
         issue_date: new Date(),
       })),
     });
+    const wasDeactivated = existingEmployment?.status === "DEACTIVATED";
+    const isNowActive = employmentDetails?.status === "ACTIVE";
+    
+    if (wasDeactivated && isNowActive) {
+      axios
+        .post(
+          `${UM_SERVICE_BASE_URL}/api/v1/auth/password-reset/request`,
+          { email: employmentDetails.officeEmail }
+        )
+        .then((response) => {
+          console.log("Email sent successfully", response.data, employmentDetails.officeEmail);
+        })
+        .catch((error) => {
+          console.log("Error sending email to the user...", error, employmentDetails.officeEmail);
+        });
+    }
+    
 
     return updatedEmployee;
   } catch (error) {
@@ -2675,8 +2728,8 @@ const UM_SERVICE_URL =
 const DEFAULT_PASSWORD =
   process.env.DEFAULT_EMPLOYEE_PASSWORD || "Employee@123";
 const API_BASE_URL_LM = `${process.env.API_BASE_URL_LM}`;
-
-
+const UM_SERVICE_BASE_URL =
+  process.env.UM_SERVICE_BASE_URL || "http://localhost:5000/um";
 exports.importEmployees = async (employeeDataList) => {
   const skipped = [];
   const created = [];
@@ -2747,6 +2800,9 @@ exports.importEmployees = async (employeeDataList) => {
           permanent_zip: permanentAddress?.zipCode || undefined,
           employment: {
             create: {
+              company_name: "Galvinus",
+              company_employee_id:
+                Number(employmentDetails?.companyEmployeeId) || null,
               official_email: employmentDetails?.officeEmail,
               designation: employmentDetails?.jobTitle || "N/A",
               department: employmentDetails?.department || "N/A",
@@ -2754,7 +2810,7 @@ exports.importEmployees = async (employeeDataList) => {
               date_of_joining: employmentDetails?.dateOfJoining
                 ? new Date(employmentDetails.dateOfJoining)
                 : new Date(),
-              status: employmentDetails?.status || "ACTIVE",
+              status: employeeData?.status || "DEACTIVATED",
               base_salary: 0,
               stock_bonus: 0,
               employment_type: employmentDetails?.employmentType || "FULL_TIME",
@@ -2814,22 +2870,18 @@ exports.importEmployees = async (employeeDataList) => {
         },
       });
 
-
-
-
-
-
-
-
       const employeeId = userId; // replace with actual ID
-      console.log("This employeeId is from employeeService",employeeId)
-      console.log("This employeeId is from new employee",newEmployee.employee_id)
+      console.log("This employeeId is from employeeService", employeeId);
+      console.log(
+        "This employeeId is from new employee",
+        newEmployee.employee_id
+      );
       const leaveTypes = [
         { leaveType: "CASUAL", defaultBalance: 15 },
         { leaveType: "SICK", defaultBalance: 5 },
         { leaveType: "UNPAID", defaultBalance: 0 },
       ];
-  
+
       axios
         .post(
           `${API_BASE_URL_LM}/api/leave-balance/createBalance/${newEmployee.employee_id}`,
@@ -2841,25 +2893,20 @@ exports.importEmployees = async (employeeDataList) => {
         .catch((error) => {
           console.error("Error creating leave balance:", error);
         });
-  
+
+      axios
+        .post(
+          `${UM_SERVICE_BASE_URL}/api/v1/auth/password-reset/request`,
+          email
+        )
+        .then((response) => {
+          console.log("email sent successfully", response.data);
+        })
+        .catch((error) => {
+          console.log("Error sending email to the user....", error);
+        });
+
       // return { message: "Employee created successfully", employee: newEmployee };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
       created.push(newEmployee.email);
     } catch (err) {
@@ -2902,7 +2949,7 @@ exports.createSingleEmployee = async (employeeData) => {
     });
 
     const userId = registerResponse?.data?.userId;
-    console.log("THis is from um",userId);
+    console.log("THis is from um", userId);
     if (!userId) throw new Error("User ID not returned from User Management");
 
     // Step 2: Create Employee in DB
@@ -2934,6 +2981,9 @@ exports.createSingleEmployee = async (employeeData) => {
 
         employment: {
           create: {
+            company_name: "Galvinus",
+            company_employee_id:
+              Number(employmentDetails?.companyEmployeeId) || null,
             official_email: employmentDetails?.officeEmail,
             designation: employmentDetails?.jobTitle || "N/A",
             department: employmentDetails?.department || "N/A",
@@ -2941,7 +2991,7 @@ exports.createSingleEmployee = async (employeeData) => {
             date_of_joining: employmentDetails?.dateOfJoining
               ? new Date(employmentDetails.dateOfJoining)
               : new Date(),
-            status: employmentDetails?.status || "ACTIVE",
+            status: employeeData?.status || "DEACTIVATED",
             base_salary: parseFloat(employmentDetails?.baseSalary || 0),
             stock_bonus: parseFloat(employmentDetails?.stockBonus || 0),
             employment_type: employmentDetails?.employmentType || "FULL_TIME",
@@ -2999,6 +3049,12 @@ exports.createSingleEmployee = async (employeeData) => {
               issue_date: new Date(),
               document_path: "",
             },
+            employmentDetails?.esicNumber && {
+              document_type: "ESIC",
+              document_number: employmentDetails.esicNumber,
+              issue_date: new Date(),
+              document_path: "",
+            },
           ].filter(Boolean),
         },
       },
@@ -3012,8 +3068,11 @@ exports.createSingleEmployee = async (employeeData) => {
     // ];
 
     const employeeId = userId; // replace with actual ID
-    console.log("This employeeId is from employeeService",employeeId)
-    console.log("This employeeId is from new employee",newEmployee.employee_id)
+    console.log("This employeeId is from employeeService", employeeId);
+    console.log(
+      "This employeeId is from new employee",
+      newEmployee.employee_id
+    );
     const leaveTypes = [
       { leaveType: "CASUAL", defaultBalance: 15 },
       { leaveType: "SICK", defaultBalance: 5 },
@@ -3031,6 +3090,22 @@ exports.createSingleEmployee = async (employeeData) => {
       .catch((error) => {
         console.error("Error creating leave balance:", error);
       });
+
+    console.log("This is employment stata:--->", employmentDetails?.status);
+
+    if (employeeData?.status == "ACTIVE") {
+      axios
+        .post(
+          `${UM_SERVICE_BASE_URL}/api/v1/auth/password-reset/request`,
+          email
+        )
+        .then((response) => {
+          console.log("email sent successfully", response.data);
+        })
+        .catch((error) => {
+          console.log("Error sending email to the user....", error, email);
+        });
+    }
 
     return { message: "Employee created successfully", employee: newEmployee };
   } catch (error) {

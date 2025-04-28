@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const { PrismaClient } = require("@prisma/client");
-require("./cleanup");
+// require("./cleanup");
 
 // Import Routes
 const employeeRoutes = require("./routes/employeeRoutes");

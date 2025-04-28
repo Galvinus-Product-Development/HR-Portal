@@ -27,6 +27,10 @@ const login = [
     const { email, password, deviceId, userAgent, ipAddress } = req.body;
     console.log(ipAddress);
 
+  const employeeServiceUrl = `${process.env.EMPLOYEE_SERVICE_URL}/${email}`;
+  console.log(employeeServiceUrl)
+
+
     try {
       // Call the service to handle the login logic
       const { accessToken, refreshToken, device,roleName,signedUserId,userId,name ,userEmail} = await loginService(email, password, deviceId, userAgent, ipAddress);

@@ -148,7 +148,7 @@ const Header = ({ pendingRequests }) => {
     <header className="unique-navbar-container">
       <div className="unique-navbar-header">
         <img src={gal_logo} className="unique-navbar-logo" alt="Galvinus Logo" />
-        <span className="unique-navbar-title">Galvinus Employee Portal</span>
+        <span className="unique-navbar-title">GEMS Employee Portal</span>
       </div>
 
       <div className="unique-navbar-right">

@@ -17,7 +17,7 @@ const Header = ({ pendingRequests }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [profileImage, setProfileImage] = useState(
     localStorage.getItem("profileImage") ||
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
   );
 
   const { logout } = useAuth();
@@ -38,11 +38,11 @@ const Header = ({ pendingRequests }) => {
     logout();
     navigate("/login");
   };
-  
+
   const handleEmployeeRoute = (e) => {
-    console.log("Here why I am not able to move to the employee dashboard")
+    console.log("Here why I am not able to move to the employee dashboard");
     navigate("/employee");
-  }
+  };
   const handleFileChange = (event) => {
     if (event.target.files && event.target.files[0]) {
       setSelectedFile(event.target.files[0]);
@@ -57,7 +57,10 @@ const Header = ({ pendingRequests }) => {
       );
       if (!response.ok) throw new Error("Failed to fetch notifications");
       const data = await response.json();
-      console.log("this is the notification data", data);
+      console.log(
+        "this is the notification data----------------00000000000->",
+        data
+      );
       setNotifications(data);
     } catch (error) {
       console.error("Error fetching notifications:", error);
@@ -67,19 +70,24 @@ const Header = ({ pendingRequests }) => {
   const markAsRead = async (notificationId) => {
     try {
       const response = await fetch(
-        `${API_BASE_URL_NS}/api/notifications/mark-read/${notificationId}`,
+        `${API_BASE_URL_NS}/api/notifications/${notificationId}/read`,
         {
-          method: 'PUT',
+          method: "PATCH",
         }
       );
-      if (!response.ok) throw new Error("Failed to mark notification as read");
-      
+      if (!response.ok){
+        console.log("Failed to mark notification as read");
+         throw new Error("Failed to mark notification as read");
+      }
       // Update local state to reflect the change
-      setNotifications(notifications.map(notification => 
-        notification.id === notificationId 
-          ? {...notification, status: 'READ'} 
-          : notification
-      ));
+      // setNotifications(
+      //   notifications.map((notification) =>
+      //     notification.id === notificationId
+      //       ? { ...notification, status: "READ" }
+      //       : notification
+      //   )
+      // );
+      fetchNotifications();
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
@@ -104,12 +112,18 @@ const Header = ({ pendingRequests }) => {
     formData.append("userId", userId);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/users/upload-profile`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axios.post(
+        `${API_BASE_URL}/api/users/upload-profile`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       if (response.data.imageUrl) {
-        const cacheBustedUrl = `${response.data.imageUrl}?t=${new Date().getTime()}`;
+        const cacheBustedUrl = `${
+          response.data.imageUrl
+        }?t=${new Date().getTime()}`;
         setProfileImage(cacheBustedUrl);
         localStorage.setItem("profileImage", cacheBustedUrl);
         setSelectedFile(null);
@@ -122,7 +136,10 @@ const Header = ({ pendingRequests }) => {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
         setShowNotifications(false);
       }
       if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -146,54 +163,67 @@ const Header = ({ pendingRequests }) => {
   return (
     <header className="unique-navbar-container">
       <div className="unique-navbar-header">
-        <img src={gal_logo} className="unique-navbar-logo" alt="Galvinus Logo" />
-        <span className="unique-navbar-title">Galvinus Admin Portal</span>
+        <img
+          src={gal_logo}
+          className="unique-navbar-logo"
+          alt="Galvinus Logo"
+        />
+        <span className="unique-navbar-title">GEMS Admin Portal</span>
       </div>
 
       <div className="unique-navbar-right">
         <div className="unique-navbar-icons">
-          <div className="unique-navbar-notification-container" ref={notificationRef}>
-            <button 
-              className="unique-navbar-notifications" 
+          <div
+            className="unique-navbar-notification-container"
+            ref={notificationRef}
+          >
+            <button
+              className="unique-navbar-notifications"
               onClick={toggleNotifications}
             >
               <Bell className="unique-navbar-bell-icon" />
-              {notifications.filter(n => n.status === "UNREAD").length > 0 && (
+              {notifications.filter((n) => n.status === "UNREAD").length >
+                0 && (
                 <span className="unique-notification-badge">
-                  {notifications.filter(n => n.status === "UNREAD").length}
+                  {notifications.filter((n) => n.status === "UNREAD").length}
                 </span>
               )}
             </button>
-            
+
             {showNotifications && (
               <div className="notification-dropdown">
                 <div className="notification-header">
                   <h3 className="notification-title">Notifications</h3>
                   <span className="notification-count">
-                    {notifications.filter(n => n.status === "UNREAD").length} new
+                    {notifications.filter((n) => n.status === "UNREAD").length}{" "}
+                    new
                   </span>
                 </div>
-                
+
                 <div className="notification-divider" />
-                
+
                 <div className="notification-list">
                   {notifications.length > 0 ? (
                     notifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className={`notification-item ${getNotificationColor(notification.priority)}`}
+                        className={`notification-item ${getNotificationColor(
+                          notification.priority
+                        )}`}
                         onClick={() => {
                           if (notification.redirectUrl) {
-                            window.open(notification.redirectUrl, "_blank")
+                            window.open(notification.redirectUrl, "_blank");
                           }
                         }}
                       >
                         <div className="notification-content">
-                          <div className={`notification-icon ${
-                            notification.priority === "high"
-                              ? "notification-icon-high"
-                              : "notification-icon-normal"
-                          }`}>
+                          <div
+                            className={`notification-icon ${
+                              notification.priority === "high"
+                                ? "notification-icon-high"
+                                : "notification-icon-normal"
+                            }`}
+                          >
                             <Bell className="notification-icon-small" />
                           </div>
                           <div className="notification-text">
@@ -214,7 +244,10 @@ const Header = ({ pendingRequests }) => {
                         {notification.status === "UNREAD" && (
                           <button
                             className="notification-mark-read"
-                            onClick={() => markAsRead(notification.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markAsRead(notification.id);
+                            }}
                           >
                             Mark as Read
                           </button>
@@ -225,103 +258,121 @@ const Header = ({ pendingRequests }) => {
                     <p className="no-notifications">No notifications</p>
                   )}
                 </div>
-                
+
                 {notifications.length > 0 && (
-                  <div className="notification-footer">
-                    {/* <button 
-                      className="notification-view-all"
-                      onClick={() => navigate("/")}
-                    >
-                    </button> */}
-                  </div>
+                  <div className="notification-footer"></div>
                 )}
               </div>
             )}
           </div>
           <div className="unique-navbar-profile-container" ref={profileRef}>
-          <div className="unique-navbar-profile"  onClick={toggleDropdown}>
-            <img
-              src={profileImage}
-              alt="Admin"
-              className="unique-navbar-profile-pic"
-            />
-          </div>
-
-          {showDropdown && (
-            <div className="profile-dropdown">
-              <div className="profile-header">
-                <div className="profile-avatar">
-                  <img src={profileImage} alt="Profile" className="profile-image" />
-                </div>
-                <div className="profile-info">
-                  <h3 className="profile-name">{localStorage.getItem("name") || "User"}</h3>
-                  <span className="profile-role">{localStorage.getItem("user") || "Employee"}</span>
-                  <span className="profile-email">{localStorage.getItem("email") || "user@example.com"}</span>
-                </div>
-              </div>
-
-              <div className="profile-divider" />
-
-              <div className="profile-upload-section">
-                <label htmlFor="profile-upload" className="profile-upload-label">
-                  <Upload size={18} className="profile-upload-icon" />
-                  <span>Change Profile Image</span>
-                </label>
-                <input
-                  id="profile-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="profile-upload-input"
-                />
-                {selectedFile && (
-                  <div className="profile-upload-preview">
-                    <div className="profile-preview-header">
-                      <span className="profile-preview-title">Selected Image</span>
-                      <button
-                        className="profile-preview-cancel"
-                        onClick={() => setSelectedFile(null)}
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                    <img
-                      src={URL.createObjectURL(selectedFile)}
-                      alt="Preview"
-                      className="profile-preview-image"
-                    />
-                    <div className="profile-preview-actions">
-                      <button
-                        className="profile-upload-button profile-upload-cancel"
-                        onClick={() => setSelectedFile(null)}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        className="profile-upload-button profile-upload-confirm"
-                        onClick={handleUpload}
-                      >
-                        Upload
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="profile-divider" />
-
-              <div className="profile-actions">
-                <button onClick={handleEmployeeRoute} className="profile-action-button">
-                  <LayoutDashboard size={18} className="profile-action-icon" />
-                  <span>Employee Dashboard</span>
-                </button>
-                <button onClick={handleLogout} className="profile-action-button profile-logout">
-                  <LogOut size={18} className="profile-action-icon" />
-                  <span>Logout</span>
-                </button>
-              </div>
+            <div className="unique-navbar-profile" onClick={toggleDropdown}>
+              <img
+                src={profileImage}
+                alt="Admin"
+                className="unique-navbar-profile-pic"
+              />
             </div>
-          )}
+
+            {showDropdown && (
+              <div className="profile-dropdown">
+                <div className="profile-header">
+                  <div className="profile-avatar">
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="profile-image"
+                    />
+                  </div>
+                  <div className="profile-info">
+                    <h3 className="profile-name">
+                      {localStorage.getItem("name") || "User"}
+                    </h3>
+                    <span className="profile-role">
+                      {localStorage.getItem("user") || "Employee"}
+                    </span>
+                    <span className="profile-email">
+                      {localStorage.getItem("email") || "user@example.com"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="profile-divider" />
+
+                <div className="profile-upload-section">
+                  <label
+                    htmlFor="profile-upload"
+                    className="profile-upload-label"
+                  >
+                    <Upload size={18} className="profile-upload-icon" />
+                    <span>Change Profile Image</span>
+                  </label>
+                  <input
+                    id="profile-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="profile-upload-input"
+                  />
+                  {selectedFile && (
+                    <div className="profile-upload-preview">
+                      <div className="profile-preview-header">
+                        <span className="profile-preview-title">
+                          Selected Image
+                        </span>
+                        <button
+                          className="profile-preview-cancel"
+                          onClick={() => setSelectedFile(null)}
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                      <img
+                        src={URL.createObjectURL(selectedFile)}
+                        alt="Preview"
+                        className="profile-preview-image"
+                      />
+                      <div className="profile-preview-actions">
+                        <button
+                          className="profile-upload-button profile-upload-cancel"
+                          onClick={() => setSelectedFile(null)}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          className="profile-upload-button profile-upload-confirm"
+                          onClick={handleUpload}
+                        >
+                          Upload
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="profile-divider" />
+
+                <div className="profile-actions">
+                  <button
+                    onClick={handleEmployeeRoute}
+                    className="profile-action-button"
+                  >
+                    <LayoutDashboard
+                      size={18}
+                      className="profile-action-icon"
+                    />
+                    <span>Employee Dashboard</span>
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="profile-action-button profile-logout"
+                  >
+                    <LogOut size={18} className="profile-action-icon" />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

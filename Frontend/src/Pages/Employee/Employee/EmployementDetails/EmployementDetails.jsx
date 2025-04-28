@@ -167,7 +167,7 @@ const EmploymentDetails = () => {
         </div>
         <div className="employment-details-item">
           <label>Employee ID:</label>
-          <p>{formData.employee_id}</p>
+          <p>{formData.company_employee_id}</p>
         </div>
         <div className="employment-details-item">
           <label>Job Title:</label>

@@ -275,7 +275,7 @@ const AttendanceDashboard = () => {
                 0
               )
             )
-          : "0h 00m";
+          : "00h 00m";
 
         const lateComing = employee.attendance
           ? formatTimeToHoursMinutes(
@@ -293,7 +293,7 @@ const AttendanceDashboard = () => {
                 0
               )
             )
-          : "0h 00m";
+          : "00h 00m";
 
         // Add row to CSV
         csvContent += `${employee.name},${employee.id},${employee.jobTitle},${employee.phone},${employee.location},${employee.department},${presentDays},${totalAbsences},${halfDays},${weekOffs},${paid},${unpaid},${overtimeHours},${workingHours},${lateComing},${earlyLeaving}\n`;
@@ -537,7 +537,7 @@ const AttendanceDashboard = () => {
                   <tr key={employee.id}>
                     <td>{employee.name}</td>
                     <td>{employee.id}</td>
-                    <td>{employee.jobTitle}</td>
+                    <td>{employee.designation}</td>
                     <td>{employee.phone}</td>
                     <td>{employee.location}</td>
                     <td>{employee.department}</td>
@@ -555,40 +555,11 @@ const AttendanceDashboard = () => {
                           )
                         : 0)}
                     </td>
-                    {/* <td>
-                      {formatTimeToHoursMinutes(
-                        employee.attendance
-                          ? employee.attendance.reduce(
-                              (sum, record) => sum + (record.workingHours || 0),
-                              0
-                            )
-                          : 0
-                      )}
-                    </td> */}
                     <td>
-                      {/* {formatTimeToHoursMinutes(
-                        employee.monthlyAttendanceStats
-                          ? employee.monthlyAttendanceStats.reduce(
-                              (sum, record) =>
-                                sum + (record.monthlyLateComing || 0),
-                              0
-                            )
-                          : 0
-                      )} */}
 											{employee.monthlyAttendanceStats ? employee.monthlyAttendanceStats.map(record => record.lateDays || 0) : 0}
-
                     </td>
                     <td>
-                      {/* {formatTimeToHoursMinutes(
-                        employee.attendance
-                          ? employee.attendance.reduce(
-                              (sum, record) => sum + (record.earlyLeaving || 0),
-                              0
-                            )
-                          : 0
-                      )} */}
 											{employee.monthlyAttendanceStats ? employee.monthlyAttendanceStats.map(record => record.earlyLeaving || 0) : 0}
-
                     </td>
                   </tr>
                 );

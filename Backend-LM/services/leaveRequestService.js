@@ -30,27 +30,8 @@ const calculateWorkingDays = (
   return count;
 };
 
-// exports.createLeaveRequest = async (leaveRequestData) => {
-// 	const employee = await prisma.employee.findUnique({
-// 		where: { employeeId: leaveRequestData.employeeId },
-// 	});
-
-// 	if (!employee) {
-// 		throw new Error("Employee not found. Ensure that the employee is registered.");
-// 	}
-
-// 	const ISTOffsetMs = 5.5 * 60 * 60 * 1000; // 5 hours 30 minutes in milliseconds
-
-// 	// Convert startDate and endDate to IST
-// 	const startDateIST = new Date(new Date(leaveRequestData.startDate).getTime() + ISTOffsetMs);
-// 	const endDateIST = new Date(new Date(leaveRequestData.endDate).getTime() + ISTOffsetMs);
-
-// 	return await prisma.leaveRequest.create({
-// 		data: { ...leaveRequestData, startDate: startDateIST, endDate: endDateIST }
-// 	});
-// };
-
 exports.createLeaveRequest = async (leaveRequestData) => {
+  console.log("enterend:______________________________________________________________________")
   const holidays = await prisma.holiday.findMany({ orderBy: { date: "asc" } });
 
   if (holidays.length === 0) {
@@ -65,7 +46,7 @@ exports.createLeaveRequest = async (leaveRequestData) => {
   // Fetch employee from the Employee Microservice
   const employeeServiceUrl = `${process.env.EMPLOYEE_SERVICE_URL}/${leaveRequestData.employeeId}`;
   const { data: employee } = await axios.get(employeeServiceUrl);
-
+  // console.log("THis is the employee under employee create leave request",employee.employmentDetails.lineManagerId);
   if (!employee) {
     throw new Error(
       "Employee not found. Ensure that the employee is registered."
@@ -138,13 +119,38 @@ exports.createLeaveRequest = async (leaveRequestData) => {
     );
   }
 
-  return await prisma.leaveRequest.create({
+  const leaveRequest = await prisma.leaveRequest.create({
     data: {
       ...leaveRequestData,
+      lineManagerId: employee?.employmentDetails?.lineManagerId,
       startDate: startDateIST,
       endDate: endDateIST,
     },
   });
+  console.log("enterend:______________________________________________________________________1")
+  try {
+    const lineManagerUserId = employee?.employmentDetails?.lineManagerId;
+    console.log("enterend:______________________________________________________________________2")
+    if (!lineManagerUserId) {
+      console.warn("Line manager not found for employee:", employee?.id);
+    }
+    console.log("enterend:______________________________________________________________________3")
+    console.log("This is line manaagere Id:---->",lineManagerUserId)
+    await axios.post(process.env.NOTIFICATION_SERVICE_URL, {
+      userIds: [lineManagerUserId],
+      title: "New Levave Request Submitted",
+      message: `Employee ${employee?.personalDetails?.name} has submitted an leave request.`,
+      priority: "NORMAL",
+      redirectUrl: `${process.env.APP_URL}/leave-management/leave-requests`,
+      recipientType: "ADMIN",
+    });
+    console.log("Notification sent successfully!!!");
+  } catch (e) {
+    console.log("error in the notification", e);
+    throw new Error(e);
+  }
+
+  return leaveRequest;
 };
 
 exports.getLeaveRequestById = async (id) => {
@@ -170,7 +176,7 @@ exports.getPendingLeaveRequests = async (lineManagerId) => {
         status: "PENDING",
       },
     });
-
+    console.log("Tese are the pending leave requests:-----", leaveRequests);
     // Fetch employee details for each leave request
     const requestsWithEmployeeData = await Promise.all(
       leaveRequests.map(async (leaveRequest) => {
@@ -206,6 +212,11 @@ exports.getPendingLeaveRequests = async (lineManagerId) => {
     console.error("Error fetching pending leave requests:", error);
     throw new Error("Failed to retrieve pending leave requests");
   }
+};
+
+// leaveRequestService.js
+exports.getAllLeaveRequestsForAdmin = async () => {
+  return await prisma.leaveRequest.findMany();
 };
 
 exports.updateLeaveRequest = async (id, updateData) => {
@@ -549,6 +560,27 @@ exports.editLeaveRequest = async (
   return updateLeaveRequest;
 };
 
+exports.cancelLeaveRequest = async (id, editStatus, reasonTemp) => {
+  const existingLeaveRequest = await prisma.leaveRequest.findUnique({
+    where: { id },
+  });
+  console.log("existing leave", existingLeaveRequest);
+
+  if (!existingLeaveRequest) {
+    throw new Error("No leave request with this Id");
+  }
+
+  const updateLeaveRequest = await prisma.leaveRequest.update({
+    where: { id },
+    data: {
+      editStatus,
+      reasonTemp,
+    },
+  });
+
+  return updateLeaveRequest;
+};
+
 exports.approveEditedRequest = async (
   id,
   editStatus,
@@ -560,45 +592,145 @@ exports.approveEditedRequest = async (
   const existingLeaveRequest = await prisma.leaveRequest.findUnique({
     where: { id },
   });
-  console.log(existingLeaveRequest);
 
   if (!existingLeaveRequest) {
     throw new Error("No leave request with this Id");
   }
 
+  console.log("Existing leave request", existingLeaveRequest);
+  const holidays = await prisma.holiday.findMany({
+    orderBy: { date: "asc" },
+  });
+
+  const holidayDates = holidays.map(
+    (holiday) => new Date(holiday.date).toISOString().split("T")[0]
+  );
+
   const leaveBalances = await prisma.leaveBalance.findMany({
     where: { employeeId: existingLeaveRequest.employeeId },
   });
+  console.log("old leave balance", leaveBalances);
 
   const leaveBalanceMap = {};
+
   leaveBalances.forEach((balance) => {
     leaveBalanceMap[balance.leaveType] = balance.balance;
   });
-  if (editStatus === "EDITED" && actionStatus === "APPROVED") {
-    const duration = calculateWorkingDays(
-      existingLeaveRequest.startDate,
-      existingLeaveRequest.endDate,
-      [0, 6], // weekOffDays
-      holidayDates
-    );
-    if (existingLeaveRequest.leaveType === "SICK") {
-      if (leaveBalanceMap["SICK"] + duration > 5) {
-        //case for split into casual and unpaid
-        const unpaidLeave = leaveBalanceMap["SICK"] + duration - 5;
-        const paidLeave = Math.abs(duration - unpaidLeave);
 
+  console.log("old leave balance MAP", leaveBalanceMap);
+
+  if (existingLeaveRequest.leaveDuration === "FULL_DAY") {
+    if (editStatus === "EDITED" && actionStatus === "APPROVED") {
+      console.log("HI I AM HERER");
+      const duration = calculateWorkingDays(
+        existingLeaveRequest.startDate,
+        existingLeaveRequest.endDate,
+        [0, 6], // weekOffDays
+        holidayDates
+      );
+
+      console.log("OLD DURATION", duration);
+      if (existingLeaveRequest.leaveType === "SICK") {
+        if (leaveBalanceMap["SICK"] + duration > 5) {
+          //case for split into casual and unpaid
+          const unpaidLeave = leaveBalanceMap["SICK"] + duration - 5;
+          const paidLeave = Math.abs(duration - unpaidLeave);
+
+          await prisma.leaveBalance.update({
+            where: {
+              employeeId_leaveType: {
+                employeeId: existingLeaveRequest.employeeId,
+                leaveType: "SICK",
+              },
+            },
+            data: {
+              balance: leaveBalanceMap["SICK"] + paidLeave,
+            },
+          });
+
+          await prisma.leaveBalance.update({
+            where: {
+              employeeId_leaveType: {
+                employeeId: existingLeaveRequest.employeeId,
+                leaveType: "UNPAID",
+              },
+            },
+            data: {
+              balance: leaveBalanceMap["UNPAID"] - unpaidLeave,
+            },
+          });
+        } else {
+          await prisma.leaveBalance.update({
+            where: {
+              employeeId_leaveType: {
+                employeeId: existingLeaveRequest.employeeId,
+                leaveType: "SICK",
+              },
+            },
+            data: {
+              balance: leaveBalanceMap["SICK"] + duration,
+            },
+          });
+        }
+      } else if (existingLeaveRequest.leaveType === "CASUAL") {
+        console.log("Hi i an in spllit case");
+        if (leaveBalanceMap["CASUAL"] + duration > 15) {
+          const unpaidLeave = leaveBalanceMap["CASUAL"] + duration - 15;
+          const paidLeave = Math.abs(duration - unpaidLeave);
+
+          await prisma.leaveBalance.update({
+            where: {
+              employeeId_leaveType: {
+                employeeId: existingLeaveRequest.employeeId,
+                leaveType: "CASUAL",
+              },
+            },
+            data: {
+              balance: leaveBalanceMap["CASUAL"] + paidLeave,
+            },
+          });
+
+          await prisma.leaveBalance.update({
+            where: {
+              employeeId_leaveType: {
+                employeeId: existingLeaveRequest.employeeId,
+                leaveType: "UNPAID",
+              },
+            },
+            data: {
+              balance: leaveBalanceMap["UNPAID"] - unpaidLeave,
+            },
+          });
+
+          //case for split into casual and unpaid
+        } else {
+          console.log("Hi i an in Normal case");
+
+          await prisma.leaveBalance.update({
+            where: {
+              employeeId_leaveType: {
+                employeeId: existingLeaveRequest.employeeId,
+                leaveType: "CASUAL",
+              },
+            },
+            data: {
+              balance: leaveBalanceMap["CASUAL"] + duration,
+            },
+          });
+        }
+      } else if (existingLeaveRequest.leaveType === "COMPENSATORY") {
         await prisma.leaveBalance.update({
           where: {
             employeeId_leaveType: {
               employeeId: existingLeaveRequest.employeeId,
-              leaveType: "SICK",
+              leaveType: "COMPENSATORY",
             },
           },
           data: {
-            balance: leaveBalanceMap["SICK"] + paidLeave,
+            balance: leaveBalanceMap["COMPENSATORY"] + duration,
           },
         });
-
+      } else {
         await prisma.leaveBalance.update({
           where: {
             employeeId_leaveType: {
@@ -607,150 +739,92 @@ exports.approveEditedRequest = async (
             },
           },
           data: {
-            balance: leaveBalanceMap["UNPAID"] - unpaidLeave,
-          },
-        });
-      } else {
-        await prisma.leaveBalance.update({
-          where: {
-            employeeId_leaveType: {
-              employeeId: existingLeaveRequest.employeeId,
-              leaveType: "SICK",
-            },
-          },
-          data: {
-            balance: leaveBalanceMap["SICK"] + duration,
+            balance: leaveBalanceMap["UNPAID"] - duration,
           },
         });
       }
-    } else if (existingLeaveRequest.leaveType === "CASUAL") {
-      if (leaveBalanceMap["CASUAL"] + duration > 15) {
-        const unpaidLeave = leaveBalanceMap["CASUAL"] + duration - 15;
-        const paidLeave = Math.abs(duration - unpaidLeave);
 
-        await prisma.leaveBalance.update({
-          where: {
-            employeeId_leaveType: {
-              employeeId: existingLeaveRequest.employeeId,
-              leaveType: "CASUAL",
-            },
-          },
-          data: {
-            balance: leaveBalanceMap["CASUAL"] + paidLeave,
-          },
-        });
-
-        await prisma.leaveBalance.update({
-          where: {
-            employeeId_leaveType: {
-              employeeId: existingLeaveRequest.employeeId,
-              leaveType: "UNPAID",
-            },
-          },
-          data: {
-            balance: leaveBalanceMap["UNPAID"] - unpaidLeave,
-          },
-        });
-
-        //case for split into casual and unpaid
-      } else {
-        await prisma.leaveBalance.update({
-          where: {
-            employeeId_leaveType: {
-              employeeId: existingLeaveRequest.employeeId,
-              leaveType: "CASUAL",
-            },
-          },
-          data: {
-            balance: leaveBalanceMap["CASUAL"] + duration,
-          },
-        });
-      }
-    } else if (existingLeaveRequest.leaveType === "COMPENSATORY") {
-      await prisma.leaveBalance.update({
-        where: {
-          employeeId_leaveType: {
-            employeeId: existingLeaveRequest.employeeId,
-            leaveType: "COMPENSATORY",
-          },
-        },
-        data: {
-          balance: leaveBalanceMap["COMPENSATORY"] + duration,
-        },
+      const leaveBalances1 = await prisma.leaveBalance.findMany({
+        where: { employeeId: existingLeaveRequest.employeeId },
       });
-    } else {
-      await prisma.leaveBalance.update({
-        where: {
-          employeeId_leaveType: {
-            employeeId: existingLeaveRequest.employeeId,
-            leaveType: "UNPAID",
-          },
-        },
-        data: {
-          balance: leaveBalanceMap["UNPAID"] - duration,
-        },
+
+      const leaveBalanceMap1 = {};
+      leaveBalances1.forEach((balance) => {
+        leaveBalanceMap1[balance.leaveType] = balance.balance;
       });
-    }
 
-    const leaveBalances = await prisma.leaveBalance.findMany({
-      where: { employeeId: existingLeaveRequest.employeeId },
-    });
-  
-    const leaveBalanceMap = {};
-    leaveBalances.forEach((balance) => {
-      leaveBalanceMap[balance.leaveType] = balance.balance;
-    });
+      const newDuration = calculateWorkingDays(
+        startDateTemp,
+        endDateTemp,
+        [0, 6], // weekOffDays
+        holidayDates
+      );
 
-    const newDuration = calculateWorkingDays(
-      startDateTemp,
-      endDateTemp,
-      [0, 6], // weekOffDays
-      holidayDates
-    );
-
-    let paidLeaveIncrement = 0;
-    let unpaidLeaveIncrement = 0;
-
-    if (
-      existingLeaveRequest.leaveType === "CASUAL" ||
-      existingLeaveRequest.leaveType === "SICK" ||
-      existingLeaveRequest.leaveType === "COMPENSATORY"
-    ) {
-      const type = existingLeaveRequest.leaveType;
-      const remainingBalance = leaveBalanceMap[type] || 0;
+      let paidLeaveIncrement = 0;
+      let unpaidLeaveIncrement = 0;
 
       if (
-        existingLeaveRequest.leaveType === "COMPENSATORY" &&
-        remainingBalance <= 0
+        existingLeaveRequest.leaveType === "CASUAL" ||
+        existingLeaveRequest.leaveType === "SICK" ||
+        existingLeaveRequest.leaveType === "COMPENSATORY"
       ) {
-        throw new Error(
-          "Failed to process request as compensatory balance is 0"
-        );
-      }
+        const type = existingLeaveRequest.leaveType;
+        const remainingBalance = leaveBalanceMap1[type] || 0;
 
-      if (newDuration <= remainingBalance) {
-        paidLeaveIncrement = newDuration;
-        unpaidLeaveIncrement = 0;
-      } else {
-        paidLeaveIncrement = remainingBalance;
-        unpaidLeaveIncrement = newDuration - remainingBalance;
-      }
+        if (
+          existingLeaveRequest.leaveType === "COMPENSATORY" &&
+          remainingBalance <= 0
+        ) {
+          throw new Error(
+            "Failed to process request as compensatory balance is 0"
+          );
+        }
 
-      await prisma.leaveBalance.update({
-        where: {
-          employeeId_leaveType: {
-            employeeId: existingLeaveRequest.employeeId,
-            leaveType: type,
+        if (newDuration <= remainingBalance) {
+          paidLeaveIncrement = newDuration;
+          unpaidLeaveIncrement = 0;
+        } else {
+          paidLeaveIncrement = remainingBalance;
+          unpaidLeaveIncrement = newDuration - remainingBalance;
+        }
+
+        await prisma.leaveBalance.update({
+          where: {
+            employeeId_leaveType: {
+              employeeId: existingLeaveRequest.employeeId,
+              leaveType: type,
+            },
           },
-        },
-        data: {
-          balance: Math.max(remainingBalance - paidLeaveIncrement, 0),
-        },
-      });
+          data: {
+            balance: Math.max(remainingBalance - paidLeaveIncrement, 0),
+          },
+        });
 
-      if (unpaidLeaveIncrement > 0) {
-        // Increase UNPAID leave balance for excess days
-        const unpaidLeaveBalance = leaveBalanceMap["UNPAID"] || 0;
+        if (unpaidLeaveIncrement > 0) {
+          // Increase UNPAID leave balance for excess days
+          const unpaidLeaveBalance = leaveBalanceMap1["UNPAID"] || 0;
+
+          await prisma.leaveBalance.upsert({
+            where: {
+              employeeId_leaveType: {
+                employeeId: existingLeaveRequest.employeeId,
+                leaveType: "UNPAID",
+              },
+            },
+            update: {
+              balance: unpaidLeaveBalance + unpaidLeaveIncrement,
+            },
+            create: {
+              employeeId: existingLeaveRequest.employeeId,
+              leaveType: "UNPAID",
+              balance: unpaidLeaveIncrement, // starting with the increment as initial balance
+            },
+          });
+        }
+      } else if (existingLeaveRequest.leaveType === "UNPAID") {
+        unpaidLeaveIncrement = newDuration;
+
+        const unpaidLeaveBalance = leaveBalanceMap1["UNPAID"] || 0;
 
         await prisma.leaveBalance.upsert({
           where: {
@@ -768,85 +842,208 @@ exports.approveEditedRequest = async (
             balance: unpaidLeaveIncrement, // starting with the increment as initial balance
           },
         });
+      } else {
+        throw new Error(
+          "Failed to process request as leave type is not recognized"
+        );
       }
-    } else if (existingLeaveRequest.leaveType === "UNPAID") {
-      unpaidLeaveIncrement = newDuration;
 
-      const unpaidLeaveBalance = leaveBalanceMap["UNPAID"] || 0;
-
-      await prisma.leaveBalance.upsert({
-        where: {
-          employeeId_leaveType: {
-            employeeId: existingLeaveRequest.employeeId,
-            leaveType: "UNPAID",
-          },
-        },
-        update: {
-          balance: unpaidLeaveBalance + unpaidLeaveIncrement,
-        },
-        create: {
-          employeeId: updatedRequest.employeeId,
-          leaveType: "UNPAID",
-          balance: unpaidLeaveIncrement, // starting with the increment as initial balance
+      const updateLeaveRequest = await prisma.leaveRequest.update({
+        where: { id },
+        data: {
+          editStatus: null,
+          startDate: startDateTemp,
+          endDate: endDateTemp,
+          startDateTemp: null,
+          endDateTemp: null,
+          reasonTemp: null,
+          status: "EDITED",
+          decisionAt: new Date(),
         },
       });
-    } else {
-      throw new Error(
-        "Failed to process request as leave type is not recognized"
+      return updateLeaveRequest;
+    } else if (editStatus === "EDITED" && actionStatus === "REJECTED") {
+      const updateLeaveRequest = await prisma.leaveRequest.update({
+        where: { id },
+        data: {
+          editStatus: null,
+          startDateTemp: null,
+          endDateTemp: null,
+          reasonTemp: null,
+        },
+      });
+      return updateLeaveRequest;
+    } else if (editStatus === "CANCELLED" && actionStatus === "APPROVED") {
+      const duration = calculateWorkingDays(
+        existingLeaveRequest.startDate,
+        existingLeaveRequest.endDate,
+        [0, 6], // weekOffDays
+        holidayDates
       );
-    }
+      if (existingLeaveRequest.leaveType === "SICK") {
+        if (leaveBalanceMap["SICK"] + duration > 5) {
+          //case for split into casual and unpaid
+          const unpaidLeave = leaveBalanceMap["SICK"] + duration - 5;
+          const paidLeave = Math.abs(duration - unpaidLeave);
 
-    const updateLeaveRequest = await prisma.leaveRequest.update({
-      where: { id },
-      data: {
-        editStatus:null,
-        startDate: startDateTemp,
-        endDate: endDateTemp,
-        startDateTemp:"",
-        endDateTemp:"",
-        reasonTemp:"",
-      },
-    });
-    return updateLeaveRequest;
-  }
-  else if(editStatus === "EDITED" && actionStatus === "REJECTED"){
-    const updateLeaveRequest = await prisma.leaveRequest.update({
-      where: { id },
-      data: {
-        editStatus:null,
-        startDateTemp:"",
-        endDateTemp:"",
-        reasonTemp:"",
-      },
-    });
-    return updateLeaveRequest;
-  }
-  else if(editStatus==="CANCELLED"&&actionStatus==="APPROVED"){
+          await prisma.leaveBalance.update({
+            where: {
+              employeeId_leaveType: {
+                employeeId: existingLeaveRequest.employeeId,
+                leaveType: "SICK",
+              },
+            },
+            data: {
+              balance: leaveBalanceMap["SICK"] + paidLeave,
+            },
+          });
 
-    const duration = calculateWorkingDays(
-      existingLeaveRequest.startDate,
-      existingLeaveRequest.endDate,
-      [0, 6], // weekOffDays
-      holidayDates
-    );
-    if (existingLeaveRequest.leaveType === "SICK") {
-      if (leaveBalanceMap["SICK"] + duration > 5) {
-        //case for split into casual and unpaid
-        const unpaidLeave = leaveBalanceMap["SICK"] + duration - 5;
-        const paidLeave = Math.abs(duration - unpaidLeave);
+          await prisma.leaveBalance.update({
+            where: {
+              employeeId_leaveType: {
+                employeeId: existingLeaveRequest.employeeId,
+                leaveType: "UNPAID",
+              },
+            },
+            data: {
+              balance: leaveBalanceMap["UNPAID"] - unpaidLeave,
+            },
+          });
 
+          const updateLeaveRequest = await prisma.leaveRequest.update({
+            where: { id },
+            data: {
+              editStatus: null,
+              startDateTemp: null,
+              endDateTemp: null,
+              reasonTemp: null,
+              status: "CANCELLED",
+
+              decisionAt: new Date(),
+            },
+          });
+          return updateLeaveRequest;
+        } else {
+          console.log("CANCELLED REQUEST NORMAL");
+          await prisma.leaveBalance.update({
+            where: {
+              employeeId_leaveType: {
+                employeeId: existingLeaveRequest.employeeId,
+                leaveType: "SICK",
+              },
+            },
+            data: {
+              balance: leaveBalanceMap["SICK"] + duration,
+            },
+          });
+
+          const updateLeaveRequest = await prisma.leaveRequest.update({
+            where: { id },
+            data: {
+              editStatus: null,
+              startDateTemp: null,
+              endDateTemp: null,
+              reasonTemp: null,
+              status: "CANCELLED",
+              decisionAt: new Date(),
+            },
+          });
+          return updateLeaveRequest;
+        }
+      } else if (existingLeaveRequest.leaveType === "CASUAL") {
+        if (leaveBalanceMap["CASUAL"] + duration > 15) {
+          const unpaidLeave = leaveBalanceMap["CASUAL"] + duration - 15;
+          const paidLeave = Math.abs(duration - unpaidLeave);
+
+          await prisma.leaveBalance.update({
+            where: {
+              employeeId_leaveType: {
+                employeeId: existingLeaveRequest.employeeId,
+                leaveType: "CASUAL",
+              },
+            },
+            data: {
+              balance: leaveBalanceMap["CASUAL"] + paidLeave,
+            },
+          });
+
+          await prisma.leaveBalance.update({
+            where: {
+              employeeId_leaveType: {
+                employeeId: existingLeaveRequest.employeeId,
+                leaveType: "UNPAID",
+              },
+            },
+            data: {
+              balance: leaveBalanceMap["UNPAID"] - unpaidLeave,
+            },
+          });
+
+          const updateLeaveRequest = await prisma.leaveRequest.update({
+            where: { id },
+            data: {
+              editStatus: null,
+              startDateTemp: null,
+              endDateTemp: null,
+              reasonTemp: null,
+              status: "CANCELLED",
+              decisionAt: new Date(),
+            },
+          });
+          return updateLeaveRequest;
+
+          //case for split into casual and unpaid
+        } else {
+          await prisma.leaveBalance.update({
+            where: {
+              employeeId_leaveType: {
+                employeeId: existingLeaveRequest.employeeId,
+                leaveType: "CASUAL",
+              },
+            },
+            data: {
+              balance: leaveBalanceMap["CASUAL"] + duration,
+            },
+          });
+
+          const updateLeaveRequest = await prisma.leaveRequest.update({
+            where: { id },
+            data: {
+              editStatus: null,
+              startDateTemp: null,
+              endDateTemp: null,
+              reasonTemp: null,
+              status: "CANCELLED",
+              decisionAt: new Date(),
+            },
+          });
+          return updateLeaveRequest;
+        }
+      } else if (existingLeaveRequest.leaveType === "COMPENSATORY") {
         await prisma.leaveBalance.update({
           where: {
             employeeId_leaveType: {
               employeeId: existingLeaveRequest.employeeId,
-              leaveType: "SICK",
+              leaveType: "COMPENSATORY",
             },
           },
           data: {
-            balance: leaveBalanceMap["SICK"] + paidLeave,
+            balance: leaveBalanceMap["COMPENSATORY"] + duration,
           },
         });
-
+        const updateLeaveRequest = await prisma.leaveRequest.update({
+          where: { id },
+          data: {
+            editStatus: null,
+            startDateTemp: null,
+            endDateTemp: null,
+            reasonTemp: null,
+            status: "CANCELLED",
+            decisionAt: new Date(),
+          },
+        });
+        return updateLeaveRequest;
+      } else {
         await prisma.leaveBalance.update({
           where: {
             employeeId_leaveType: {
@@ -855,10 +1052,40 @@ exports.approveEditedRequest = async (
             },
           },
           data: {
-            balance: leaveBalanceMap["UNPAID"] - unpaidLeave,
+            balance: leaveBalanceMap["UNPAID"] - duration,
           },
         });
-      } else {
+
+        const updateLeaveRequest = await prisma.leaveRequest.update({
+          where: { id },
+          data: {
+            editStatus: null,
+            startDateTemp: null,
+            endDateTemp: null,
+            reasonTemp: null,
+            status: "CANCELLED",
+            decisionAt: new Date(),
+          },
+        });
+        return updateLeaveRequest;
+      }
+    } else if (editStatus === "CANCELLED" && actionStatus === "REJECTED") {
+      const updateLeaveRequest = await prisma.leaveRequest.update({
+        where: { id },
+        data: {
+          editStatus: null,
+          startDateTemp: null,
+          endDateTemp: null,
+          reasonTemp: null,
+        },
+      });
+      return updateLeaveRequest;
+    }
+  } else {
+    if (editStatus === "CANCELLED" && actionStatus === "APPROVED") {
+      const duration = 0.5;
+      if (existingLeaveRequest.leaveType === "SICK") {
+        console.log("CANCELLED REQUEST NORMAL");
         await prisma.leaveBalance.update({
           where: {
             employeeId_leaveType: {
@@ -870,38 +1097,20 @@ exports.approveEditedRequest = async (
             balance: leaveBalanceMap["SICK"] + duration,
           },
         });
-      }
-    } else if (existingLeaveRequest.leaveType === "CASUAL") {
-      if (leaveBalanceMap["CASUAL"] + duration > 15) {
-        const unpaidLeave = leaveBalanceMap["CASUAL"] + duration - 15;
-        const paidLeave = Math.abs(duration - unpaidLeave);
 
-        await prisma.leaveBalance.update({
-          where: {
-            employeeId_leaveType: {
-              employeeId: existingLeaveRequest.employeeId,
-              leaveType: "CASUAL",
-            },
-          },
+        const updateLeaveRequest = await prisma.leaveRequest.update({
+          where: { id },
           data: {
-            balance: leaveBalanceMap["CASUAL"] + paidLeave,
+            editStatus: null,
+            startDateTemp: null,
+            endDateTemp: null,
+            reasonTemp: null,
+            status: "CANCELLED",
+            decisionAt: new Date(),
           },
         });
-
-        await prisma.leaveBalance.update({
-          where: {
-            employeeId_leaveType: {
-              employeeId: existingLeaveRequest.employeeId,
-              leaveType: "UNPAID",
-            },
-          },
-          data: {
-            balance: leaveBalanceMap["UNPAID"] - unpaidLeave,
-          },
-        });
-
-        //case for split into casual and unpaid
-      } else {
+        return updateLeaveRequest;
+      } else if (existingLeaveRequest.leaveType === "CASUAL") {
         await prisma.leaveBalance.update({
           where: {
             employeeId_leaveType: {
@@ -913,48 +1122,80 @@ exports.approveEditedRequest = async (
             balance: leaveBalanceMap["CASUAL"] + duration,
           },
         });
+
+        const updateLeaveRequest = await prisma.leaveRequest.update({
+          where: { id },
+          data: {
+            editStatus: null,
+            startDateTemp: null,
+            endDateTemp: null,
+            reasonTemp: null,
+            status: "CANCELLED",
+            decisionAt: new Date(),
+          },
+        });
+        return updateLeaveRequest;
+      } else if (existingLeaveRequest.leaveType === "COMPENSATORY") {
+        await prisma.leaveBalance.update({
+          where: {
+            employeeId_leaveType: {
+              employeeId: existingLeaveRequest.employeeId,
+              leaveType: "COMPENSATORY",
+            },
+          },
+          data: {
+            balance: leaveBalanceMap["COMPENSATORY"] + duration,
+          },
+        });
+        const updateLeaveRequest = await prisma.leaveRequest.update({
+          where: { id },
+          data: {
+            editStatus: null,
+            startDateTemp: null,
+            endDateTemp: null,
+            reasonTemp: null,
+            status: "CANCELLED",
+            decisionAt: new Date(),
+          },
+        });
+        return updateLeaveRequest;
+      } else {
+        await prisma.leaveBalance.update({
+          where: {
+            employeeId_leaveType: {
+              employeeId: existingLeaveRequest.employeeId,
+              leaveType: "UNPAID",
+            },
+          },
+          data: {
+            balance: leaveBalanceMap["UNPAID"] - duration,
+          },
+        });
+
+        const updateLeaveRequest = await prisma.leaveRequest.update({
+          where: { id },
+          data: {
+            editStatus: null,
+            startDateTemp: null,
+            endDateTemp: null,
+            reasonTemp: null,
+            status: "CANCELLED",
+            decisionAt: new Date(),
+          },
+        });
+        return updateLeaveRequest;
       }
-    } else if (existingLeaveRequest.leaveType === "COMPENSATORY") {
-      await prisma.leaveBalance.update({
-        where: {
-          employeeId_leaveType: {
-            employeeId: existingLeaveRequest.employeeId,
-            leaveType: "COMPENSATORY",
-          },
-        },
-        data: {
-          balance: leaveBalanceMap["COMPENSATORY"] + duration,
-        },
-      });
     } else {
-      await prisma.leaveBalance.update({
-        where: {
-          employeeId_leaveType: {
-            employeeId: existingLeaveRequest.employeeId,
-            leaveType: "UNPAID",
-          },
-        },
+      const updateLeaveRequest = await prisma.leaveRequest.update({
+        where: { id },
         data: {
-          balance: leaveBalanceMap["UNPAID"] - duration,
+          editStatus: null,
+          startDateTemp: null,
+          endDateTemp: null,
+          reasonTemp: null,
         },
       });
+      return updateLeaveRequest;
     }
-
-
-
-
-
-  }
-  else if(editStatus==="CANCELLED"&&actionStatus==="REJECTED"){
-    const updateLeaveRequest = await prisma.leaveRequest.update({
-      where: { id },
-      data: {
-        editStatus:null,
-        startDateTemp:"",
-        endDateTemp:"",
-        reasonTemp:"",
-      },
-    });
-    return updateLeaveRequest;
   }
 };

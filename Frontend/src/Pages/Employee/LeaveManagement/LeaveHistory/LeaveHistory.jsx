@@ -376,7 +376,7 @@ const LeaveHistory = () => {
             setLoading(true);
             // Calculate new duration based on start and end dates
             const formattedStartDate = new Date(`${editFormData.startDate}T00:00:00Z`).toISOString();
-  const formattedEndDate = new Date(`${editFormData.endDate}T00:00:00Z`).toISOString();
+            const formattedEndDate = new Date(`${editFormData.endDate}T00:00:00Z`).toISOString();
 
             const diffTime = Math.abs(endDate - startDate);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Add 1 to include both start and end dates
@@ -428,16 +428,23 @@ const LeaveHistory = () => {
     };
     
     // Handle actual leave cancellation
-    const handleConfirmCancelLeave = async () => {
+    const handleConfirmCancelLeave = async (leaveToCancel) => {
+        console.log(leaveToCancel)
+        const updateData = {
+            leaveId: leaveToCancel.id,
+            editStatus:"CANCELLED",  
+            reasonTemp: editFormData.comment
+        };
         try {
             setLoading(true);
             
             // API call to cancel leave request
-            const response = await fetch(`${API_BASE_URL_LM}/api/leaves/cancel/${leaveToCancel.id}`, {
-                method: 'PUT',
+            const response = await fetch(`${API_BASE_URL_LM}/api/leave-requests/cancel/${leaveToCancel.id}`, {
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                }
+                },
+                body:JSON.stringify(updateData)
             });
             
             if (!response.ok) {
@@ -480,6 +487,7 @@ const LeaveHistory = () => {
             fetchEmployee();
         }
     }, [employeeId]);
+    console.log(leaveHistory)
     
     return (
         <div className="leave-history-container">
@@ -622,7 +630,8 @@ const LeaveHistory = () => {
                                         </td>
                                         <td>
                                             {canModifyLeave(record) && (
-                                                <div className="leave-actions">
+                                                record.leaveDuration==="FULL_DAY"?
+                                               ( <div className="leave-actions">
                                                     <button
                                                         className="leave-edit-btn"
                                                         onClick={() => handleEditLeave(record)}
@@ -637,7 +646,13 @@ const LeaveHistory = () => {
                                                     >
                                                         <X size={18} />
                                                     </button>
-                                                </div>
+                                                </div>):(<button
+                                                        className="leave-cancel-btn"
+                                                        onClick={() => handleCancelLeaveButton(record)}
+                                                        title="Cancel leave request"
+                                                    >
+                                                        <X size={18} />
+                                                    </button>)
                                             )}
                                         </td>
                                     </tr>
@@ -714,35 +729,48 @@ const LeaveHistory = () => {
             {isCancelModalOpen && (
                 <div className="modal-overlay">
                     <div className="leave-cancel-modal">
-                        <div className="modal-header">
-                            <h3>Cancel Leave Request</h3>
-                            <button className="close-modal" onClick={() => setIsCancelModalOpen(false)}>
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <div className="modal-content">
-                            <p>Are you sure you want to cancel this leave request?</p>
-                            <p>
-                                <strong>Leave Type:</strong> {getLeaveTypeDisplay(leaveToCancel?.leaveType)}
-                                <br />
-                                <strong>Duration:</strong> {leaveToCancel?.duration} {leaveToCancel?.duration === 1 ? "day" : "days"}
-                            </p>
-                        </div>
-                        <div className="modal-actions">
-                            <button type="button" className="cancel-btn" onClick={() => setIsCancelModalOpen(false)}>
-                                No, Keep It
-                            </button>
-                            <button 
-                                type="button" 
-                                className="confirm-cancel-btn" 
-                                onClick={handleConfirmCancelLeave}
-                            >
-                                Yes, Cancel Leave
-                            </button>
-                        </div>
+                    <div className="modal-header">
+                <h3>Cancel Leave Request</h3>
+                <button className="close-modal" onClick={() => setIsCancelModalOpen(false)}>
+                    <X size={20} />
+                </button>
+            </div>
+            <form onSubmit={(e) => {
+                e.preventDefault();
+                handleConfirmCancelLeave(leaveToCancel);
+            }}>
+                <div className="modal-content">
+                    <p>Are you sure you want to cancel this leave request?</p>
+                    <p>
+                        <strong>Leave Type:</strong> {getLeaveTypeDisplay(leaveToCancel?.leaveType)}
+                        <br />
+                        <strong>Duration:</strong> {calculateDays(leaveToCancel.startDate, leaveToCancel.endDate)} {leaveToCancel.duration === 1 ? "day" : "days"}
+                    </p>
+                    <div className="form-group">
+                        <label htmlFor="comment">Comment</label>
+                        <textarea
+                            id="comment"
+                            name="comment"
+                            value={editFormData.comment}
+                            onChange={handleEditFormChange}
+                            placeholder="Reason for leave cancellation"
+                            rows={3}
+                        />
                     </div>
                 </div>
-            )}
+                <div className="modal-actions">
+                    <button type="button" className="cancel-btn" onClick={() => setIsCancelModalOpen(false)}>
+                        No, Keep It
+                    </button>
+                    <button type="submit" className="confirm-cancel-btn">
+                        Yes, Cancel Leave
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+)}
+
         </div>
     );
 };

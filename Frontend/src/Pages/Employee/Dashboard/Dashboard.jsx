@@ -31,7 +31,7 @@ export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [checkInTime, setCheckInTime] = useState(null);
-  const [workTimer, setWorkTimer] = useState("0:00:00");
+  const [workTimer, setWorkTimer] = useState("00:00:00");
   const [notifications, setNotifications] = useState([]);
   const [formData, setFormData] = useState(null);
   const [leaveBalance, setLeaveBalance] = useState([]);
@@ -65,10 +65,9 @@ export default function Dashboard() {
 
 
   const isCheckedInToday = () => {
-    const weekEnd = new Date().getDay(); // --------------------- CHANGED HERE -------------------------
+    const weekEnd = new Date().getDay();
     if (weekEnd === 0 || weekEnd === 6) {
-      console.log("Today is a weekend. Skipping attendance check.");
-      return;
+      return true; // If it's Sunday or Saturday, return true
     }
     if (!checkInTime) return false;
     const checkInDate = new Date(checkInTime);
@@ -79,7 +78,7 @@ export default function Dashboard() {
       checkInDate.getDate() === today.getDate()
     );
   };
-
+  
   // Importing holidays and employee details here
   useEffect(() => {
     const fetchHolidays = async () => {
@@ -95,7 +94,7 @@ export default function Dashboard() {
       } catch (error) {
         console.error("Internal server error:", error);
       }
-    };
+    }
 
     const fetchEmployee = async () => {
       try {
@@ -112,32 +111,31 @@ export default function Dashboard() {
       } catch (error) {
         console.error("Internal server error:", error);
       }
-    };
+    }
 
     fetchHolidays();
     fetchEmployee();
   }, []);
-
   // This optional effect will ensure that once a new day starts, the app resets and enables the Check In button again.
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const today = new Date();
-      // If checkInTime exists, and it's not today, reset it.
-      if (checkInTime) {
-        const checkInDate = new Date(checkInTime);
-        if (
-          checkInDate.getFullYear() !== today.getFullYear() ||
-          checkInDate.getMonth() !== today.getMonth() ||
-          checkInDate.getDate() !== today.getDate()
-        ) {
-          setCheckInTime(null);
-          setWorkTimer("00:00:00"); // -------------- CHANGED HERE ----------------
-        }
-      }
-    }, 60000); // check every minute
+	useEffect(() => {
+		const timer = setInterval(() => {
+			const today = new Date();
+			// If checkInTime exists, and it's not today, reset it.
+			if (checkInTime) {
+				const checkInDate = new Date(checkInTime);
+				if (
+					checkInDate.getFullYear() !== today.getFullYear() ||
+					checkInDate.getMonth() !== today.getMonth() ||
+					checkInDate.getDate() !== today.getDate()
+				) {
+					setCheckInTime(null);
+					setWorkTimer("00:00:00"); // -------------- CHANGED HERE ----------------
+				}
+			}
+		}, 60000); // check every minute
 
-    return () => clearInterval(timer);
-  }, [checkInTime]);
+		return () => clearInterval(timer);
+	}, [checkInTime]);
 
   // This useEffect will hide the stats after 3 seconds whenever showTimeStats becomes true
   useEffect(() => {
@@ -173,15 +171,14 @@ export default function Dashboard() {
 
     const absentTimer = setInterval(async () => {
       const now = new Date();
-      const cutoffHour = 15;
-      const cutoffMinute = 12;
+      const cutoffHour = 10;
+      const cutoffMinute = 35;
       if (
         now.getHours() > cutoffHour ||
         (now.getHours() === cutoffHour && now.getMinutes() >= cutoffMinute)
       ) {
         if (!isCheckedIn) {
           try {
-            console.log(employeeId);
             const response = await fetch(
               `${VITE_API_BASE_URL_AT}/api/attendance/manual`,
               {
@@ -189,7 +186,7 @@ export default function Dashboard() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   employeeId: employeeId,
-                  date: now.toLocaleString(),
+                  date: now,
                   punchInTime: null,
                   punchOutTime: null,
                   attendanceStatus: "Absent",
@@ -479,7 +476,7 @@ export default function Dashboard() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               employeeId: employeeId,
-              date: now.toLocaleString(),
+              date: now,
               punchInTime: now.toLocaleString(),
               attendanceStatus: "Present",
               punchInMethod: "Dashboard",
@@ -527,7 +524,7 @@ export default function Dashboard() {
         console.log("Get Monthly Attendance Data", getMonthlyAttendenceData);
 
         // Ensure absentDays is a number (defaulting to 0 if undefined)				// ---------------- CHANGED HERE -----------------
-        const currentAbsent = Number(getMonthlyAttendenceData.absentDays) || 0;
+        const currentAbsent = Number(getMonthlyAttendenceData?.absentDays) || 0;
         const newAbsent = Math.max(currentAbsent - 1, 0);
         console.log("Current Absent:", currentAbsent, "New Absent:", newAbsent);
 
@@ -539,7 +536,7 @@ export default function Dashboard() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               absentDays: newAbsent,
-            }), // Send an empty object if no body is required
+            }),
           }
         );
 
@@ -899,7 +896,7 @@ export default function Dashboard() {
           <p className="quick-stat-value">
             {leaveBalance?.casualBalance +
               leaveBalance?.sickBalance +
-              leaveBalance?.totalCompensatoryTaken}
+              leaveBalance?.compensatoryBalance}
           </p>
           <p className="quick-stat-subtitle">Annual Leave</p>
         </div>

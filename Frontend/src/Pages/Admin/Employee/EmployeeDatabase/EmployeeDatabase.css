@@ -674,3 +674,28 @@ span.required {
 .save-btn:hover {
   background-color: #2980b9;
 }
+
+
+
+
+
+
+
+
+.error-input {
+  border: 1px solid #ff3333;
+}
+
+.error-message {
+  color: #ff3333;
+  font-size: 12px;
+  margin-top: 4px;
+}
+.cancel-btn {
+  background-color: #f44336 !important;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}

@@ -5,8 +5,9 @@ const { PrismaClient } = require('@prisma/client');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const monthlyAttendanceRoutes = require('./routes/monthlyAttendanceRoutes');
+const attendanceRequestRoutes=require('./routes/attendanceRequestRoutes')
 const overtimeRoutes = require('./routes/overtimeRoutes'); //-------------CHANGED HERE ----------//
-
+require("./markAbsent");
 dotenv.config(); // Load environment variables
 
 const app = express();
@@ -24,6 +25,7 @@ app.use('/at/api/attendance', attendanceRoutes);
 app.use('/at/api/employees', employeeRoutes);
 app.use('/at/api/monthlyAttendance', monthlyAttendanceRoutes);
 app.use('/at/api/overtime', overtimeRoutes);   //----CHANGED HERE -----------------//
+app.use('/at/api/attendanceRequest', attendanceRequestRoutes);
 
 // Handle Prisma Disconnection on Process Exit
 process.on('SIGINT', async () => {

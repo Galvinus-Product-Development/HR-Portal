@@ -3,14 +3,16 @@ import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext(undefined);
 
-// const API_BASE_URL = process.env.REACT_APP_API_URL 
+// const API_BASE_URL = process.env.REACT_APP_API_URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-console.log("asdfsdfasfafasdf",API_BASE_URL);
+console.log("asdfsdfasfafasdf", API_BASE_URL);
 
 const fetchAndStoreProfileImage = async (userId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/users/profile-picture/${userId}`);
+    const response = await fetch(
+      `${API_BASE_URL}/api/users/profile-picture/${userId}`
+    );
     const data = await response.json();
 
     if (data.profilePicture) {
@@ -30,7 +32,7 @@ export function AuthProvider({ children }) {
     try {
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        setUser(storedUser);
       }
     } catch (error) {
       console.error("Error parsing user from localStorage:", error);
@@ -45,66 +47,13 @@ export function AuthProvider({ children }) {
     return deviceId;
   };
 
-  // const login = async (email, password) => {
-
-  //   console.log("this is api base url",API_BASE_URL);
-  //   console.log("........................................ojoj............... NEWNEWNEW");
-  //   setIsLoading(true);
-
-  //   const deviceId = localStorage.getItem("deviceId") || generateDeviceId();
-  //   const userAgent = navigator.userAgent;
-  //   const headers = {
-  //     "Content-Type": "application/json",
-  //     Authorization: `Bearer ${localStorage.getItem("accessToken") || ""}`,
-  //     "x-refresh-token": localStorage.getItem("refreshToken") || "",
-  //     "x-device-id": deviceId,
-  //     "user-agent": userAgent,
-  //   };
-  //   try {
-  //     const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
-  //       method: "POST",
-  //       headers,
-  //       body: JSON.stringify({ email, password, deviceId, userAgent }),
-  //     });
-
-  //     if (!response.ok) throw new Error("Invalid credentials");
-
-  //     const data = await response.json();
-  //     setUser(data.roleName);
-  //     console.log(data);
-      
-  //     localStorage.setItem("accessToken", data.accessToken);
-  //     localStorage.setItem("refreshToken", data.refreshToken);
-  //     localStorage.setItem("user", data.roleName);
-  //     localStorage.setItem("userId", data.userId);
-  //     localStorage.setItem("signedUserId", data.signedUserId);
-  //     localStorage.setItem("name", data.name);
-  //     localStorage.setItem("email", data.email);
-      
-  //     // navigate(data.roleName === "EMPLOYEE" ? "/employee" : "/admin", { replace: true });
-
-  //     if (data.roleName === "EMPLOYEE") {
-  //       navigate("/employee", { replace: true });
-  //     } else {
-  //       navigate("/admin", { replace: true });
-  //     }
-
-  //   } catch (error) {
-  //     console.log(error);
-  //     console.error("Login error:", error.message);
-  //     throw error;
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-
-
   const login = async (email, password) => {
     console.log("this is api base url", API_BASE_URL);
-    console.log("........................................ojoj............... NEWNEWNEW");
+    console.log(
+      "........................................ojoj............... NEWNEWNEW"
+    );
     setIsLoading(true);
-  
+
     const deviceId = localStorage.getItem("deviceId") || generateDeviceId();
     const userAgent = navigator.userAgent;
     const headers = {
@@ -114,20 +63,20 @@ export function AuthProvider({ children }) {
       "x-device-id": deviceId,
       "user-agent": userAgent,
     };
-  
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
         method: "POST",
         headers,
         body: JSON.stringify({ email, password, deviceId, userAgent }),
       });
-  
+
       if (!response.ok) throw new Error("Invalid credentials");
-  
+
       const data = await response.json();
       setUser(data.roleName);
       console.log(data);
-  
+
       // Store authentication data
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
@@ -136,17 +85,17 @@ export function AuthProvider({ children }) {
       localStorage.setItem("signedUserId", data.signedUserId);
       localStorage.setItem("name", data.name);
       localStorage.setItem("email", data.email);
-  
+
       // Fetch and store profile picture
       await fetchAndStoreProfileImage(data.userId);
-  
+
       // Redirect based on role
       if (data.roleName === "EMPLOYEE") {
         navigate("/employee", { replace: true });
       } else {
         console.log("1");
         navigate("/admin", { replace: true });
-        console.log("2")
+        console.log("2");
       }
     } catch (error) {
       console.log(error);
@@ -154,21 +103,20 @@ export function AuthProvider({ children }) {
       throw error;
     } finally {
       setIsLoading(false);
-      console.log("Till Here!!!!!!")
+      console.log("Till Here!!!!!!");
     }
   };
-  
-
-
-
 
   const resetPassword = async (email) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/password-reset/request`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/auth/password-reset/request`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to send password reset email");
 
@@ -223,7 +171,9 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, resetPassword, isLoading, setUser }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, resetPassword, isLoading, setUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

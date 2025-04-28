@@ -34,6 +34,7 @@ const Sidebar = () => {
         { name: "Daily Attendance ", path: "/admin/attendance/daily" },
         { name: "Attendance Dashboard", path: "/admin/attendance/dashboard" },
         { name: "Overtime", path: "/admin/attendance/overtime" },
+        { name: "Attendance Request", path: "/admin/attendance/request" },
       ],
     },
     { name: "Employee Database", icon: Users, path: "/admin/employee" },
@@ -42,7 +43,7 @@ const Sidebar = () => {
       icon: Calendar,
       path: "/admin/leave-management",
       subMenu: [
-        { name: "Leave Requests", path: "/admin/leave-management/leave-requests" },
+        { name: "Pending Leave Requests", path: "/admin/leave-management/leave-requests" },
         { name: "Leave History", path: "/admin/leave-management/leave-history" },
         { name: "Leave Policy", path: "/admin/leave-management/leave-policy" },
       ],

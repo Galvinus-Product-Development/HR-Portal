@@ -54,16 +54,6 @@ const AttendanceModal = ({ employee, onClose, onSubmit }) => {
         onClose();
     };
 
-    // const handleOnLeave = () => {
-    //     onSubmit({
-    //         employeeId: employee.id,
-    //         status: "On Leave",
-    //         date: today,
-    //     });
-
-    //     onClose();
-    // };
-
     return (
         <div className="attendance-modal-backdrop">
             <div className="attendance-modal">
@@ -116,13 +106,6 @@ const AttendanceModal = ({ employee, onClose, onSubmit }) => {
                             <button type="submit" className="submit-button">
                                 Submit
                             </button>
-                            {/* <button
-                                type="button"
-                                className="on-leave-button"
-                                onClick={handleOnLeave}
-                            >
-                                On Leave
-                            </button> */}
                         </div>
                     </form>
                 </div>

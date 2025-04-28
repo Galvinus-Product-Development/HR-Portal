@@ -62,12 +62,14 @@ const EmployeeDetails = () => {
           }
         );
         if (!response.ok) {
+          console.log("I came here...............",response)
           throw new Error("Employee not found");
         }
         const data = await response.json();
         console.log("This is the real data:-", data);
         setEmployee(data);
       } catch (err) {
+        console.log(err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -131,8 +133,8 @@ const EmployeeDetails = () => {
         setLoading(false);
       }
     };
-
     fetchUnapprovedEmployeeData();
+    
     fetchEmployeeData();
 
     // Add event listener for clicks outside modal
@@ -162,9 +164,9 @@ const EmployeeDetails = () => {
     return <div>{error}</div>;
   }
 
-  if (!employee) {
-    return <div>Employee not found</div>;
-  }
+  // if (!employee) {
+  //   return <div>Employee not found!!!!!!</div>;
+  // }
 
   const fetchEmployeeDataa = async () => {
     try {
@@ -297,18 +299,18 @@ const EmployeeDetails = () => {
       <div className="overview-card">
         <div className="overview-content">
           <img
-            src={employee.avatar}
-            alt={employee.personalDetails?.name}
+            src={employee?.avatar}
+            alt={employee?.personalDetails?.name}
             className="employee-avatar"
           />
           <div className="employee-info">
             <div className="employee-header">
               <div>
                 <h1 className="employee-name">
-                  {employee.personalDetails?.name}
+                  {employee?.personalDetails?.name}
                 </h1>
                 <p className="employee-job-title">
-                  {employee.employmentDetails?.jobTitle}
+                  {employee?.employmentDetails?.jobTitle}
                 </p>
               </div>
               <span
@@ -334,14 +336,14 @@ const EmployeeDetails = () => {
           </div>
           <div>
             <p className="detail-label">Gender</p>
-            <p className="detail-value">{employee.personalDetails?.gender}</p>
+            <p className="detail-value">{employee?.personalDetails?.gender}</p>
           </div>
           <div>
             <p className="detail-label">Date of Birth</p>
             <p className="detail-value">
-              {employee.personalDetails?.dateOfBirth
+              {employee?.personalDetails?.dateOfBirth
                 ? new Intl.DateTimeFormat("en-GB").format(
-                    new Date(employee.personalDetails.dateOfBirth)
+                    new Date(employee?.personalDetails.dateOfBirth)
                   )
                 : "N/A"}
             </p>
@@ -349,19 +351,19 @@ const EmployeeDetails = () => {
           <div>
             <p className="detail-label">Blood Group</p>
             <p className="detail-value">
-              {employee.personalDetails?.bloodGroup}
+              {employee?.personalDetails?.bloodGroup}
             </p>
           </div>
           <div>
             <p className="detail-label">Personal Email</p>
             <p className="detail-value">
-              {employee.personalDetails?.personalEmail}
+              {employee?.personalDetails?.personalEmail}
             </p>
           </div>
           <div>
             <p className="detail-label">Phone Number</p>
             <p className="detail-value">
-              {employee.personalDetails?.phoneNumber}
+              {employee?.personalDetails?.phoneNumber}
             </p>
           </div>
           <div>
@@ -373,7 +375,7 @@ const EmployeeDetails = () => {
           <div>
             <p className="detail-label">Marital Status</p>
             <p className="detail-value">
-              {employee.personalDetails?.maritalStatus}
+              {employee?.personalDetails?.maritalStatus}
             </p>
           </div>
           <div>
@@ -405,31 +407,31 @@ const EmployeeDetails = () => {
                 <div className="address-field">
                   <span className="field-label">Street Details:</span>
                   <span className="field-value">
-                    {employee.personalDetails?.currentAddress.street || "N/A"}
+                    {employee?.personalDetails?.currentAddress.street || "N/A"}
                   </span>
                 </div>
                 <div className="address-field">
                   <span className="field-label">City:</span>
                   <span className="field-value">
-                    {employee.personalDetails?.currentAddress.city || "N/A"}
+                    {employee?.personalDetails?.currentAddress.city || "N/A"}
                   </span>
                 </div>
                 <div className="address-field">
                   <span className="field-label">State:</span>
                   <span className="field-value">
-                    {employee.personalDetails?.currentAddress.state || "N/A"}
+                    {employee?.personalDetails?.currentAddress.state || "N/A"}
                   </span>
                 </div>
                 <div className="address-field">
                   <span className="field-label">Country:</span>
                   <span className="field-value">
-                    {employee.personalDetails?.currentAddress.country || "N/A"}
+                    {employee?.personalDetails?.currentAddress.country || "N/A"}
                   </span>
                 </div>
                 <div className="address-field">
                   <span className="field-label">Zip:</span>
                   <span className="field-value">
-                    {employee.personalDetails?.currentAddress.zipCode || "N/A"}
+                    {employee?.personalDetails?.currentAddress.zipCode || "N/A"}
                   </span>
                 </div>
               </div>
@@ -445,32 +447,32 @@ const EmployeeDetails = () => {
                 <div className="address-field">
                   <span className="field-label">Street Details:</span>
                   <span className="field-value">
-                    {employee.personalDetails?.permanentAddress.street || "N/A"}
+                    {employee?.personalDetails?.permanentAddress.street || "N/A"}
                   </span>
                 </div>
                 <div className="address-field">
                   <span className="field-label">City:</span>
                   <span className="field-value">
-                    {employee.personalDetails?.permanentAddress.city || "N/A"}
+                    {employee?.personalDetails?.permanentAddress.city || "N/A"}
                   </span>
                 </div>
                 <div className="address-field">
                   <span className="field-label">State:</span>
                   <span className="field-value">
-                    {employee.personalDetails?.permanentAddress.state || "N/A"}
+                    {employee?.personalDetails?.permanentAddress.state || "N/A"}
                   </span>
                 </div>
                 <div className="address-field">
                   <span className="field-label">Country:</span>
                   <span className="field-value">
-                    {employee.personalDetails?.permanentAddress.country ||
+                    {employee?.personalDetails?.permanentAddress.country ||
                       "N/A"}
                   </span>
                 </div>
                 <div className="address-field">
                   <span className="field-label">Zip:</span>
                   <span className="field-value">
-                    {employee.personalDetails?.permanentAddress.zipCode ||
+                    {employee?.personalDetails?.permanentAddress.zipCode ||
                       "N/A"}
                   </span>
                 </div>
@@ -490,7 +492,7 @@ const EmployeeDetails = () => {
           <div>
             <p className="detail-label">Employee ID</p>
             <p className="detail-value">
-              {employee.employmentDetails?.employeeId}
+              {employee?.employmentDetails?.companyEmployeeId}
             </p>
           </div>
 
@@ -504,43 +506,43 @@ const EmployeeDetails = () => {
           <div>
             <p className="detail-label">Job Title</p>
             <p className="detail-value">
-              {employee.employmentDetails?.jobTitle}
+              {employee?.employmentDetails?.jobTitle}
             </p>
           </div>
           <div>
             <p className="detail-label">Department</p>
             <p className="detail-value">
-              {employee.employmentDetails?.department}
+              {employee?.employmentDetails?.department}
             </p>
           </div>
           <div>
             <p className="detail-label">Line Manager</p>
             <p className="detail-value">
-              {employee.employmentDetails?.lineManager}
+              {employee?.employmentDetails?.lineManager}
             </p>
           </div>
           <div>
             <p className="detail-label">Location</p>
             <p className="detail-value">
-              {employee.employmentDetails?.location}
+              {employee?.employmentDetails?.location}
             </p>
           </div>
           <div>
             <p className="detail-label">Office Email</p>
             <p className="detail-value">
-              {employee.employmentDetails?.officeEmail}
+              {employee?.employmentDetails?.officeEmail}
             </p>
           </div>
           <div>
             <p className="detail-label">Date of Joining</p>
             <p className="detail-value">
-              {employee.employmentDetails?.dateOfJoining}
+              {employee?.employmentDetails?.dateOfJoining}
             </p>
           </div>
           <div>
             <p className="detail-label">Employment Type</p>
             <p className="detail-value">
-              {employee.employmentDetails?.employmentType}
+              {employee?.employmentDetails?.employmentType}
             </p>
           </div>
           <div>
@@ -574,22 +576,22 @@ const EmployeeDetails = () => {
           <div>
             <p className="detail-label">Account Holder's Name</p>
             <p className="detail-value">
-              {employee.bankDetails?.accountHolder}
+              {employee?.bankDetails?.accountHolder}
             </p>
           </div>
           <div>
             <p className="detail-label">Bank Name</p>
-            <p className="detail-value">{employee.bankDetails?.bankName}</p>
+            <p className="detail-value">{employee?.bankDetails?.bankName}</p>
           </div>
           <div>
             <p className="detail-label">Account Number</p>
             <p className="detail-value">
-              {employee.bankDetails?.accountNumber}
+              {employee?.bankDetails?.accountNumber}
             </p>
           </div>
           <div>
             <p className="detail-label">IFSC Code</p>
-            <p className="detail-value">{employee.bankDetails?.ifscCode}</p>
+            <p className="detail-value">{employee?.bankDetails?.ifscCode}</p>
           </div>
         </div>
       </div>
