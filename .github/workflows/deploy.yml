@@ -47,8 +47,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const exec = require('child_process').execSync;
             const fs = require('fs');
+            const { execSync } = require('child_process');  // Destructure to avoid redeclaration
 
             // Ports mapping for the service
             const ports = {
@@ -67,9 +67,9 @@ jobs:
 
               console.log(`\u001b[1mDeploying ${repo}\u001b[0m`);
 
-              exec(`aws ecr describe-repositories --repository-names ${repo} || aws ecr create-repository --repository-name ${repo}`);
-              exec(`docker build -t ${fullImage} -f Backend-UM/Dockerfile Backend-UM`);
-              exec(`docker push ${fullImage}`);
+              execSync(`aws ecr describe-repositories --repository-names ${repo} || aws ecr create-repository --repository-name ${repo}`);
+              execSync(`docker build -t ${fullImage} -f Backend-UM/Dockerfile Backend-UM`);
+              execSync(`docker push ${fullImage}`);
 
               const taskDef = {
                 family: "hr-app-service",  // Task definition name updated
@@ -95,8 +95,8 @@ jobs:
               };
 
               fs.writeFileSync(taskDefJson, JSON.stringify(taskDef, null, 2));
-              exec(`aws ecs register-task-definition --cli-input-json file://${taskDefJson}`);
-              exec(`aws ecs update-service --cluster ${process.env.CLUSTER_NAME} --service ${serviceName} --force-new-deployment`);
+              execSync(`aws ecs register-task-definition --cli-input-json file://${taskDefJson}`);
+              execSync(`aws ecs update-service --cluster ${process.env.CLUSTER_NAME} --service ${serviceName} --force-new-deployment`);
             }
         env:
           changed_Backend_UM: ${{ steps.changed.outputs.Backend-UM }}
