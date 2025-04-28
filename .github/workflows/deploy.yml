@@ -1,9 +1,9 @@
-name: Deploy to ECS
+name: Deploy Frontend to ECS
 
 on:
   push:
     paths:
-      - "Backend-UM/**"  # Only track changes in Backend-UM
+      - "Frontend/**"   # Only trigger when Frontend/ changes
     branches:
       - dev
   workflow_dispatch:
@@ -15,7 +15,7 @@ jobs:
     env:
       AWS_REGION: us-east-1
       CLUSTER_NAME: hr-ecs-cluster
-      SERVICE_NAME: hr-app-service  # Moved service name here for clarity
+      SERVICE_NAME: hr-app-service  
       SUBNETS: subnet-abc123,subnet-def456
       SECURITY_GROUPS: sg-abc123
 
@@ -39,72 +39,66 @@ jobs:
         uses: dorny/paths-filter@v2
         with:
           filters: |
-            Backend-UM: Backend-UM/**
+            Frontend: Frontend/**
 
-      - name: Deploy hr-app
-        if: steps.changed.outputs.Backend-UM == 'true'
+      - name: Deploy Frontend
+        if: steps.changed.outputs.Frontend == 'true'
         uses: actions/github-script@v7
         with:
           script: |
             const { execSync } = require('child_process');
+            const fs = require('fs');
 
-            const repo = "hr-app";
+            const repo = "frontend-app"; // name of your ECR repo (could be 'frontend-app' or anything you use)
             const serviceName = process.env.SERVICE_NAME;
             const clusterName = process.env.CLUSTER_NAME;
             const ECR_REGISTRY = '${{ steps.login-ecr.outputs.registry }}';
             const IMAGE_TAG = '${{ github.sha }}';
             const fullImage = `${ECR_REGISTRY}/${repo}:${IMAGE_TAG}`;
 
-            console.log(`\u001b[1mDeploying ${repo}\u001b[0m`);
+            console.log(`🚀 Deploying Frontend: ${repo}`);
 
             // Make sure ECR repo exists
-            execSync(`aws ecr describe-repositories --repository-names ${repo} || aws ecr create-repository --repository-name ${repo}`);
+            execSync(`aws ecr describe-repositories --repository-names ${repo} || aws ecr create-repository --repository-name ${repo}`, { stdio: 'inherit' });
 
             // Build and push Docker image
-            execSync(`docker build -t ${fullImage} -f Backend-UM/Dockerfile Backend-UM`);
-            execSync(`docker push ${fullImage}`);
+            console.log(`🔨 Building Docker image from Frontend/`);
+            execSync(`docker build -t ${fullImage} -f Frontend/Dockerfile Frontend`, { stdio: 'inherit' });
+            execSync(`docker push ${fullImage}`, { stdio: 'inherit' });
 
-            // Update ECS Service with new image
-            const describeTaskDefCmd = `aws ecs describe-services --cluster ${clusterName} --services ${serviceName} --query "services[0].taskDefinition" --output text`;
-            const currentTaskDefinition = execSync(describeTaskDefCmd).toString().trim();
+            // Get current task definition
+            console.log(`📄 Fetching current task definition for ${serviceName}`);
+            const currentTaskDefArn = execSync(`aws ecs describe-services --cluster ${clusterName} --services ${serviceName} --query "services[0].taskDefinition" --output text`).toString().trim();
+            const currentTaskDef = JSON.parse(execSync(`aws ecs describe-task-definition --task-definition ${currentTaskDefArn} --query "taskDefinition"`).toString());
 
-            console.log(`Current task definition: ${currentTaskDefinition}`);
-
-            // Create a new task definition revision by updating only the container image
-            const newTaskDef = execSync(`aws ecs describe-task-definition --task-definition ${currentTaskDefinition}`);
-            const taskDefObj = JSON.parse(newTaskDef.toString());
-
-            // Modify the container image
-            taskDefObj.taskDefinition.containerDefinitions.forEach(container => {
-              if (container.name === repo) {
-                container.image = fullImage;
-              }
+            // Update image
+            currentTaskDef.containerDefinitions.forEach(container => {
+              container.image = fullImage;
             });
 
-            // Register new task definition revision
-            const registerPayload = {
-              family: taskDefObj.taskDefinition.family,
-              taskRoleArn: taskDefObj.taskDefinition.taskRoleArn,
-              executionRoleArn: taskDefObj.taskDefinition.executionRoleArn,
-              networkMode: taskDefObj.taskDefinition.networkMode,
-              containerDefinitions: taskDefObj.taskDefinition.containerDefinitions,
-              requiresCompatibilities: taskDefObj.taskDefinition.requiresCompatibilities,
-              cpu: taskDefObj.taskDefinition.cpu,
-              memory: taskDefObj.taskDefinition.memory,
-              volumes: taskDefObj.taskDefinition.volumes,
-            };
+            // Cleanup unnecessary fields before re-register
+            delete currentTaskDef.taskDefinitionArn;
+            delete currentTaskDef.revision;
+            delete currentTaskDef.status;
+            delete currentTaskDef.requiresAttributes;
+            delete currentTaskDef.registeredAt;
+            delete currentTaskDef.registeredBy;
+            delete currentTaskDef.compatibilities;
 
-            const fs = require('fs');
-            fs.writeFileSync('new-taskdef.json', JSON.stringify(registerPayload, null, 2));
+            // Write new taskdef
+            fs.writeFileSync('new-taskdef.json', JSON.stringify(currentTaskDef, null, 2));
 
-            console.log('Registering updated task definition...');
+            console.log('📦 Registering new task definition...');
             const registerCmd = `aws ecs register-task-definition --cli-input-json file://new-taskdef.json`;
-            const registerResult = execSync(registerCmd).toString();
-            const newTaskDefinitionArn = JSON.parse(registerResult).taskDefinition.taskDefinitionArn;
+            const registerResult = JSON.parse(execSync(registerCmd).toString());
+            const newTaskDefArn = registerResult.taskDefinition.taskDefinitionArn;
 
-            console.log(`New Task Definition: ${newTaskDefinitionArn}`);
+            console.log(`✅ New Task Definition: ${newTaskDefArn}`);
 
-            // Update ECS Service to use the new task definition
-            execSync(`aws ecs update-service --cluster ${clusterName} --service ${serviceName} --task-definition ${newTaskDefinitionArn} --force-new-deployment`);
+            // Update ECS Service
+            console.log('🔄 Updating ECS service with new task definition...');
+            execSync(`aws ecs update-service --cluster ${clusterName} --service ${serviceName} --task-definition ${newTaskDefArn} --force-new-deployment`, { stdio: 'inherit' });
+
+            console.log('🎉 Frontend Deployment Completed!');
         env:
-          changed_Backend_UM: ${{ steps.changed.outputs.Backend-UM }}
+          changed_Frontend: ${{ steps.changed.outputs.Frontend }}
