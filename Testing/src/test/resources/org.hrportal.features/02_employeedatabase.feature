@@ -1,5 +1,8 @@
 Feature: Employee Database
 
+  Background:
+    Given user log in as an admin
+
   @ui
     Scenario Outline: Verify the functionality of employee search bar
     Given user clicks on the Employee Database module
@@ -14,13 +17,61 @@ Feature: Employee Database
       | Rahul   |
 
   @ui
+    Scenario Outline: Verify the functionality of All Department dropdown
+    Given admin click on employee database module
+    When the admin click on department dropdown
+    Then the table gets filter based on the selected "<department>"
+    Examples:
+      | department |
+      | General    |
+      | N/A        |
+      | SAP        |
+      | Testing    |
+
+  @ui
+    Scenario Outline: Verify the functionality of All Location dropdown
+    Given user click on employee Database module
+    When the user click on all location dropdown
+    Then the table get filter based on the selected "<location>"
+    Examples:
+      | location  |
+      | Silchar   |
+      | Bengaluru |
+      | Delhi     |
+
+  @ui
+    Scenario Outline: Verify the functionality of All Status dropdown
+    Given the user click on employee database module
+    When the user click on the all status dropdown
+    Then the table get filter based on selected "<status>"
+    Examples:
+      | status     |
+      | ACTIVE     |
+      | TERMINATED |
+      | DELETED    |
+      | REMOVED    |
+      | RESIGNED   |
+
+  @ui
+ Scenario Outline: Verify the functionality of pagination
+    Given the user clicks on the Employee Database module from the sidebar
+    When the user checks if the "<pagination>" buttons are enabled
+    Then the user clicks on the "<pagination>" button to verify navigation to the next page
+    Examples:
+      | pagination |
+      | 2          |
+      | Next       |
+
+
+  @ui
   Scenario Outline: Verify the functionality of Employee Database
     Given admin can able to see all the employees in a table
     When admin fills all the filters like "<Search Employee>", "<All Departments>", "<All Locations>", "<All Statuses>" based on these filter employee should comes at top of the table
-    Then admin able to click on that particular employee
+    Then admin able to click on that particular "<Search Employee>"
     Examples:
       | Search Employee | All Departments | All Locations | All Statuses |
       | Bhaskar         | General         | Bengaluru     | ACTIVE       |
+      | Rahul           | General         | Bengaluru     | ACTIVE       |
 
   @ui
   Scenario Outline: Enter Employment Details of new registered employee

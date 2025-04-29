@@ -6,19 +6,16 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.hrportal.pages.EmployeeHomePage;
+import org.hrportal.webdriver.DriverManager;
 import org.openqa.selenium.WebDriver;
 
 public class EmployeeHomePageStepDef {
 
     private WebDriver driver;
-    private EmployeeHomePage employeeHomePage;
+    private final EmployeeHomePage employeeHomePage;
 
-
-
-
-    @Before(order = 5)
-    public void setUp() {
-        this.driver = Hooks.getDriver();
+    public EmployeeHomePageStepDef() {
+        this.driver = DriverManager.getDriver();
         this.employeeHomePage = new EmployeeHomePage(driver);
 
     }

@@ -53,6 +53,7 @@ public class RolePermission {
     public static String Click_Add_Permission_Button = "//*[@id=\"root\"]/div/div/main/div/div[3]/div/button";
     public static String Add_Permission_Notification = "//*[@id=\"root\"]/div/div/main/div/div[3]/div";
     public static String Delete_Permission_Role = "//*[@id=\"root\"]/div/div/main/div/div[2]/div/div[1]/div[2]/div[3]/button";
+    public static String Remove_Permission_Popup = "//*[@id=\"root\"]/div/div/main/div/div[3]/div";
     public static String Remove_Permission = "//button[text()='Remove Permission']";
     public static String Close_Add_Permission_Popup = "//*[@id=\"root\"]/div/div/main/div/div[3]/div/div/button";
 
@@ -201,7 +202,7 @@ public class RolePermission {
     }
 
     public void resultOFRoleCreate( String confirmationMessage, String errorText ) {
-        WebDriverWait wait = new WebDriverWait( driver, Duration.ofSeconds(30));
+        WebDriverWait wait = new WebDriverWait( driver, Duration.ofSeconds(5));
         WebElement result = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='notification-message' and normalize-space(text())='" + confirmationMessage + "']")));
 
         if (result.isDisplayed()) {
@@ -447,6 +448,19 @@ public class RolePermission {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath(Delete_Permission_Role))).click();
     }
+    public void removePermissionPopUp(){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement popUp = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(Remove_Permission_Popup)));
+
+        if (popUp.isDisplayed()){
+            System.out.println("Remove permission popup is displayed");
+            String text = popUp.getText();
+            System.out.println(text + " :This is the message present on the popup");
+        }
+        else {
+            System.out.println("Popup is not displayed");
+        }
+    }
 
     public void removePermission() throws InterruptedException {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -454,8 +468,8 @@ public class RolePermission {
         if (isPresent.isDisplayed()) {
             isPresent.click();
             System.out.println("Role is created and deleted");
-            Thread.sleep(3000);
-            driver.navigate().refresh();
+//            Thread.sleep(3000);
+//            driver.navigate().refresh();
         }
     }
 

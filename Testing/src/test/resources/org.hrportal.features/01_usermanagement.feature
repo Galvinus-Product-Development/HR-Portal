@@ -39,7 +39,6 @@ Feature: LoggedIn User View
       | debswarnadeep85@gamil.    | Deep@123 | Email must be from galvinus.com, galvinus.in, or gmail.com. |
 
 
-
   @ui
   Scenario: Login with the valid credentials Admin
     Given user in the login page
@@ -56,13 +55,15 @@ Feature: LoggedIn User View
 
   @ui
   Scenario: Verify the Functionality of the Role Permission Module
-    Given the user clicks on the Role and Permission module
+    Given Admin logs into the system
+    And the user clicks on the Role and Permission module
     When the user is redirected to the Role and Permission page
     Then all the content on the page should be visible
 
   @ui
    Scenario Outline: Assign random role to the employee
-      Given user clicks on the Assign role button
+    Given Admin log into the system
+      And user clicks on the Assign role button
       And enter employee "<name>" in the search bar
       When the user click the dropdown all the roles should visible
       Then Assign the particular "<role>" for a employee
@@ -75,7 +76,8 @@ Feature: LoggedIn User View
 
   @ui
  Scenario Outline: Create a new role
-    Given the user clicks on the Create Role button
+    Given user login as an admin
+    And the user clicks on the Create Role button
     And a popup appears
     When the user enters a "<role>" name and "<description>"
     And clicks on the Create Role button
@@ -90,7 +92,8 @@ Feature: LoggedIn User View
 
   @ui
   Scenario Outline: Delete a role
-    Given the user click on the Delete Role Button
+    Given login as an admin
+    And the user click on the Delete Role Button
     And a popup will appear appears
     When the user selects the "<role>" which has to deleted from the dropdown
     Then the user click on delete role button
@@ -104,7 +107,8 @@ Feature: LoggedIn User View
 
   @ui
   Scenario Outline: Verify the Functionality of the Add Permission button for employee
-        Given check the functionality of the Add permission button for employee
+        Given login the application as a admin
+        And check the functionality of the Add permission button for employee
         And Click on the Add permission button
         When the popup opens click on dropdown button
         And select any one "<permission>" from the dropdown
@@ -113,6 +117,13 @@ Feature: LoggedIn User View
       | permission              |
       | Reset Employee Password |
       | Assign Admin            |
+
+ @ui
+   Scenario: Verify the functionality of delete icon under permissions
+    Given user login as a admin
+    And click on role permission option from the sidebar
+    When the admin click on delete icon a validation popup appears
+    Then admin clicks on Remove permission button the permission will be deleted
 
   @ui
  Scenario Outline: Verify the Functionality of the User Registration Module

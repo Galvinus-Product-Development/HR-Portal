@@ -6,6 +6,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.hrportal.pages.AdminTrainingAndLearningPage;
 import org.hrportal.pages.EmployeeHomePage;
+import org.hrportal.webdriver.DriverManager;
 import org.openqa.selenium.WebDriver;
 
 public class AdminTrainingAndLearning {
@@ -15,9 +16,9 @@ public class AdminTrainingAndLearning {
 
 
 
-    @Before(order = 4)
-    public void setUp() {
-        this.driver = Hooks.getDriver();
+
+    public AdminTrainingAndLearning() {
+        this.driver = DriverManager.getDriver();
         this.adminTrainingAndLearningPage = new AdminTrainingAndLearningPage(driver);
 
     }
@@ -94,4 +95,5 @@ public class AdminTrainingAndLearning {
         adminTrainingAndLearningPage.clickCreateTrainer();
 
     }
+
 }

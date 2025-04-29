@@ -9,6 +9,7 @@ import io.restassured.http.ContentType;
 import org.hrportal.pages.AdminHomePage;
 import org.hrportal.pages.RolePermission;
 import org.hrportal.pages.SignInPage;
+import org.hrportal.webdriver.DriverManager;
 import org.junit.Assert;
 import org.openqa.selenium.WebDriver;
 import io.restassured.response.Response;
@@ -29,13 +30,10 @@ public class LoginPage {
     private AdminHomePage homepage ;
     private RolePermission rolePermission;
     private AdminHomePage adminHomePage;
-    private String errorShown;
-
     private Response response;
 
-    @Before(order = 2)
-    public void setUp() {
-        this.driver = Hooks.getDriver();
+    public LoginPage() {
+        this.driver = DriverManager.getDriver();
         this.signInPage = new SignInPage(driver);
         this.homepage = new AdminHomePage(driver);
         this.rolePermission = new RolePermission(driver);
@@ -149,8 +147,14 @@ public class LoginPage {
 
     }
 
+    @Given("Admin logs into the system")
+    public void adminLogsIntoTheSystem() {
+        signInPage.readCredentialsFromFile("src/test/java/org/hrportal/utils/valid credentials.txt");
+        signInPage.clickSignInButton();
+    }
 
-    @Given("the user clicks on the Role and Permission module")
+
+    @And("the user clicks on the Role and Permission module")
     public void theUserClicksOnTheRoleAndPermissionModule() {
        homepage.clickRoleAndPermission();
         
@@ -173,15 +177,23 @@ public class LoginPage {
 
     }
 
+    @Given("Admin log into the system")
+    public void adminLogIntoTheSystem() throws InterruptedException {
+        signInPage.readCredentialsFromFile("src/test/java/org/hrportal/utils/valid credentials.txt");
+        signInPage.clickSignInButton();
+       Thread.sleep(2000);
+    }
 
-    @Given("user clicks on the Assign role button")
+    @And("user clicks on the Assign role button")
     public void userClicksOnTheAssignRoleButton() {
+        homepage.clickRoleAndPermission();
         rolePermission.clickAssignRoleButton();
 
     }
 
     @And("enter employee {string} in the search bar")
-    public void enterEmployeeInTheSearchBar(String name) {
+    public void enterEmployeeInTheSearchBar(String name)
+    {
         rolePermission.enterEmployeeName(name);
     }
 
@@ -198,9 +210,17 @@ public class LoginPage {
     }
 
 
-    @Given("the user clicks on the Create Role button")
+    @Given("user login as an admin")
+    public void userLoginAsAnAdmin() throws InterruptedException {
+        signInPage.readCredentialsFromFile("src/test/java/org/hrportal/utils/valid credentials.txt");
+        signInPage.clickSignInButton();
+        Thread.sleep(2000);
+    }
+
+    @And("the user clicks on the Create Role button")
     public void theUserClicksOnTheCreateRoleButton() {
 
+        homepage.clickRoleAndPermission();
         rolePermission.clickCreateRoleButton();
     }
 
@@ -226,12 +246,16 @@ public class LoginPage {
         rolePermission.resultOFRoleCreate(notification, error);
     }
 
-
-
-
-    @Given("the user click on the Delete Role Button")
+    @Given("login as an admin")
+    public void loginAsAnAdmin() throws InterruptedException {
+        signInPage.readCredentialsFromFile("src/test/java/org/hrportal/utils/valid credentials.txt");
+        signInPage.clickSignInButton();
+        Thread.sleep(2000);
+    }
+    @And("the user click on the Delete Role Button")
     public void theUserClickOnTheDeleteRoleButton() {
 
+        homepage.clickRoleAndPermission();
         rolePermission.clickDeleteRoleButton();
     }
 
@@ -254,30 +278,17 @@ public class LoginPage {
 
 
     }
-    @Given("user click on Delete Role Button")
-    public void userClickOnDeleteRoleButton() {
-        rolePermission.clickDeleteRoleButton();
-    }
 
-    @And("a popup will appear")
-    public void aPopupWillAppear() throws InterruptedException {
-        rolePermission.deleteRolePopUp();
-        rolePermission.listOfRoleFromDeleteDropDown();
 
+    @Given("login the application as a admin")
+    public void loginTheApplicationAsAAdmin() throws InterruptedException {
+        signInPage.readCredentialsFromFile("src/test/java/org/hrportal/utils/valid credentials.txt");
+        signInPage.clickSignInButton();
+        Thread.sleep(2000);
     }
-    @When("user selects the {string} which is not in the dropdown")
-    public void userSelectsTheWhichIsNotInTheDropdown(String role) throws InterruptedException {
-        rolePermission.clickDeleteRoleButton();
-        rolePermission.deleteRole(role);
-    }
-
-    @Then("user click the delete role button")
-    public void userClickTheDeleteRoleButton() throws InterruptedException {
-        //rolePermission.setDeleteButton();
-    }
-
-    @Given("check the functionality of the Add permission button for employee")
+    @And("check the functionality of the Add permission button for employee")
     public void checkTheFunctionalityOfTheAddPermissionButtonForEmployee() {
+        homepage.clickRoleAndPermission();
         rolePermission.checkEmployeeAddPermissionButton();
     }
 
@@ -306,6 +317,32 @@ public class LoginPage {
         System.out.println("Role is selected");
     }
 
+    @Given("user login as a admin")
+    public void userLoginAsAAdmin() throws InterruptedException {
+
+        signInPage.readCredentialsFromFile("src/test/java/org/hrportal/utils/valid credentials.txt");
+        signInPage.clickSignInButton();
+        Thread.sleep(2000);
+    }
+
+    @And("click on role permission option from the sidebar")
+    public void clickOnRolePermissionOptionFromTheSidebar() {
+        homepage.clickRoleAndPermission();
+
+    }
+
+    @When("the admin click on delete icon a validation popup appears")
+    public void theAdminClickOnDeleteIconAValidationPopupAppears() {
+        rolePermission.deletePermissionRole();
+        rolePermission.removePermissionPopUp();
+
+    }
+
+    @Then("admin clicks on Remove permission button the permission will be deleted")
+    public void adminClicksOnRemovePermissionButtonThePermissionWillBeDeleted() throws InterruptedException {
+        rolePermission.removePermission();
+
+    }
 
     @Given("the user clicks on the User Registration module")
     public void theUserClicksOnTheUserRegistrationModule() {
@@ -358,4 +395,5 @@ public class LoginPage {
         response.then().body("token", notNullValue());
 
     }
+
 }

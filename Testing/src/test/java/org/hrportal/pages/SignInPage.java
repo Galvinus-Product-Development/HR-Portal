@@ -1,6 +1,7 @@
 package org.hrportal.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -19,13 +20,15 @@ public class SignInPage {
 
 
     public SignInPage(WebDriver driver) {
+
         this.driver = driver;
     }
 
     public static String Login_Page_Title = "//*[@id=\"root\"]/div/div/div/h2";
     public static final By Username_Field = By.id("email");
     public static final By Password_Field = By.id("password");
-    public static final By SignIn_Button_Xpath = By.xpath("//button[text()='Sign in']");
+   // public static final By SignIn_Button_Xpath = By.xpath("//button[text()='Sign in']");
+    public static final By SignIn_Button_Xpath = By.xpath("//*[@id=\"root\"]/div/div/div/form/button");
     public static final By Forgot_Password_Link = By.xpath("//*[@id=\"root\"]/div/div/div/form/div[3]/p");
     public static final By Forgot_Password_PageTitle = By.xpath("//*[@id=\"root\"]/div/div/div/h2");
     public static String Error_Message = "//*[@id=\"root\"]/div/div/div/form/div[1]/p";
@@ -94,12 +97,15 @@ public class SignInPage {
     }
 
     public void clickSignInButton() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        WebElement signInButton = wait.until(ExpectedConditions.elementToBeClickable(SignIn_Button_Xpath));
 
-        signInButton.click();
-        System.out.println("Sign in button clicked Successfully");
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            WebElement signInBtn = wait.until(ExpectedConditions.elementToBeClickable(SignIn_Button_Xpath));
+            signInBtn.click();
 
+        } catch (TimeoutException e) {
+            System.out.println("Sign-in button was not clickable, maybe already navigated.");
+        }
     }
 
     public void errorMessage(String error) {

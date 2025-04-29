@@ -8,12 +8,15 @@ import io.cucumber.java.en.When;
 import org.hrportal.pages.AdminEmployeeDatabaseMainPage;
 import org.hrportal.pages.EmployeePage;
 import org.hrportal.pages.AdminHomePage;
+import org.hrportal.pages.SignInPage;
+import org.hrportal.webdriver.DriverManager;
 import org.openqa.selenium.WebDriver;
 
 public class AdminEmployeeDatabase {
 
 
     private WebDriver driver;
+    private SignInPage signInPage;
     private AdminHomePage homePage;
     private AdminEmployeeDatabaseMainPage employeeDatabase;
     private EmployeePage employeePage;
@@ -22,14 +25,21 @@ public class AdminEmployeeDatabase {
 
 
 
-
-    @Before(order = 3)
-    public void setUp() {
-        this.driver = Hooks.getDriver();
+    public AdminEmployeeDatabase() {
+        this.driver = DriverManager.getDriver();
+        this.signInPage = new SignInPage(driver);
         this.homePage = new AdminHomePage(driver);
         this.employeeDatabase = new AdminEmployeeDatabaseMainPage(driver);
         this.employeePage = new EmployeePage(driver);
         this.adminEmployeeDatabaseMainPage = new AdminEmployeeDatabaseMainPage(driver);
+    }
+
+
+    @Given("user log in as an admin")
+    public void userLogInAsAnAdmin() throws InterruptedException {
+        signInPage.readCredentialsFromFile("src/test/java/org/hrportal/utils/valid credentials.txt");
+        signInPage.clickSignInButton();
+        Thread.sleep(2000);
     }
 
     @Given("user clicks on the Employee Database module")
@@ -52,29 +62,92 @@ public class AdminEmployeeDatabase {
     public void clickOnThatParticularEmployee() {
     }
 
+    @Given("admin click on employee database module")
+    public void adminClickOnEmployeeDatabaseModule() throws InterruptedException {
+        Thread.sleep(2000);
+        homePage.clickEmployeeDataManagement();
+    }
+
+    @When("the admin click on department dropdown")
+    public void theAdminClickOnDepartmentDropdown() {
+       adminEmployeeDatabaseMainPage.selectDepartment();
+    }
+
+    @Then("the table gets filter based on the selected {string}")
+    public void theTableGetsFilterBasedOnTheSelected(String department) {
+        adminEmployeeDatabaseMainPage.department(department);
+    }
+
+    @Given("user click on employee Database module")
+    public void userClickOnEmployeeDatabaseModule() throws InterruptedException {
+        Thread.sleep(2000);
+       // homePage.clickEmployeeDataManagement();
+
+    }
+
+    @When("the user click on all location dropdown")
+    public void theUserClickOnAllLocationDropdown() {
+        adminEmployeeDatabaseMainPage.selectLocation();
+    }
+
+    @Then("the table get filter based on the selected {string}")
+    public void theTableGetFilterBasedOnTheSelected(String location) {
+        adminEmployeeDatabaseMainPage.location(location);
+    }
+
+    @Given("the user click on employee database module")
+    public void theUserClickOnEmployeeDatabaseModule() throws InterruptedException {
+        Thread.sleep(2000);
+       // homePage.clickEmployeeDataManagement();
+    }
+
+    @When("the user click on the all status dropdown")
+    public void theUserClickOnTheAllStatusDropdown() {
+       adminEmployeeDatabaseMainPage.selectStatus();
+    }
+
+    @Then("the table get filter based on selected {string}")
+    public void theTableGetFilterBasedOnSelected(String status) {
+        adminEmployeeDatabaseMainPage.status(status);
+    }
+
+    @Given("the user clicks on the Employee Database module from the sidebar")
+    public void theUserClicksOnTheEmployeeDatabaseModuleFromTheSidebar() throws InterruptedException {
+        Thread.sleep(2000);
+        homePage.clickEmployeeDataManagement();
+    }
+
+    @When("the user checks if the {string} buttons are enabled")
+    public void theUserChecksIfTheButtonsAreEnabled(String page) {
+        adminEmployeeDatabaseMainPage.checkPagination( page);
+    }
+
+    @Then("the user clicks on the {string} button to verify navigation to the next page")
+    public void theUserClicksOnTheButtonToVerifyNavigationToTheNextPage(String page) {
+        adminEmployeeDatabaseMainPage.clickPagination(page);
+    }
+
     @Given("admin can able to see all the employees in a table")
     public void adminCanAbleToSeeAllTheEmployeesInATable() {
+        homePage.clickEmployeeDataManagement();
         boolean isDisplayed = employeeDatabase.employeeDetailsTable();
         System.out.println("Is employee Datatable is displayed?" + isDisplayed);
-        employeeDatabase.numberOfEmployees();
+      //  employeeDatabase.numberOfEmployees();
     }
 
     @When("admin fills all the filters like {string}, {string}, {string}, {string} based on these filter employee should comes at top of the table")
     public void adminFillsAllTheFiltersLikeBasedOnTheseFilterEmployeeShouldComesAtTopOfTheTable(String employee, String department, String location, String status) {
         employeeDatabase.searchEmployee(employee, department, location, status );
-        boolean isEmployeeDisplayed = employeeDatabase.filteredEmployee();
-        System.out.println("Is Selected employee displayed? " + isEmployeeDisplayed);
-
-
+        employeeDatabase.filteredEmployee(employee);
     }
-
-    @Then("admin able to click on that particular employee")
-    public void adminAbleToClickOnThatParticularEmployee() {
-        employeeDatabase.selectEmployee();
+    @Then("admin able to click on that particular {string}")
+    public void adminAbleToClickOnThatParticular(String employee) {
+        employeeDatabase.selectEmployee(employee);
     }
 
     @Given("user clicks on the edit profile button")
     public void userClicksOnTheEditProfileButton() {
+        homePage.clickEmployeeDataManagement();
         employeePage.clickEditButton();
     }
 
