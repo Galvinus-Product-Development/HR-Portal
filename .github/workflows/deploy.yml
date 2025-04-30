@@ -14,10 +14,10 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      CLUSTER_NAME: hr-ecs-cluster
-      SERVICE_NAME: hr-app-service  
-      SUBNETS: subnet-abc123,subnet-def456
-      SECURITY_GROUPS: sg-abc123
+      CLUSTER_NAME: HR_cluster
+      SERVICE_NAME: HR_app
+      # SUBNETS: subnet-abc123,subnet-def456
+      # SECURITY_GROUPS: sg-abc123
 
     steps:
       - name: Checkout Repository
