@@ -55,6 +55,7 @@ jobs:
             const fullImage = `${ECR_REGISTRY}/${repo}:${IMAGE_TAG}`;
 
             console.log(`🚀 Deploying Backend-TL: ${repo}`);
+            console.log(`📦 Image to deploy: ${fullImage}`);
 
             execSync(`aws ecr describe-repositories --repository-names ${repo} || aws ecr create-repository --repository-name ${repo}`, { stdio: 'inherit' });
 
@@ -62,10 +63,18 @@ jobs:
             execSync(`docker build -t ${fullImage} -f Backend-TL/Dockerfile Backend-TL`, { stdio: 'inherit' });
             execSync(`docker push ${fullImage}`, { stdio: 'inherit' });
 
-            console.log(`📄 Fetching current task definition for ${serviceName}`);
+            console.log(`📄 Fetching current task definition for service: ${serviceName}`);
             const currentTaskDefArn = execSync(`aws ecs describe-services --cluster ${clusterName} --services ${serviceName} --query "services[0].taskDefinition" --output text`).toString().trim();
+            console.log(`📌 Current Task Definition ARN: ${currentTaskDefArn}`);
+
             const currentTaskDef = JSON.parse(execSync(`aws ecs describe-task-definition --task-definition ${currentTaskDefArn} --query "taskDefinition"`).toString());
 
+            console.log('🔍 Current container image(s):');
+            currentTaskDef.containerDefinitions.forEach(container => {
+              console.log(`- ${container.name}: ${container.image}`);
+            });
+
+            console.log(`🔧 Updating container image(s) to: ${fullImage}`);
             currentTaskDef.containerDefinitions.forEach(container => {
               container.image = fullImage;
             });
@@ -79,13 +88,15 @@ jobs:
             delete currentTaskDef.compatibilities;
 
             fs.writeFileSync('new-taskdef.json', JSON.stringify(currentTaskDef, null, 2));
+            console.log('📄 New Task Definition (sanitized):');
+            console.log(JSON.stringify(currentTaskDef, null, 2));
 
             console.log('📦 Registering new task definition...');
             const registerCmd = `aws ecs register-task-definition --cli-input-json file://new-taskdef.json`;
             const registerResult = JSON.parse(execSync(registerCmd).toString());
             const newTaskDefArn = registerResult.taskDefinition.taskDefinitionArn;
 
-            console.log(`✅ New Task Definition: ${newTaskDefArn}`);
+            console.log(`✅ New Task Definition Registered: ${newTaskDefArn}`);
 
             console.log('🔄 Updating ECS service with new task definition...');
             execSync(`aws ecs update-service --cluster ${clusterName} --service ${serviceName} --task-definition ${newTaskDefArn} --force-new-deployment`, { stdio: 'inherit' });
