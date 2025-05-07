@@ -1,9 +1,9 @@
-name: Deploy Backend-UM to ECS
+name: Deploy Backend-TL to ECS
 
 on:
   push:
     paths:
-      - "Backend-UM/**"   # Only trigger when Backend-UM/ changes
+      - "Backend-TL/**"
     branches:
       - dev
   workflow_dispatch:
@@ -15,9 +15,7 @@ jobs:
     env:
       AWS_REGION: us-east-1
       CLUSTER_NAME: HR_cluster
-      SERVICE_NAME: HR_app 
-      # SUBNETS: subnet-abc123,subnet-def456
-      # SECURITY_GROUPS: sg-abc123
+      SERVICE_NAME: HR_app  # Update to your actual ECS service name for TL
 
     steps:
       - name: Checkout Repository
@@ -39,44 +37,39 @@ jobs:
         uses: dorny/paths-filter@v2
         with:
           filters: |
-            BackendUM: Backend-UM/**
+            BackendTL: Backend-TL/**
 
-      - name: Deploy Backend-UM
-        if: steps.changed.outputs.BackendUM == 'true'
+      - name: Deploy Backend-TL
+        if: steps.changed.outputs.BackendTL == 'true'
         uses: actions/github-script@v7
         with:
           script: |
             const { execSync } = require('child_process');
             const fs = require('fs');
 
-            const repo = "backend-um-app"; // updated ECR repo name
+            const repo = "backend-um-app"; // ECR repo name
             const serviceName = process.env.SERVICE_NAME;
             const clusterName = process.env.CLUSTER_NAME;
             const ECR_REGISTRY = '${{ steps.login-ecr.outputs.registry }}';
             const IMAGE_TAG = '${{ github.sha }}';
             const fullImage = `${ECR_REGISTRY}/${repo}:${IMAGE_TAG}`;
 
-            console.log(`🚀 Deploying Backend-UM: ${repo}`);
+            console.log(`🚀 Deploying Backend-TL: ${repo}`);
 
-            // Make sure ECR repo exists
             execSync(`aws ecr describe-repositories --repository-names ${repo} || aws ecr create-repository --repository-name ${repo}`, { stdio: 'inherit' });
 
-            // Build and push Docker image
-            console.log(`🔨 Building Docker image from Backend-UM/`);
-            execSync(`docker build -t ${fullImage} -f Backend-UM/Dockerfile Backend-UM`, { stdio: 'inherit' });
+            console.log(`🔨 Building Docker image from Backend-TL/`);
+            execSync(`docker build -t ${fullImage} -f Backend-TL/Dockerfile Backend-TL`, { stdio: 'inherit' });
             execSync(`docker push ${fullImage}`, { stdio: 'inherit' });
 
-            // Get current task definition
             console.log(`📄 Fetching current task definition for ${serviceName}`);
             const currentTaskDefArn = execSync(`aws ecs describe-services --cluster ${clusterName} --services ${serviceName} --query "services[0].taskDefinition" --output text`).toString().trim();
             const currentTaskDef = JSON.parse(execSync(`aws ecs describe-task-definition --task-definition ${currentTaskDefArn} --query "taskDefinition"`).toString());
 
-            // Update image
             currentTaskDef.containerDefinitions.forEach(container => {
               container.image = fullImage;
             });
 
-            // Cleanup unnecessary fields before re-register
             delete currentTaskDef.taskDefinitionArn;
             delete currentTaskDef.revision;
             delete currentTaskDef.status;
@@ -85,7 +78,6 @@ jobs:
             delete currentTaskDef.registeredBy;
             delete currentTaskDef.compatibilities;
 
-            // Write new taskdef
             fs.writeFileSync('new-taskdef.json', JSON.stringify(currentTaskDef, null, 2));
 
             console.log('📦 Registering new task definition...');
@@ -95,10 +87,9 @@ jobs:
 
             console.log(`✅ New Task Definition: ${newTaskDefArn}`);
 
-            // Update ECS Service
             console.log('🔄 Updating ECS service with new task definition...');
             execSync(`aws ecs update-service --cluster ${clusterName} --service ${serviceName} --task-definition ${newTaskDefArn} --force-new-deployment`, { stdio: 'inherit' });
 
-            console.log('🎉 Backend-UM Deployment Completed!');
+            console.log('🎉 Backend-TL Deployment Completed!');
         env:
-          changed_BackendUM: ${{ steps.changed.outputs.BackendUM }}
+          changed_BackendTL: ${{ steps.changed.outputs.BackendTL }}
