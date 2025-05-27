@@ -89,11 +89,9 @@ public class AdminAttendance {
 
 
     @Given("the user click on the all status dropdown option")
-    public void theUserClickOnTheAllStatusDropdownOption() throws InterruptedException {
+    public void theUserClickOnTheAllStatusDropdownOption() {
         homepage.clickAttendanceModule();
-        Thread.sleep(2000);
         homepage.clickDailyAttendance();
-        Thread.sleep(2000);
         adminDailyAttendancePage.getStatusNames();
 
     }
@@ -116,11 +114,9 @@ public class AdminAttendance {
     }
 
     @When("the user sets some filters available on the page")
-    public void theUserSetsSomeFiltersAvailableOnThePage() throws InterruptedException {
+    public void theUserSetsSomeFiltersAvailableOnThePage(){
         homepage.clickAttendanceModule();
-        Thread.sleep(2000);
         homepage.clickDailyAttendance();
-        Thread.sleep(2000);
         adminDailyAttendancePage.resetFilter();
         
     }
@@ -141,9 +137,8 @@ public class AdminAttendance {
     }
 
     @Given("the user click on location dropdown")
-    public void theUserClickOnLocationDropdown() throws InterruptedException {
+    public void theUserClickOnLocationDropdown()  {
         homepage.clickAttendanceModule();
-        Thread.sleep(2000);
         homepage.clickAttendanceDashboard();
         adminDailyAttendancePage.clickLocationOption();
 
@@ -164,7 +159,6 @@ public class AdminAttendance {
     @Given("the user click on department dropdown option")
     public void theUserClickOnDepartmentDropdownOption() throws InterruptedException {
         homepage.clickAttendanceModule();
-        Thread.sleep(2000);
         homepage.clickAttendanceDashboard();
         adminDailyAttendancePage.getDepartmentNames();
 
@@ -184,7 +178,6 @@ public class AdminAttendance {
     @Given("the user click on Attendance dashboard option present in Attendance module")
     public void theUserClickOnAttendanceDashboardOptionPresentInAttendanceModule() throws InterruptedException {
         homepage.clickAttendanceModule();
-        Thread.sleep(2000);
         homepage.clickAttendanceDashboard();
 
 
@@ -204,9 +197,7 @@ public class AdminAttendance {
 
     @Given("user click on Attendance dashboard option present in Attendance module")
     public void userClickOnAttendanceDashboardOptionPresentInAttendanceModule() throws InterruptedException {
-        Thread.sleep(2000);
         homepage.clickAttendanceModule();
-        Thread.sleep(2000);
         homepage.clickAttendanceDashboard();
 
     }
@@ -223,9 +214,8 @@ public class AdminAttendance {
     }
 
     @Given("admin click on Attendance dashboard option present in Attendance module")
-    public void adminClickOnAttendanceDashboardOptionPresentInAttendanceModule() throws InterruptedException {
+    public void adminClickOnAttendanceDashboardOptionPresentInAttendanceModule() {
         homepage.clickAttendanceModule();
-        Thread.sleep(2000);
         homepage.clickAttendanceDashboard();
 
     }
@@ -242,9 +232,8 @@ public class AdminAttendance {
     }
 
     @Given("user click on Attendance dashboard option present in Attendance module from the sidebar")
-    public void userClickOnAttendanceDashboardOptionPresentInAttendanceModuleFromTheSidebar() throws InterruptedException {
+    public void userClickOnAttendanceDashboardOptionPresentInAttendanceModuleFromTheSidebar()  {
         homepage.clickAttendanceModule();
-        Thread.sleep(2000);
         homepage.clickAttendanceDashboard();
 
     }
@@ -261,9 +250,8 @@ public class AdminAttendance {
     }
 
     @Given("user click on Overtime option from the Attendance module")
-    public void userClickOnOvertimeOptionFromTheAttendanceModule() throws InterruptedException {
+    public void userClickOnOvertimeOptionFromTheAttendanceModule()  {
         homepage.clickAttendanceModule();
-        Thread.sleep(2000);
         homepage.clickOvertime();
 
     }
@@ -278,9 +266,8 @@ public class AdminAttendance {
     }
 
     @Given("user clicks on Overtime option from Attendance module")
-    public void userClicksOnOvertimeOptionFromAttendanceModule() throws InterruptedException {
+    public void userClicksOnOvertimeOptionFromAttendanceModule() {
         homepage.clickAttendanceModule();
-        Thread.sleep(2000);
         homepage.clickOvertime();
 
     }
@@ -294,4 +281,43 @@ public class AdminAttendance {
     @Then("the table changes dynamically based on employee name")
     public void theTableChangesDynamicallyBasedOnEmployeeName() {
     }
+
+    @Given("user click on Attendance Request")
+    public void userClickOnAttendanceRequest() {
+        homepage.clickAttendanceModule();
+        homepage.clickAttendanceRequest();
+
+
+    }
+
+    @When("the user enter employee {string} in the search bar")
+    public void theUserEnterEmployeeInTheSearchBar(String name) {
+        adminDailyAttendancePage.searchBar(name);
+
+    }
+
+    @Then("the result will be on the table")
+    public void theResultWillBeOnTheTable() {
+    }
+
+    @Given("user click on Attendance request from the sidebar")
+    public void userClickOnAttendanceRequestFromTheSidebar() {
+
+        homepage.clickAttendanceModule();
+        homepage.clickAttendanceRequest();
+    }
+
+
+    @When("the user select {string} dropdown")
+    public void theUserSelectDropdown(String status) {
+       // adminDailyAttendancePage.selectAllStatusDropdown(status);
+        adminDailyAttendancePage.allStatusDropDown(status);
+
+    }
+
+    @Then("the table get change according to the status value")
+    public void theTableGetChangeAccordingToTheStatusValue() {
+    }
+
+
 }

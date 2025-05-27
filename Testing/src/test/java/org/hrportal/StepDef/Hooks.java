@@ -1,25 +1,26 @@
 package org.hrportal.StepDef;
 
 import io.cucumber.java.After;
-import io.cucumber.java.AfterAll;
 import io.cucumber.java.Before;
+import org.hrportal.utils.ConfigReader;
+import org.hrportal.webdriver.DriverChrome;
 import org.hrportal.webdriver.DriverManager;
-import org.junit.AfterClass;
 import org.openqa.selenium.WebDriver;
-import org.hrportal.webdriver.URLReader;
-
-
 
 public class Hooks {
 
-    private static WebDriver driver;
+    private WebDriver driver;
 
     @Before
     public void setUp() {
-        System.out.println("Launching browser for scenario");
-        driver = org.galvinus.webdriver.DriverChrome.initializeDriver();
-        String baseUrl = URLReader.getBaseUrl();
+        System.out.println("Launching browser for scenario...");
+
+        String browser = ConfigReader.getProperty("browser");
+        String baseUrl = ConfigReader.getProperty("baseUrl");
+
+        driver = DriverChrome.initializeDriver(browser);
         driver.get(baseUrl);
+
         DriverManager.setDriver(driver);
     }
 
@@ -29,4 +30,3 @@ public class Hooks {
         DriverManager.quitDriver();
     }
 }
-

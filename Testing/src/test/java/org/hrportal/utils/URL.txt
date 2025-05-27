@@ -1,1 +1,0 @@
-http://hr-portal-lb-28083365.us-east-1.elb.amazonaws.com/login

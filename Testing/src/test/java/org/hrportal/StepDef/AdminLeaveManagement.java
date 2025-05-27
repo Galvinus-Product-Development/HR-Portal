@@ -30,10 +30,10 @@ public class AdminLeaveManagement {
 
 
     @Given("the user click on Pending Leave Request option under the Leave Management")
-    public void theUserClickOnPendingLeaveRequestOptionUnderTheLeaveManagement() throws InterruptedException {
-        Thread.sleep(2000);
+    public void theUserClickOnPendingLeaveRequestOptionUnderTheLeaveManagement()  {
+
         homepage.clickLeaveManagement();
-        Thread.sleep(2000);
+
         homepage.pendingLeaveRequest();
 
     }
@@ -52,9 +52,9 @@ public class AdminLeaveManagement {
     }
 
     @Given("the user clicks on Leave Request option under the Leave Management")
-    public void theUserClicksOnLeaveRequestOptionUnderTheLeaveManagement() throws InterruptedException {
+    public void theUserClicksOnLeaveRequestOptionUnderTheLeaveManagement(){
         homepage.clickLeaveManagement();
-        Thread.sleep(2000);
+
         homepage.pendingLeaveRequest();
 
     }
@@ -76,10 +76,10 @@ public class AdminLeaveManagement {
     }
 
     @Given("the user clicks on Leave History option under Leave Management")
-    public void theUserClicksOnLeaveHistoryOptionUnderLeaveManagement() throws InterruptedException {
-        Thread.sleep(2000);
+    public void theUserClicksOnLeaveHistoryOptionUnderLeaveManagement(){
+
         homepage.clickLeaveManagement();
-        Thread.sleep(2000);
+
         homepage.clickLeaveHistory();
 
     }
@@ -95,9 +95,9 @@ public class AdminLeaveManagement {
     }
 
     @Given("the user clicks on Leave History option from the Leave Management")
-    public void theUserClicksOnLeaveHistoryOptionFromTheLeaveManagement() throws InterruptedException {
+    public void theUserClicksOnLeaveHistoryOptionFromTheLeaveManagement() {
         homepage.clickLeaveManagement();
-        Thread.sleep(2000);
+
         homepage.clickLeaveHistory();
         
     }
@@ -119,9 +119,9 @@ public class AdminLeaveManagement {
     }
 
     @Given("the user click on Leave History module from the Leave Management")
-    public void theUserClickOnLeaveHistoryModuleFromTheLeaveManagement() throws InterruptedException {
+    public void theUserClickOnLeaveHistoryModuleFromTheLeaveManagement() {
         homepage.clickLeaveManagement();
-        Thread.sleep(2000);
+
         homepage.clickLeaveHistory();
 
     }
@@ -141,9 +141,9 @@ public class AdminLeaveManagement {
     }
 
     @Given("the user selects Leave Policy option under Leave Management")
-    public void theUserSelectsLeavePolicyOptionUnderLeaveManagement() throws InterruptedException {
+    public void theUserSelectsLeavePolicyOptionUnderLeaveManagement(){
         homepage.clickLeaveManagement();
-        Thread.sleep(2000);
+
         homepage.clickLeavePolicy();
     }
 
@@ -159,17 +159,17 @@ public class AdminLeaveManagement {
     }
 
     @Given("the user click on Upload Policy button")
-    public void theUserClickOnUploadPolicyButton() throws InterruptedException {
+    public void theUserClickOnUploadPolicyButton()  {
         homepage.clickLeaveManagement();
-        Thread.sleep(2000);
+
         homepage.clickLeavePolicy();
 
     }
 
     @When("then user fills all the details {string} {string} from the popup")
-    public void thenUserFillsAllTheDetailsFromThePopup(String name, String type) throws InterruptedException {
+    public void thenUserFillsAllTheDetailsFromThePopup(String name, String type)  {
         adminLeaveManagementPage.uploadPolicyPopup();
-        Thread.sleep(2000);
+
         adminLeaveManagementPage.fillDetails(name, type);
 
     }
@@ -178,18 +178,6 @@ public class AdminLeaveManagement {
     public void thenClickOnUploadButton() {
      //   adminLeaveManagementPage.clickUpload();
     }
-    @Given("the user click on the Request Leave option from the Leave Management")
-    public void theUserClickOnTheRequestLeaveOptionFromTheLeaveManagement() {
 
-    }
-
-    @When("the user clicks on {string} dropdown")
-    public void theUserClicksOnDropdown(String arg0) {
-
-    }
-
-    @Then("the user selects any one option from the dropdown")
-    public void theUserSelectsAnyOneOptionFromTheDropdown() {
-    }
 
 }

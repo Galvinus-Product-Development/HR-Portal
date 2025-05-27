@@ -13,12 +13,13 @@ import org.junit.runner.RunWith;
                 "src/test/resources/org.hrportal.features/04_Trainingandlearning.feature"
         },
         glue = {"org.hrportal.StepDef"},
-        tags = "@ui",
+        tags = "@api",
         plugin = {
                 "pretty",
                 "html:target/cucumber-html-report",
                 "json:target/cucumber.json"
         },
+
         monochrome = true
 )
 public class TestRunner {
