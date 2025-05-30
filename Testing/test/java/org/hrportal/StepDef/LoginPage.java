@@ -43,6 +43,9 @@ public class LoginPage {
     private Response response;
     Map<String, Object> payload;
     Map<String, Object> correctionPayload;
+    Map<String, Object> requestBody;
+    //Map<String, Object> holiday = new HashMap<>();
+
     private Response loginResponse;
     public String accessToken;
     public String refreshToken;
@@ -1742,5 +1745,277 @@ public class LoginPage {
         System.out.println("Response Body: " + responseBody);
         assertTrue("Response does not contain expected key: " + expectedKey,
                 responseBody.contains(expectedKey));
+    }
+
+    @Given("the base URI is set to attendance")
+    public void theBaseURIIsSetToAttendance() {
+        String baseUrl = ConfigReader.getProperty("baseUrl");
+        RestAssured.baseURI = baseUrl;
+        System.out.println("Base URI set to: " + baseUrl);
+
+    }
+
+    @When("the user sends a GET request to {string} with employee ID {string}")
+    public void theUserSendsAGETRequestToWithEmployeeID(String endpoint, String employeeId) {
+
+        String fullUrl = baseURI+endpoint+employeeId;
+        System.out.println("Sending GET to: " + fullUrl);
+
+        response = RestAssured
+                .given()
+                .get(fullUrl);
+    }
+
+    @Then("the user response status code should be {int} after the request sent")
+    public void theUserResponseStatusCodeShouldBeAfterTheRequestSent(int expectedStatusCode) {
+        int actualStatusCode = response.getStatusCode();
+        System.out.println("Status Code: " + actualStatusCode);
+        assertEquals("Unexpected status code", expectedStatusCode, actualStatusCode);
+    }
+
+    @Given("the base URI is set to the request")
+    public void theBaseURIIsSetToTheRequest() {
+        String baseUrl = ConfigReader.getProperty("baseUrl");
+        RestAssured.baseURI = baseUrl;
+        System.out.println("Base URI set to: " + baseUrl);
+
+    }
+
+    @When("the user sends GET request to {string} with employee ID {string}")
+    public void theUserSendsGETRequestToWithEmployeeID(String endpoint, String employeeId) {
+
+        String fullEndpoint = RestAssured.baseURI+endpoint+employeeId;
+        System.out.println("Sending GET request to: " + fullEndpoint);
+
+        response = RestAssured
+                .given()
+                .get(fullEndpoint);
+    }
+
+    @Then("the user should receive an error response")
+    public void theUserShouldReceiveAnErrorResponse() {
+        int statusCode = response.getStatusCode();
+        System.out.println("Status Code: " + statusCode);
+
+        assertEquals("Expected status code 400", 404, statusCode);
+
+
+        String responseString = response.getBody().asString();
+        JsonPath jsonPath = new JsonPath(responseString);
+        System.out.println("Response JSON Path: " + jsonPath.prettyPrint());
+    }
+
+    @Given("the base URI is set check the overtime")
+    public void theBaseURIIsSetCheckTheOvertime() {
+        String baseUrl = ConfigReader.getProperty("baseUrl");
+        RestAssured.baseURI = baseUrl;
+        System.out.println("Base URI set to: " + baseUrl);
+
+    }
+
+    @And("the user prepares a PATCH payload with id {string} and status {string}")
+    public void theUserPreparesAPATCHPayloadWithIdAndStatus(String ID, String status) {
+        requestBody = new HashMap<>();
+        requestBody.put("id", ID);
+        requestBody.put("overtimeStatus", status);
+        System.out.println("PATCH payload prepared: " + requestBody);
+
+    }
+
+    @When("the user sends a PATCH request to {string} and {string}")
+    public void theUserSendsAPATCHRequestToAnd(String endpoint, String id) {
+        response = RestAssured
+                .given()
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+                .patch(RestAssured.baseURI+endpoint+id);
+
+        System.out.println("Status Code: " + response.getStatusCode());
+        System.out.println("Response Body: " + response.getBody().asString());
+
+    }
+
+    @Then("the user should get a successful response")
+    public void theUserShouldGetASuccessfulResponse() {
+        int statusCode = response.getStatusCode();
+        String body = response.getBody().asPrettyString();
+
+        System.out.println("Status Code: " + statusCode);
+        System.out.println("Response Body (JSON): \n" + body);
+    }
+
+
+    @Given("the base URI is set for claiming overtime")
+    public void theBaseURIIsSetForClaimingOvertime() {
+        String baseUrl = ConfigReader.getProperty("baseUrl");
+        RestAssured.baseURI = baseUrl;
+        System.out.println("Base URI set to: " + baseUrl);
+
+    }
+
+    @And("the user prepares a PATCH request with overtime id {string} and duration {string}")
+    public void theUserPreparesAPATCHRequestWithOvertimeIdAndDuration(String claimId, String duration) {
+        requestBody = new HashMap<>();
+        requestBody.put("id", claimId);
+        requestBody.put("duration", duration);
+        System.out.println("Request Body: " + requestBody);
+
+    }
+
+    @When("the user sends a PATCH request to {string} with path param {string}")
+    public void theUserSendsAPATCHRequestToWithPathParam(String endpoint, String id) {
+        String fullUrl = RestAssured.baseURI + endpoint + id;
+
+        response = RestAssured
+                .given()
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+                .patch(fullUrl);
+
+        System.out.println("Request sent to: " + fullUrl);
+
+    }
+
+    @Then("print the status code and response body")
+    public void printTheStatusCodeAndResponseBody() {
+        int statusCode = response.getStatusCode();
+        String responseBody = response.getBody().asPrettyString();
+
+        System.out.println("Status Code: " + statusCode);
+        System.out.println("Response Body:\n" + responseBody);
+    }
+
+    @Given("the base URI is set to fetch and update overtime")
+    public void theBaseURIIsSetToFetchAndUpdateOvertime() {
+        String baseUrl = ConfigReader.getProperty("baseUrl");
+        RestAssured.baseURI = baseUrl;
+        System.out.println("Base URI set to: " + baseUrl);
+
+    }
+
+    @When("user sends a GET request to {string} with employee ID {string}")
+    public void userSendsAGETRequestToWithEmployeeID(String endpoint, String id) {
+        String fullUrl = RestAssured.baseURI + endpoint + id;
+
+        response = RestAssured
+                .given()
+                .get(fullUrl);
+
+        System.out.println("Request sent to: " + fullUrl);
+
+    }
+
+    @Then("print status code and response body")
+    public void printStatusCodeAndResponseBody() {
+        int statusCode = response.getStatusCode();
+        String responseBody = response.getBody().asPrettyString();
+
+        System.out.println("Status Code: " + statusCode);
+        System.out.println("Response Body:\n" + responseBody);
+    }
+
+    @Given("the base URI is set for holiday creation")
+    public void theBaseURIIsSetForHolidayCreation() {
+        String baseUrl = ConfigReader.getProperty("baseUrl");
+        RestAssured.baseURI = baseUrl;
+        System.out.println("Base URI set to: " + baseUrl);
+
+    }
+
+    @And("the user prepares a POST request with date {string}, createdAt {string}, location {string}, and title {string}")
+    public void theUserPreparesAPOSTRequestWithDateCreatedAtLocationAndTitle(String date, String createdAt, String location, String title) {
+
+        Map<String, Object> holiday = new HashMap<>();
+        requestBody = new HashMap<>();
+
+        holiday.put("date", date);
+        holiday.put("createdAt", createdAt);
+        holiday.put("location", location);
+        holiday.put("title", title);
+
+        requestBody.put("holidays", List.of(holiday));
+        System.out.println("Request Body: " + requestBody);
+    }
+
+    @When("the user send a POST request to {string}")
+    public void theUserSendAPOSTRequestTo(String endpoint) {
+        String fullUrl = RestAssured.baseURI + endpoint;
+
+        response = RestAssured
+                .given()
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+                .post(fullUrl);
+
+        System.out.println("Request sent to: " + fullUrl);
+
+    }
+
+    @Then("print the status code and response body of result")
+    public void printTheStatusCodeAndResponseBodyOfResult() {
+        int statusCode = response.getStatusCode();
+        String responseBody = response.getBody().asPrettyString();
+
+        System.out.println("Status Code: " + statusCode);
+        System.out.println("Response Body:\n" + responseBody);
+    }
+
+    @Given("the base URI is set for holiday retrieval")
+    public void theBaseURIIsSetForHolidayRetrieval() {
+        String baseUrl = ConfigReader.getProperty("baseUrl");
+        RestAssured.baseURI = baseUrl;
+        System.out.println("Base URI set to: " + baseUrl);
+        
+    }
+
+    @When("the user send a GET request {string}")
+    public void theUserSendAGETRequest(String endPoint) {
+        String fullUrl = RestAssured.baseURI + endPoint;
+
+        response = RestAssured
+                .given()
+                .get(fullUrl);
+
+        System.out.println("GET request sent to: " + fullUrl);
+    }
+
+
+
+    @Then("print the status code and response body for the holiday list")
+    public void printTheStatusCodeAndResponseBodyForTheHolidayList() {
+        int statusCode = response.getStatusCode();
+        String responseBody = response.getBody().asPrettyString();
+
+        System.out.println("Status Code: " + statusCode);
+        System.out.println("Response Body:\n" + responseBody);
+    }
+
+    @Given("the base URI is set for deleting a holiday")
+    public void theBaseURIIsSetForDeletingAHoliday() {
+        String baseUrl = ConfigReader.getProperty("baseUrl");
+        RestAssured.baseURI = baseUrl;
+        System.out.println("Base URI set to: " + baseUrl);
+
+    }
+
+    @When("the user sends a DELETE request to {string} with ID {string}")
+    public void theUserSendsADELETERequestToWithID(String endPoint, String holidayId) {
+        String fullUrl = RestAssured.baseURI + endPoint + holidayId;
+
+        response = RestAssured
+                .given()
+                .delete(fullUrl);
+
+        System.out.println("DELETE request sent to: " + fullUrl);
+
+    }
+
+    @Then("print the status code and response body of the delete operation")
+    public void printTheStatusCodeAndResponseBodyOfTheDeleteOperation() {
+        int statusCode = response.getStatusCode();
+        String responseBody = response.getBody().asPrettyString();
+
+        System.out.println("Status Code: " + statusCode);
+        System.out.println("Response Body:\n" + responseBody);
     }
 }

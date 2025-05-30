@@ -20,8 +20,8 @@ public class DriverChrome {
         } else if (browser.equalsIgnoreCase("firefox")) {
             System.setProperty("webdriver.gecko.driver", "src/test/resources/drivers/geckodriver.exe");
             FirefoxOptions options = new FirefoxOptions();
-            options.addArguments("--width=1920");
-            options.addArguments("--height=1080");
+            options.addArguments("--width=1800");
+            options.addArguments("--height=900");
             driver = new FirefoxDriver(options);
 
         } else {

@@ -71,10 +71,10 @@ Scenario: Verify the functionality of attendance module
     When the user can see the available "<department>" options in the dropdown
     Then the user should "<result>" able to select the department
     Examples:
-      | department | result  |
-      | General    | succeed |
-      | SAP        | succeed |
-      | Salesforce | fail    |
+      | department  | result  |
+      | SAP C4C     | succeed |
+      | Engineering | succeed |
+      | Salesforce  | fail    |
 
   @ui
   Scenario Outline: Verify the functionality of Employee Name text filed present in Attendance Dashboard option
@@ -136,6 +136,86 @@ Scenario: Verify the functionality of attendance module
       | Pending  |
       | Approved |
       | Rejected |
+
+  @ui
+ Scenario Outline: Verify the functionality of Search bar
+    Given user click on Attendance Request
+    When the user enter employee "<name>" in the search bar
+    Then the result will be on the table
+    Examples:
+      | name      |
+      | Shraddha  |
+      | Rohan Roy |
+
+ @ui
+ Scenario Outline: Verify the functionality of all status dropdown
+   Given user click on Attendance request from the sidebar
+   When the user select "<All Status>" dropdown
+   Then the table get change according to the status value
+   Examples:
+     | All Status |
+     | Approved   |
+     | Rejected   |
+     | No Value   |
+
+ @ui
+ Scenario Outline: Verify the functionality of Department dropdown
+   Given user click on Attendance request from the Attendance module
+   When user select different "<Department>" from the dropdown
+   Then table get change automatically based on department
+   Examples:
+     | Department |
+     | HR         |
+     | Testing    |
+
+ @ui
+ Scenario: Verify the functionality of Attendance request button
+   Given user click on attendance tracker under attendance module
+   When user click on attendance request button
+   Then a popup should appear
+
+   @ui
+   Scenario Outline: Send a punch-in attendance request to admin
+     Given user enters "<punch In Time>", "<Reason>"
+     When user click on submit button
+     Then a successful notification is displayed
+     Examples:
+       | punch In Time | Reason        |
+       | 10.30         |               |
+       |               | Network issue |
+       | 10.30         | Network issue |
+
+   @ui
+   Scenario Outline: Send a punch-out attendance request to admin
+     Given user enters details of "<Punch out timings>", "<Reason>"
+     When user clicks on submit button
+     Then a successful notification displayed
+     Examples:
+       | Punch out timings | Reason  |
+       | 20.00             |         |
+       |                   | Testing |
+       |20.00              |Testing  |
+
+   @ui
+   Scenario: Verify the functionality of Calendar view and list view button
+     Given user in the attendance dashboard page
+     When user click on calendar view button and list view button
+     Then table should change
+
+   @ui
+   Scenario Outline: Verify the functionality of All status dropdown
+     Given user in overtime page
+     When the user select "<status>" in the dropdown
+     Then table changes accordingly
+     Examples:
+       | status   |
+       | Pending  |
+       | Approved |
+       | Cancel   |
+
+
+
+
 
 
 

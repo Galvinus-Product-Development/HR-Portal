@@ -42,5 +42,5 @@ Feature: Holiday
     When the user selects "<Year>" "<Month>" "<Location>" "<Holiday name>"
     Then the user click on add to batch button
     Examples:
-      | Year | Month | Location | Holiday name    |
-      | 2025 | May   | All      | Testing Purpose |
+      | Year | Month | Location | Holiday name     |
+      | 2025 | May   | All      | Testing Purpose1 |

@@ -41,8 +41,8 @@ public class AdminHolidayCalendarPage {
     }
 
     @Given("user click on holiday option in the sidebar")
-    public void userClickOnHolidayOptionInTheSidebar() throws InterruptedException {
-        Thread.sleep(2000);
+    public void userClickOnHolidayOptionInTheSidebar() {
+
         homepage.clickHolidayModule();
 
     }
@@ -73,15 +73,15 @@ public class AdminHolidayCalendarPage {
 
 
     @Given("the user clicks on holiday option from the sidebar")
-    public void theUserClicksOnHolidayOptionFromTheSidebar() throws InterruptedException {
-        Thread.sleep(2000);
+    public void theUserClicksOnHolidayOptionFromTheSidebar()  {
+
         homepage.clickHolidayModule();
     }
 
     @When("the user selects {string} {string} {string} {string}")
     public void theUserSelects(String year, String month, String location, String holidayName) throws InterruptedException {
         holidayPage.fillHolidayDetails(year, month, location,holidayName  );
-        Thread.sleep(3000);
+
     }
 
     @Then("the user click on add to batch button")

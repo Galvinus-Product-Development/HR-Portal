@@ -80,8 +80,9 @@ Feature: LoggedIn User View
     Then user response status code should be 200
     And the password reset response should contain a success message
     Examples:
-      | requests                               | email                 |  |
-      | /um/api/v1/auth/password-reset/request | bhaskar.r@galvinus.in |  |
+      | requests                               | email                     |
+      | /um/api/v1/auth/password-reset/request | bhaskar.r@galvinus.in     |
+      | /um/api/v1/auth/password-reset/request | bhaskarbasu7070@gmail.com |
 
   @api
 Scenario Outline: Get employee role permissions
@@ -231,30 +232,34 @@ Scenario Outline: Mark manual attendance for an employee
     Then user response status code should 200 after sending request
     And the response should confirm manual attendance success
     Examples:
-      | endpoint                   | employeeId                     | date                        | punchInTime                  | attendanceStatus | punchInMethod |
-      | /at/api/attendance/manual | 682441dfde9fba7d44af953f       | 2025-05-15T10:00:00.000Z    | 2025-05-15T10:00:00.00Z      | Present          | Dashboard     |
+      | endpoint                  | employeeId               | date                     | punchInTime             | attendanceStatus | punchInMethod |
+      | /at/api/attendance/manual | 682441dfde9fba7d44af953f | 2025-05-15T10:00:00.000Z | 2025-05-15T10:00:00.00Z | Present          | Dashboard     |
+      | /at/api/attendance/manual | 682441dfde9fba7d44af953f | 2025-05-15T10:00:00.000Z | 2025-05-15T10:00:00.00Z | Not              | Dashboard     |
 
- @api
-Scenario Outline: Get list of employees present today
+  @api
+  Scenario Outline: Get list of employees present today
    Given the API base URI is set for attendance
    When the user sends a GET request to the present-today "<endpoint>"
    Then user response status code should 200
    And the response should contain today's present employee data
    Examples:
-     | endpoint                         |  |
-     | /at/api/attendance/present-today |  |
+     | endpoint                         |
+     | /at/api/attendance/present-today |
+     | /at/api/attendance/              |
 
-@api
+  @api
 Scenario Outline: Get all attendance records
   Given  API base URI is set for attendance
   When the user sends a GET request to the attendance root "<endpoint>"
   Then user response status code should 200 at the end
   And the response should contain attendance data
   Examples:
-    | endpoint            |  |
-    | /at/api/attendance/ |  |
+    | endpoint            |
+    | /at/api/attendance/ |
+    | api/attendance/     |
 
-@api
+
+  @api
 Scenario Outline: Successfully fetch today's attendance data
   Given API base URI is set for today's attendance check
   When the user sends a GET request to fetch today's attendance for employee "<endPoint>" "<ID>"
@@ -263,9 +268,11 @@ Scenario Outline: Successfully fetch today's attendance data
   Examples:
     | endPoint            | ID                                          |
     | /at/api/attendance/ | 6815a083653f515d4d712d1e?year=2025&month=05 |
+    | /at/api/attendance/ | 6815a083653f515d4d712d1e?year=2025&month    |
+    | attendance/         | 6815a083653f515d4d712d1e?year=2025&month=05 |
 
 
-@api
+  @api
 Scenario Outline: Get today's attendance for a specific employee
   Given the API base URL is set for attendance
   When the user sends a GET request to today's attendance "<endpoint>" for employee "<employeeId>"
@@ -274,6 +281,8 @@ Scenario Outline: Get today's attendance for a specific employee
   Examples:
     | endpoint            | employeeId               |
     | /at/api/attendance/ | 6824455bde9fba7d44af9541 |
+    | /at/api/attendance/ | 6824455bde9fba7d44af9541 |
+    | api/attendance/     | 6824455bde9fba7d44af9541 |
 
   @api
   Scenario Outline: Update punch-out details for employee
@@ -284,8 +293,10 @@ Scenario Outline: Get today's attendance for a specific employee
   Examples:
     | endpoint            | ID                       |
     | /at/api/attendance/ | 6815a083653f515d4d712d1e |
+    | /at/api/attendance/ | 6815a083653f515d4d7      |
+    | api/attendance/     | 6815a083653f515d4d712d1e |
 
-@api
+  @api
 Scenario Outline: Submit attendance correction request due to missed logout
   Given the attendance correction API base URI is configured
   And the correction request payload is prepared with employeeId "<employeeId>", requestDate "<requestDate>", attendanceDate "<attendanceDate>", punchInTime "<punchInTime>", punchOutTime <punchOutTime>, and reason "<reason>"
@@ -296,6 +307,7 @@ Scenario Outline: Submit attendance correction request due to missed logout
   Examples:
     | endpoint                   | employeeId               | requestDate              | attendanceDate           | punchInTime              | punchOutTime | reason            |
     | /at/api/attendanceRequest/ | 6815a083653f515d4d712d1e | 2025-05-15T00:00:00.000Z | 2025-05-15T00:00:00.000Z | 2025-04-25T10:30:00.000Z | null         | Forgot to log out |
+    | /at/api/attendanceRequest/ | 6815a083653f515d4d712d1e | 2025-05-15T00:00:00.000Z | 2025-05-15T00:00:00.000Z | 2025-04-25T10:30:00.000Z | null         |                   |
 
 
   @api
@@ -305,10 +317,11 @@ Scenario Outline: Submit attendance correction request due to missed logout
     Then user response status code should be 200 after the request
     And the response should contain attendance correction request data
     Examples:
-      | endPoint                   |  |
-      | /at/api/attendanceRequest/ |  |
+      | endPoint                   |
+      | /at/api/attendanceRequest/ |
+      | /at/api/attendance         |
 
- @api
+  @api
  Scenario Outline: Submit monthly attendance for an employee
    Given the API base URI is set for monthly attendance
    And the monthly attendance payload is prepared with employeeId "<employeeId>", monthYear "<monthYear>", workingDays "<workingDays>", presentDays "<presentDays>", absentDays "<absentDays>", halfDays "<halfDays>", lateDays "<lateDays>", monthlyLateComing "<monthlyLateComing>", earlyLeaving "<earlyLeaving>", and overtimeHours "<overtimeHours>"
@@ -317,11 +330,14 @@ Scenario Outline: Submit attendance correction request due to missed logout
    And the response should confirm monthly attendance submission success
 
    Examples:
-     | employeeId               | monthYear | workingDays | presentDays | absentDays | halfDays | lateDays | monthlyLateComing | earlyLeaving | overtimeHours | end                        | point              | ID                       |  |
-     | 6815a083653f515d4d712d1e | 2025-03   | 22          | 0           | 0          | 0        | 0        | 0                 | 0            | 0             | /at/api/monthlyAttendance/ | ?year=2025&month=4 | 6815a083653f515d4d712d1e |  |
+     | employeeId               | monthYear | workingDays | presentDays | absentDays | halfDays | lateDays | monthlyLateComing | earlyLeaving | overtimeHours | end                        | point              | ID                       |
+     | 6815a083653f515d4d712d1e | 2025-03   | 22          | 0           | 0          | 0        | 0        | 0                 | 0            | 0             | /at/api/monthlyAttendance/ | ?year=2025&month=4 | 6815a083653f515d4d712d1e |
+     | 6815a083653f515d4d712d1e | 2025-03   | 22          | 0           | 0          | 0        | 0        | 0                 | 0            | 0             | /at/api/monthly            | ?year=2025&month=4 | 6815a083653f515d4d712d1e |
+     | 6815a083653f515d4d       | 2025- 03  | 22          | 0           | 0          | 0        | 0        | 0                 | 0            | 0             | /at/api/monthlyAttendance/ | ?year=2025&month=4 | 6815a083653f515d4d7      |
 
 
- @api
+
+  @api
 Scenario Outline: Get monthly attendance for an employee
    Given the base URI is set to
    When the user sends a GET request to "<endpoint>" "<ID>" "<month>"
@@ -330,8 +346,10 @@ Scenario Outline: Get monthly attendance for an employee
    Examples:
      | endpoint                   | ID                       | month              | result                   |
      | /at/api/monthlyAttendance/ | 6815a083653f515d4d712d1e | ?year=2025&month=4 | 6815a083653f515d4d712d1e |
+     | /at/api/monthlyAttendance/ | 6815a083653f515d4d712d1e | ?year=2025&mon     | 6815a083653f515d4d7      |
+     | /at/api/monthlyAttendan    | 6815a083653f515d4d       | ?year=2025&mon     | 6815a083653f515d4d712d1e |
 
-@api
+  @api
 Scenario Outline: Get all monthly attendance records for an employee
   Given the base URL is set to
   When the user sends a GET request to "<endPoint>" with "<employeeID>"
@@ -339,8 +357,9 @@ Scenario Outline: Get all monthly attendance records for an employee
   Examples:
     | endPoint                   | employeeID               |
     | /at/api/monthlyAttendance/ | 6815a083653f515d4d712d1e |
+    | /at/api/monthlyAttendance/ | 6815a083653f515d4d71     |
 
-@api
+  @api
 Scenario Outline: Validate response for GET overtime data
   Given  base URI is set to
   When the user sends a GET request  "<endpoint>"
@@ -350,6 +369,101 @@ Scenario Outline: Validate response for GET overtime data
   Examples:
     | endpoint                     | expectedKey              |
     | /at/api/overtime/getOvertime | 6815a083653f515d4d712d1e |
+    | /at/api/overtime/getOvertime | 6815a083653f515d4d71     |
+
+
+  @api
+  Scenario Outline: Fetch overtime details by employee ID
+  Given the base URI is set to attendance
+  When the user sends a GET request to "<endpoint>" with employee ID "<employeeId>"
+  Then the user response status code should be 200 after the request sent
+
+
+  Examples:
+    | endpoint                          | employeeId               |
+    | /at/api/overtime/getOvertimeById/ | 6815a083653f515d4d712d1e |
+    | /at/api/overtime/getOvertimeById/ | 6815a083653f515d         |
+
+  @api
+Scenario Outline: Successfully fetch overtime details for a given employee ID
+  Given the base URI is set to the request
+  When the user sends GET request to "<endpoint>" with employee ID "<employeeId>"
+  Then the user should receive an error response
+  Examples:
+    | endpoint                          | employeeId               |
+    | /at/api/overtime/getOvertimeById/ | 6825f1515f5c43ab50cd6611 |
+    | /at/api/overtime/getOvertimeById/ | 6825f1515f5c43ab         |
+
+  @api
+Scenario Outline: Update overtime status using PATCH method
+  Given the base URI is set check the overtime
+  And the user prepares a PATCH payload with id "<ID>" and status "<Overtime>"
+  When the user sends a PATCH request to "<endpoint>" and "<id>"
+  Then the user should get a successful response
+  Examples:
+    | ID              | Overtime        | endpoint                       | id                       |
+    | 723tecbdqygdb23 | REQUESTACCEPTED | /at/api/overtime/updateStatus/ | 6815a083653f515d4d712d1e |
+    | 723tecbdqygdb23 | REQUESTACCEPTED | /at/api/overtime/updateStatus/ | 6815a083653f515d4d       |
+
+
+  @api
+Scenario Outline: Claim overtime duration using PATCH method
+  Given the base URI is set for claiming overtime
+  And the user prepares a PATCH request with overtime id "<claimId>" and duration "<duration>"
+  When the user sends a PATCH request to "<endpoint>" with path param "<id>"
+  Then print the status code and response body
+
+  Examples:
+    | claimId         | duration | endpoint                        | id                       |
+    | 723tecbdqygdb23 | 3min     | /at/api/overtime/claimOvertime/ | 6825ea7d5f5c43ab50cd6610 |
+    | 723tecbdqygdb23 | 3min     | /at/api/overtime/claimOvertime/ | 6825f5c43ab50cd6610      |
+
+
+  @api
+Scenario Outline: Fetch and update overtime details by ID using GET method
+  Given the base URI is set to fetch and update overtime
+  When  user sends a GET request to "<endpoint>" with employee ID "<id>"
+  Then print status code and response body
+
+  Examples:
+    | endpoint                                 | id                       |
+    | /at/api/overtime/fetchAndUpdateOvertime/ | 6815a083653f515d4d712d1e |
+    | /at/api/overtime/fetchAndUpdateOvertime/ | 681653f515d4d712d1e      |
+
+
+  @api
+  Scenario Outline: Create a new holiday using POST method
+    Given the base URI is set for holiday creation
+    And the user prepares a POST request with date "<date>", createdAt "<createdAt>", location "<location>", and title "<title>"
+    When the user send a POST request to "<endpoint>"
+    Then print the status code and response body of result
+
+    Examples:
+      | date                     | createdAt                | location | title           | endpoint        |
+      | 2025-08-21T10:00:00.000Z | 2025-05-16T10:00:00.000Z | GLOBAL   | TESTING PURPOSE | /lm/api/holiday |
+      | 2025-08-21T10:00:00.000Z | 2025-05-16T10:00:00.000Z | GLOBAL   | TESTING PURPOSE | /lm/api/holiday |
+
+
+ @api
+Scenario Outline: Retrieve the list of holidays
+   Given the base URI is set for holiday retrieval
+   When the user send a GET request "<endpoint>"
+   Then print the status code and response body for the holiday list
+   Examples:
+     | endpoint         |
+     | /lm/api/holiday/ |
+
+@api
+Scenario Outline: Delete a holiday by ID
+  Given the base URI is set for deleting a holiday
+  When the user sends a DELETE request to "<endPoint>" with ID "<holidayId>"
+  Then print the status code and response body of the delete operation
+
+  Examples:
+    | endPoint         | holidayId                            |
+    | /lm/api/holiday/ | 7740027d-6512-4adc-98bc-c2e12f1eb7e4 |
+    | /lm/api/holiday/ | 7740027d-6512-4adc-98bc              |
+    | /lm/api/         | 7740027d-6512-4adc-98bc-c2e12f1eb7e4 |
 
 
   @ui
