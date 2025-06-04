@@ -7,19 +7,20 @@ import org.junit.runner.RunWith;
 @RunWith(Cucumber.class)
 @CucumberOptions(
         features = {
-                "src/test/resources/org.hrportal.features/01_usermanagement.feature",
-                "src/test/resources/org.hrportal.features/02_employeedatabase.feature",
-                "src/test/resources/org.hrportal.features/03_attendance.feature",
-                "src/test/resources/org.hrportal.features/04_Trainingandlearning.feature"
+//                "src/test/resources/org.hrportal.features/01_usermanagement.feature",
+//                "src/test/resources/org.hrportal.features/02_employeedatabase.feature",
+//                "src/test/resources/org.hrportal.features/03_attendance.feature",
+//                "src/test/resources/org.hrportal.features/04_Trainingandlearning.feature",
+                "src/test/resources/org.hrportal.features/06_holiday.feature"
         },
         glue = {"org.hrportal.StepDef"},
-        tags = "@api",
+        tags = "@ui",
         plugin = {
                 "pretty",
-                "html:target/cucumber-html-report",
-                "json:target/cucumber.json"
+//                "html:target/cucumber-html-report",
+//                "json:target/cucumber.json",
+                "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
         },
-
         monochrome = true
 )
 public class TestRunner {

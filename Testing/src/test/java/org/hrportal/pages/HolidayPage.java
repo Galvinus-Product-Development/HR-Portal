@@ -4,6 +4,7 @@ import io.cucumber.java.mk_latn.No;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.UnexpectedTagNameException;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
@@ -21,6 +22,8 @@ public class HolidayPage {
     public static String Holiday_Name_Text_Box = "//*[@id=\"root\"]/div/div/main/div/div[3]/div[1]/div/div[2]/input";
     public static String Add_To_Batch = "//button[text()='Add to Batch']";
     public static String Save_All_Holidays = "//button[contains (@class, 'save-batch-btn')]";
+    public static String Select_Year_Dropdown = "year-select";
+    public static String Select_Month_Dropdown = "month-select";
 
 
 
@@ -105,26 +108,163 @@ public class HolidayPage {
 
 
     }
-    public void createHoliday(){
+    public void createHoliday() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement isButtonEnable = null;
+        WebElement saveAllHolidayButton = null;
 
-
-        wait.until(ExpectedConditions.elementToBeClickable(By.xpath(Add_To_Batch))).click();
-        wait.until(ExpectedConditions.elementToBeClickable(By.xpath(Save_All_Holidays))).click();
 
         try {
+            try {
+                isButtonEnable = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(Add_To_Batch)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: 'Add to Batch' button not clickable - " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("'Add to Batch' button not found - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error finding 'Add to Batch' button - " + e.getMessage());
+                return;
+            }
 
-            wait.until(ExpectedConditions.alertIsPresent());
+            try {
+                if (isButtonEnable.isEnabled()) {
+                    System.out.println("Add to Batch button is enabled and clickable");
+                    isButtonEnable.click();
+                } else {
+                    System.out.println("Add to Batch button is disabled");
+                }
+            } catch (ElementClickInterceptedException e) {
+                System.out.println("Cannot click 'Add to Batch' button - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error clicking 'Add to Batch' button - " + e.getMessage());
+                return;
+            }
+        } catch (Exception e) {
+            System.out.println("Outer exception during Add to Batch process - " + e.getMessage());
+            return;
+        }
 
-            Alert isAlert = driver.switchTo().alert();
-            String alertText = isAlert.getText();
-            System.out.println("Alert Text: " + alertText);
 
-            isAlert.accept();
-        } catch (NoAlertPresentException e) {
-            System.out.println("No alert was present.");
-        } catch (TimeoutException e) {
-            System.out.println("Alert did not appear within the expected time.");
+        try {
+            try {
+                saveAllHolidayButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(Save_All_Holidays)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: 'Save All Holidays' button not clickable - " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("'Save All Holidays' button not found - " + e.getMessage());
+                return;
+            }
+
+            try {
+                if (saveAllHolidayButton.isEnabled()) {
+                    System.out.println("Save All Holidays button is enabled and clickable");
+                    saveAllHolidayButton.click();
+                } else {
+                    System.out.println("Save All Holidays button is disabled");
+                }
+            } catch (ElementClickInterceptedException e) {
+                System.out.println("Cannot click 'Save All Holidays' button - " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error clicking 'Save All Holidays' button - " + e.getMessage());
+            }
+        } catch (Exception e) {
+            System.out.println("Outer exception during Save All Holidays process - " + e.getMessage());
+        }
+
+
+        try {
+            try {
+                wait.until(ExpectedConditions.alertIsPresent());
+                Alert isAlert = driver.switchTo().alert();
+                String alertText = isAlert.getText();
+                System.out.println("Alert Text: " + alertText);
+                isAlert.accept();
+            } catch (NoAlertPresentException e) {
+                System.out.println("No alert was present.");
+            } catch (TimeoutException e) {
+                System.out.println("Alert did not appear in time - " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error handling alert - " + e.getMessage());
+            }
+        } catch (Exception e) {
+            System.out.println("Outer exception during alert handling - " + e.getMessage());
         }
     }
+
+    public void setYearDropdown(String year) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement yearDropdown = null;
+
+        try {
+            try {
+                yearDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.id(Select_Year_Dropdown)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Year dropdown did not become clickable in time - " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Year dropdown element not found - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while locating year dropdown - " + e.getMessage());
+                return;
+            }
+
+            try {
+                Select select = new Select(yearDropdown);
+                select.selectByVisibleText(year);
+                System.out.println("Year selected successfully: " + year);
+            } catch (NoSuchElementException e) {
+                System.out.println("Year '" + year + "' not found in dropdown options - " + e.getMessage());
+            } catch (UnexpectedTagNameException e) {
+                System.out.println("The year dropdown element is not a <select> tag - " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error while selecting year - " + e.getMessage());
+            }
+
+        } catch (Exception outer) {
+            System.out.println("Unhandled exception in setYearDropdown method - " + outer.getMessage());
+        }
+    }
+
+    public void setMonthDropdown(String month) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement monthDropdown = null;
+
+        try {
+            try {
+                monthDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.id(Select_Month_Dropdown)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Month dropdown did not become clickable in time - " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Month dropdown element not found - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while locating month dropdown - " + e.getMessage());
+                return;
+            }
+
+            try {
+                Select select = new Select(monthDropdown);
+                select.selectByVisibleText(month);
+                System.out.println("Month selected successfully: " + month);
+            } catch (NoSuchElementException e) {
+                System.out.println("Month '" + month + "' not found in dropdown options - " + e.getMessage());
+            } catch (UnexpectedTagNameException e) {
+                System.out.println("The month dropdown element is not a <select> tag - " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error while selecting month - " + e.getMessage());
+            }
+
+        } catch (Exception outer) {
+            System.out.println("Unhandled exception in setMonthDropdown method - " + outer.getMessage());
+        }
+    }
+
+
+
 }

@@ -26,9 +26,18 @@ public class AdminEmployeeDatabaseMainPage {
     public static final By Select_Status = By.xpath("(//select[@class='employee-db-select'])[3]");
 
     public static String Employee = "//*[@id=\"root\"]/div/div/main/div/div[3]/table/tbody/tr/td[1]/div/div/div[1]";
-    public static String Select_Employee = "//*[@id=\"root\"]/div/div/main/div/div[3]/table/tbody/tr/td[1]/div/div/div[1]";
+  //  public static String Select_Employee = "//*[@id=\"root\"]/div/div/main/div/div[3]/table/tbody/tr/td[1]/div/div/div[1]";
     public static String Profile_Icon = "//*[@id=\"root\"]/div/header/div[2]/div/div/img";
     public static String Employee_DashBoard_Button = "//button[text()='Go to Employee Dashboard']";
+    public static String Add_Employee_Button = "//button[text()=' Add Employee']";
+    public static String Add_Employee_Popup = "//*[@id=\"root\"]/div/div/main/div/div[5]/div";
+    public static String Import_Button = "//button[text()='Import']";
+    public static String Import_Popup = "//*[@id=\"root\"]/div/div/main/div/div[5]/div";
+    public static String Export_Button = "//button[text()=' Export']";
+    public static String Select_Employee = "//div[text()='Prajwal DP']";
+    public static String Go_Back_Button = "//button[text()='Go Back']";
+    public static String Edit_Profile_Button = "//button[text()='Edit Profile']";
+    public static String Edit_Profile_Popup = "//*[@id=\"root\"]/div/div/main/div/div[6]/div";
 
     public boolean employeeDetailsTable(){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -115,34 +124,42 @@ public class AdminEmployeeDatabaseMainPage {
         WebElement departmentDropdown = null;
 
         try {
+
             try {
                 departmentDropdown = wait.until(ExpectedConditions.visibilityOfElementLocated(Select_Department));
             } catch (TimeoutException e) {
-                System.out.println("Department dropdown did not become visible in time: " + e.getMessage());
+                System.out.println("Timeout: Department dropdown not visible in time: " + e.getMessage());
                 return;
             } catch (NoSuchElementException e) {
                 System.out.println("Department dropdown not found: " + e.getMessage());
                 return;
             } catch (Exception e) {
-                System.out.println("Unexpected error while locating the department dropdown: " + e.getMessage());
+                System.out.println("Unexpected error locating department dropdown: " + e.getMessage());
                 return;
             }
+
 
             try {
                 departmentDropdown.click();
             } catch (ElementClickInterceptedException e) {
-                System.out.println("Unable to click the department dropdown: " + e.getMessage());
+                System.out.println("Dropdown click intercepted: " + e.getMessage());
+                return;
+            } catch (ElementNotInteractableException e) {
+                System.out.println("Dropdown not interactable: " + e.getMessage());
                 return;
             } catch (Exception e) {
-                System.out.println("Unexpected error during dropdown click: " + e.getMessage());
+                System.out.println("Unexpected error clicking dropdown: " + e.getMessage());
                 return;
             }
 
+
             try {
                 select = new Select(departmentDropdown);
-                System.out.println("Department dropdown initialized successfully.");
+                System.out.println("Select object for department dropdown initialized.");
+            } catch (UnexpectedTagNameException e) {
+                System.out.println("Element is not a <select> tag: " + e.getMessage());
             } catch (Exception e) {
-                System.out.println("Error initializing Select object: " + e.getMessage());
+                System.out.println("Unexpected error initializing Select object: " + e.getMessage());
             }
 
         } catch (Exception e) {
@@ -150,17 +167,20 @@ public class AdminEmployeeDatabaseMainPage {
         }
     }
 
+
     public void department(String department) {
         try {
             try {
                 select.selectByVisibleText(department);
                 System.out.println(department + " : is present in the dropdown");
             } catch (NoSuchElementException e) {
-                System.out.println(department + " : is not present in the dropdown (NoSuchElementException)");
+                System.out.println(department + " : is not found in the dropdown (NoSuchElementException)");
             } catch (IllegalStateException e) {
-                System.out.println("Select object is not properly initialized: " + e.getMessage());
+                System.out.println("Select object not initialized: " + e.getMessage());
+            } catch (NullPointerException e) {
+                System.out.println("Select object is null. Did you call selectDepartment()? " + e.getMessage());
             } catch (Exception e) {
-                System.out.println("Unexpected error while selecting department: " + e.getMessage());
+                System.out.println("Unexpected error selecting department: " + e.getMessage());
             }
         } catch (Exception outer) {
             System.out.println("Unhandled exception in department method: " + outer.getMessage());
@@ -168,10 +188,12 @@ public class AdminEmployeeDatabaseMainPage {
     }
 
 
+
     public void selectLocation() {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             WebElement locationDropdown = null;
+
 
             try {
                 locationDropdown = wait.until(ExpectedConditions.visibilityOfElementLocated(Select_Location));
@@ -181,20 +203,30 @@ public class AdminEmployeeDatabaseMainPage {
             } catch (NoSuchElementException e) {
                 System.out.println("Location dropdown element not found - " + e.getMessage());
                 return;
+            } catch (StaleElementReferenceException e) {
+                System.out.println("Location dropdown became stale - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error locating location dropdown - " + e.getMessage());
+                return;
             }
+
 
             if (locationDropdown != null) {
                 try {
                     select = new Select(locationDropdown);
                     System.out.println("Location dropdown is successfully initialized.");
                 } catch (UnexpectedTagNameException e) {
-                    System.out.println("The element is not a SELECT tag - " + e.getMessage());
+                    System.out.println("The element is not a <select> tag - " + e.getMessage());
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Invalid argument passed to Select constructor - " + e.getMessage());
                 } catch (Exception e) {
                     System.out.println("Error initializing Select object - " + e.getMessage());
                 }
             } else {
                 System.out.println("Location dropdown is null. Cannot initialize Select.");
             }
+
         } catch (Exception outer) {
             System.out.println("Unhandled exception in selectLocation method - " + outer.getMessage());
         }
@@ -202,16 +234,23 @@ public class AdminEmployeeDatabaseMainPage {
 
     public void location(String location) {
         try {
-            select.selectByVisibleText(location);
-            System.out.println(location + " : is present in the dropdown");
-        } catch (NoSuchElementException e) {
-            System.out.println(location + " : is not present in the dropdown (NoSuchElementException) - " + e.getMessage());
-        } catch (NullPointerException e) {
-            System.out.println("Dropdown not initialized (NullPointerException) - " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("Unexpected error while selecting location: " + location + " - " + e.getMessage());
+            try {
+                select.selectByVisibleText(location);
+                System.out.println(location + " : is present in the dropdown");
+            } catch (NoSuchElementException e) {
+                System.out.println(location + " : is not present in the dropdown (NoSuchElementException) - " + e.getMessage());
+            } catch (IllegalStateException e) {
+                System.out.println("Select object is not initialized or in invalid state - " + e.getMessage());
+            } catch (NullPointerException e) {
+                System.out.println("Select object is null (NullPointerException) - Did you call selectLocation()? " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error while selecting location: " + location + " - " + e.getMessage());
+            }
+        } catch (Exception outer) {
+            System.out.println("Unhandled exception in location method - " + outer.getMessage());
         }
     }
+
 
     public void selectStatus() {
         try {
@@ -441,6 +480,370 @@ public class AdminEmployeeDatabaseMainPage {
             System.out.println("Error clicking Employee Dashboard button: " + e.getMessage());
         }
     }
+    public void checkAddEmployeeButton() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement isButtonEnable = null;
+
+
+            try {
+                isButtonEnable = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(Add_Employee_Button)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Add Employee button not visible in time - " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Add Employee button not found - " + e.getMessage());
+                return;
+            } catch (StaleElementReferenceException e) {
+                System.out.println("Add Employee button is stale - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while locating Add Employee button - " + e.getMessage());
+                return;
+            }
+
+
+            try {
+                if (isButtonEnable.isEnabled()) {
+                    System.out.println("Add Employee Button is enabled and clickable.");
+                    isButtonEnable.click();
+                } else {
+                    System.out.println("Add Employee Button is disabled.");
+                }
+            } catch (ElementClickInterceptedException e) {
+                System.out.println("Click on Add Employee button was intercepted - " + e.getMessage());
+            } catch (ElementNotInteractableException e) {
+                System.out.println("Add Employee button is not interactable - " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error during Add Employee button click - " + e.getMessage());
+            }
+
+        } catch (Exception e) {
+            System.out.println("Unhandled exception in checkAddEmployeeButton method - " + e.getMessage());
+        }
+    }
+
+    public void addEmployeePopup() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement isPopupPresent = null;
+
+
+            try {
+                isPopupPresent = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(Add_Employee_Popup)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Add Employee popup did not appear in time - " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Add Employee popup not found - " + e.getMessage());
+                return;
+            } catch (StaleElementReferenceException e) {
+                System.out.println("Popup is no longer attached to the DOM - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error locating the popup - " + e.getMessage());
+                return;
+            }
+
+
+            try {
+                if (isPopupPresent.isDisplayed()) {
+                    System.out.println("Popup is present");
+                } else {
+                    System.out.println("Popup is not present");
+                }
+            } catch (ElementNotInteractableException e) {
+                System.out.println("Popup is not interactable (may not be visible) - " + e.getMessage());
+            }
+            catch (Exception e) {
+                System.out.println("Unexpected error checking popup visibility - " + e.getMessage());
+            }
+
+        } catch (Exception e) {
+            System.out.println("Unhandled exception in addEmployeePopup method - " + e.getMessage());
+        }
+    }
+    public void checkImportButton() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement isButtonEnable = null;
+
+        try {
+            try {
+                isButtonEnable = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(Import_Button)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Import button not visible - " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Import button element not found - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error locating Import button - " + e.getMessage());
+                return;
+            }
+
+            if (isButtonEnable != null) {
+                try {
+                    if (isButtonEnable.isEnabled()) {
+                        System.out.println("Import button is enabled and clickable");
+                        isButtonEnable.click();
+                    } else {
+                        System.out.println("Import button is disabled");
+                    }
+                } catch (ElementClickInterceptedException e) {
+                    System.out.println("Click was intercepted for Import button - " + e.getMessage());
+                } catch (ElementNotInteractableException e) {
+                    System.out.println("Import button not interactable - " + e.getMessage());
+                } catch (StaleElementReferenceException e) {
+                    System.out.println("Stale element: Import button reference is outdated - " + e.getMessage());
+                } catch (Exception e) {
+                    System.out.println("Unexpected error while interacting with Import button - " + e.getMessage());
+                }
+            }
+
+        } catch (Exception outer) {
+            System.out.println("Unhandled exception in checkImportButton method - " + outer.getMessage());
+        }
+    }
+
+    public void importPopup() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement isPopupPresent = null;
+
+        try {
+            try {
+                isPopupPresent = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(Import_Popup)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Import popup not visible - " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Import popup element not found - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while locating the Import popup - " + e.getMessage());
+                return;
+            }
+
+            try {
+                if (isPopupPresent.isDisplayed()) {
+                    System.out.println("Import popup is present");
+                } else {
+                    System.out.println("Import popup is not present");
+                }
+            } catch (ElementNotInteractableException e) {
+                System.out.println("Popup is not interactable - " + e.getMessage());
+            } catch (StaleElementReferenceException e) {
+                System.out.println("Popup element is stale - " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error while checking popup visibility - " + e.getMessage());
+            }
+
+        } catch (Exception outer) {
+            System.out.println("Unhandled exception in importPopup method - " + outer.getMessage());
+        }
+    }
+
+    public void checkExportButton() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement isButtonEnable = null;
+
+        try {
+            try {
+                isButtonEnable = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(Export_Button)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Export button did not become visible - " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Export button element not found - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while locating Export button - " + e.getMessage());
+                return;
+            }
+
+            try {
+                if (isButtonEnable.isEnabled()) {
+                    System.out.println("Export button is enabled and clickable");
+                    try {
+                        isButtonEnable.click();
+                    } catch (ElementClickInterceptedException e) {
+                        System.out.println("Unable to click Export button - " + e.getMessage());
+                    } catch (ElementNotInteractableException e) {
+                        System.out.println("Export button is not interactable - " + e.getMessage());
+                    } catch (Exception e) {
+                        System.out.println("Unexpected error during Export button click - " + e.getMessage());
+                    }
+                } else {
+                    System.out.println("Export button is not enabled");
+                }
+            } catch (Exception e) {
+                System.out.println("Unexpected error checking Export button state - " + e.getMessage());
+            }
+
+        } catch (Exception outer) {
+            System.out.println("Unhandled exception in checkExportButton method - " + outer.getMessage());
+        }
+    }
+
+    public void selectEmployee() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement isEmployeeAvailable = null;
+
+        try {
+            try {
+                isEmployeeAvailable = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(Select_Employee)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Employee element not visible - " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Employee element not found - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while locating employee element - " + e.getMessage());
+                return;
+            }
+
+            try {
+                String employeeName = isEmployeeAvailable.getText();
+                System.out.println("Employee Name: " + employeeName);
+            } catch (NullPointerException e) {
+                System.out.println("Unable to retrieve employee name - element is null: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error while getting employee name - " + e.getMessage());
+            }
+
+            try {
+                isEmployeeAvailable.click();
+            } catch (ElementClickInterceptedException e) {
+                System.out.println("Unable to click employee element - " + e.getMessage());
+            } catch (ElementNotInteractableException e) {
+                System.out.println("Employee element not interactable - " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error during click on employee element - " + e.getMessage());
+            }
+
+        } catch (Exception outer) {
+            System.out.println("Unhandled exception in selectEmployee method - " + outer.getMessage());
+        }
+    }
+    public void checkGoBackButton() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement isButtonEnable = null;
+
+        try {
+            try {
+                isButtonEnable = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(Go_Back_Button)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Go Back button not visible - " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Go Back button not found - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while locating Go Back button - " + e.getMessage());
+                return;
+            }
+
+            try {
+                if (isButtonEnable.isEnabled()) {
+                    System.out.println("Go Back button is enabled and clickable");
+                    isButtonEnable.click();
+                } else {
+                    System.out.println("Go Back button is disabled and unclickable");
+                }
+            } catch (ElementClickInterceptedException e) {
+                System.out.println("Click on Go Back button was intercepted - " + e.getMessage());
+            } catch (ElementNotInteractableException e) {
+                System.out.println("Go Back button is not interactable - " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error during Go Back button click - " + e.getMessage());
+            }
+
+        } catch (Exception outer) {
+            System.out.println("Unhandled exception in checkGoBackButton method - " + outer.getMessage());
+        }
+    }
+
+    public void checkEditProfileButton() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement isButtonEnable = null;
+
+        try {
+            try {
+                isButtonEnable = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(Edit_Profile_Button)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Edit Profile button not visible - " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Edit Profile button not found - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while locating Edit Profile button - " + e.getMessage());
+                return;
+            }
+
+            try {
+                if (isButtonEnable.isEnabled()) {
+                    System.out.println("Edit Profile button is enabled and clickable");
+                    isButtonEnable.click();
+                } else {
+                    System.out.println("Edit Profile button is disabled and unclickable");
+                }
+            } catch (ElementClickInterceptedException e) {
+                System.out.println("Click on Edit Profile button was intercepted - " + e.getMessage());
+            } catch (ElementNotInteractableException e) {
+                System.out.println("Edit Profile button is not interactable - " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error during Edit Profile button click - " + e.getMessage());
+            }
+
+        } catch (Exception outer) {
+            System.out.println("Unhandled exception in checkEditProfileButton method - " + outer.getMessage());
+        }
+    }
+    public void editProfilePopup() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement isPopupVisible = null;
+
+        try {
+            try {
+                isPopupVisible = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(Edit_Profile_Popup)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Edit Profile popup not visible - " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Edit Profile popup element not found - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while locating Edit Profile popup - " + e.getMessage());
+                return;
+            }
+
+            try {
+                if (isPopupVisible.isDisplayed()) {
+                    System.out.println("Edit Profile popup is displayed");
+                } else {
+                    System.out.println("Edit Profile popup is not displayed");
+                }
+            } catch (ElementNotInteractableException e) {
+                System.out.println("Popup element is not interactable - " + e.getMessage());
+            } catch (StaleElementReferenceException e) {
+                System.out.println("Popup element is no longer attached to the DOM - " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error while checking popup visibility - " + e.getMessage());
+            }
+
+        } catch (Exception outer) {
+            System.out.println("Unhandled exception in editProfilePopup method - " + outer.getMessage());
+        }
+    }
+
+
+
+
+
+
+
+
 
 
 }

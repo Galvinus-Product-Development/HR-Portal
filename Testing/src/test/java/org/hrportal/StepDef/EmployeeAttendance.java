@@ -97,4 +97,44 @@ public class EmployeeAttendance {
     }
 
 
+    @Given("user in the attendance dashboard page")
+    public void userInTheAttendanceDashboardPage() {
+        employeeRequestLeavePage.clickProfileButton();
+        employeeRequestLeavePage.selectEmployeeDashboard();
+        employeeHomePage.clickAttendanceModule();
+        employeeHomePage.clickAttendanceDashboard();
+
+
+    }
+
+    @When("user click on calendar view button and list view button")
+    public void userClickOnCalendarViewButtonAndListViewButton() {
+
+        employeeAttendancePage.checkCalendarViewButton();
+        employeeAttendancePage.checkListViewButton();
+
+    }
+
+    @Then("table should change")
+    public void tableShouldChange() {
+    }
+
+    @Given("user in overtime page")
+    public void userInOvertimePage() {
+        employeeRequestLeavePage.clickProfileButton();
+        employeeRequestLeavePage.selectEmployeeDashboard();
+        employeeHomePage.clickAttendanceModule();
+        employeeHomePage.clickOvertimeModule();
+
+    }
+
+    @When("the user select {string} in the dropdown")
+    public void theUserSelectInTheDropdown(String status) {
+        employeeAttendancePage.allStatusDropdown(status);
+
+    }
+
+    @Then("table changes accordingly")
+    public void tableChangesAccordingly() {
+    }
 }

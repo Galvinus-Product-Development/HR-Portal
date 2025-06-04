@@ -105,14 +105,14 @@ public class LoginPage {
         signInPage.checkSendResentLink();
         signInPage.checkBackToLogin();
     }
-
-    @Then("user enters a mail and wait for the conformation message")
-    public void userEntersAMailAndWaitForTheConformationMessage() {
-        signInPage.enterEmail();
-        signInPage.clickSendResentLinkButton();
-        signInPage.conformationMessage();
+    @Then("user enters a {string} and wait for the conformation {string}")
+    public void userEntersAAndWaitForTheConformation(String email, String expectedMessage) {
+        signInPage.enterEmail(email);
+        signInPage.verifyResetPasswordMessage(expectedMessage);
         signInPage.clickOnBackToLoginButton();
     }
+
+
     @Given("user enters the invalid {string} and {string}")
     public void userEntersTheInvalidCredentials(String username, String password) {
         signInPage.inValidCredentials(username, password);
@@ -134,11 +134,7 @@ public class LoginPage {
         signInPage.inValidCredentials(username, password);
     }
 
-    @When("the user clicks on the sign-in button")
-    public void theUserClicksOnTheSignInButton() {
-        signInPage.clickSignInButton();
 
-    }
 
     @Then("the proper {string} message appears")
     public void theProperMessageAppears(String error) {
@@ -2018,4 +2014,6 @@ public class LoginPage {
         System.out.println("Status Code: " + statusCode);
         System.out.println("Response Body:\n" + responseBody);
     }
+
+
 }

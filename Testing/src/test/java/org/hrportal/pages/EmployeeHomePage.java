@@ -19,11 +19,14 @@ public class EmployeeHomePage {
 
     public static final By Employee_Name = By.id("name");
     public static String Attendance_Module = "//a[text()='Attendance']";
+    public static String Attendance_Dashboard = "//a[text()='Attendance Dashboard']";
+    public static String Overtime_Option = "//a[text()='Overtime']";
     public static String Attendance_Tracker = "//a[text()='Attendance Tracker']";
 
     public static String Leave_Management = "//a[text()='Leave Management']";
     public static String Request_Leave_Module = "//a[text()='Request Leave']";
     public static String Manage_Leaves = "//a[text()='Manage Leaves']";
+    public static String Holiday_Calendar = "//a[text()='Holiday Calendar']";
 
 
 
@@ -264,6 +267,43 @@ public class EmployeeHomePage {
             System.out.println("General exception in clickAttendanceModule(): " + e.getMessage());
         }
     }
+
+    public void clickAttendanceDashboard() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement dashboardElement = null;
+
+
+            try {
+                dashboardElement = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(Attendance_Dashboard)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Attendance Dashboard button not clickable in time. " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Attendance Dashboard button not found. " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while waiting for Attendance Dashboard: " + e.getMessage());
+                return;
+            }
+
+
+            try {
+                dashboardElement.click();
+                System.out.println("Attendance Dashboard button clicked successfully.");
+            } catch (ElementClickInterceptedException e) {
+                System.out.println("Click intercepted: " + e.getMessage());
+            } catch (ElementNotInteractableException e) {
+                System.out.println("Element not interactable: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error during click: " + e.getMessage());
+            }
+
+        } catch (Exception e) {
+            System.out.println("General exception in clickAttendanceDashboard(): " + e.getMessage());
+        }
+    }
+
     public void clickAttendanceTracker() {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -296,6 +336,45 @@ public class EmployeeHomePage {
             System.out.println("General exception in clickAttendanceTracker(): " + e.getMessage());
         }
     }
+
+    public void clickOvertimeModule() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement overtimeButton = null;
+
+
+            try {
+                overtimeButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(Overtime_Option)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Overtime module option not clickable in time. " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Overtime module option not found. " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while locating Overtime module: " + e.getMessage());
+                return;
+            }
+
+
+            try {
+                overtimeButton.click();
+                System.out.println("Overtime module clicked successfully.");
+            } catch (ElementClickInterceptedException e) {
+                System.out.println("Click on Overtime module intercepted: " + e.getMessage());
+            } catch (ElementNotInteractableException e) {
+                System.out.println("Overtime module option is not interactable: " + e.getMessage());
+            } catch (StaleElementReferenceException e) {
+                System.out.println("Overtime module option is stale: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error during click action on Overtime module: " + e.getMessage());
+            }
+
+        } catch (Exception e) {
+            System.out.println("General exception in clickOvertimeModule(): " + e.getMessage());
+        }
+    }
+
 
 
     public void clickLeaveManagementModule() {
@@ -392,6 +471,41 @@ public class EmployeeHomePage {
             e.printStackTrace();
         }
     }
+
+    public void clickHolidayModule() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement holidayModule = null;
+
+        try {
+            try {
+                holidayModule = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(Holiday_Calendar)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Holiday module did not become clickable in time - " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Holiday module not found on the page - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while locating holiday module - " + e.getMessage());
+                return;
+            }
+
+            try {
+                holidayModule.click();
+                System.out.println("Holiday module clicked successfully.");
+            } catch (ElementClickInterceptedException e) {
+                System.out.println("Click intercepted: Cannot click holiday module - " + e.getMessage());
+            } catch (ElementNotInteractableException e) {
+                System.out.println("Holiday module not interactable - " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error while clicking holiday module - " + e.getMessage());
+            }
+
+        } catch (Exception outer) {
+            System.out.println("Unhandled exception in clickHolidayModule method - " + outer.getMessage());
+        }
+    }
+
 
 
 

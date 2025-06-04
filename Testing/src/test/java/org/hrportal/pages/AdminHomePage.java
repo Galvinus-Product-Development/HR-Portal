@@ -45,7 +45,7 @@ public class AdminHomePage {
     public static String Pending_Leave_Request = "//a[text()='Pending Leave Requests']";
     public static String Leave_History = "//a[text()='Leave History']";
     public static String Leave_Policy = "//a[text()='Leave Policy']";
-    public static String Holiday_Module = "//*[@id=\"root\"]/div/div/div/div/nav/div[8]/a";
+    public static String Holiday_Module = "//a[text()='Holiday']";
 
 
 

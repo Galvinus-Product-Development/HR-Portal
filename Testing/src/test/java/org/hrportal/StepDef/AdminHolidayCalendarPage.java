@@ -3,10 +3,7 @@ package org.hrportal.StepDef;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.hrportal.pages.AdminHomePage;
-import org.hrportal.pages.AdminLeaveManagementPage;
-import org.hrportal.pages.HolidayPage;
-import org.hrportal.pages.SignInPage;
+import org.hrportal.pages.*;
 import org.hrportal.webdriver.DriverManager;
 import org.openqa.selenium.WebDriver;
 
@@ -17,11 +14,16 @@ public class AdminHolidayCalendarPage {
     private AdminHomePage homepage;
     private HolidayPage holidayPage;
 
+    private EmployeeRequestLeavePage employeeRequestLeavePage;
+    private EmployeeHomePage employeeHomePage;
+
     public AdminHolidayCalendarPage() {
         this.driver = DriverManager.getDriver();
         this.signInPage = new SignInPage(driver);
         this.homepage = new AdminHomePage(driver);
         this.holidayPage = new HolidayPage(driver);
+        this.employeeRequestLeavePage =new EmployeeRequestLeavePage(driver);
+        this.employeeHomePage = new EmployeeHomePage(driver);
 
     }
     @Given("the user click on Holiday option present in sidebar")
@@ -89,4 +91,40 @@ public class AdminHolidayCalendarPage {
         holidayPage.createHoliday();
     }
 
+    @Given("the user clicks on profile and navigate to employee portal")
+    public void theUserClicksOnProfileAndNavigateToEmployeePortal() {
+        employeeRequestLeavePage.clickProfileButton();
+        employeeRequestLeavePage.selectEmployeeDashboard();
+        
+    }
+
+    @When("the user click on holiday module from the sidebar")
+    public void theUserClickOnHolidayModuleFromTheSidebar() {
+        employeeHomePage.clickHolidayModule();
+
+        
+    }
+
+    @Then("user select any year from the {string} dropdown")
+    public void userSelectAnyYearFromTheDropdown(String year) {
+        holidayPage.setYearDropdown(year);
+    }
+
+    @Given("the user click on profile and navigate to employee portal")
+    public void theUserClickOnProfileAndNavigateToEmployeePortal() {
+        employeeRequestLeavePage.clickProfileButton();
+        employeeRequestLeavePage.selectEmployeeDashboard();
+
+    }
+
+    @When("user click on holiday module from the sidebar")
+    public void userClickOnHolidayModuleFromTheSidebar() {
+        employeeHomePage.clickHolidayModule();
+
+    }
+
+    @Then("user select any month from the {string} dropdown")
+    public void userSelectAnyMonthFromTheDropdown(String month) {
+        holidayPage.setMonthDropdown(month);
+    }
 }

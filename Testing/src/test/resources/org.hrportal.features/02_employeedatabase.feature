@@ -10,11 +10,11 @@ Feature: Employee Database
     When the table filters based on the name
     Then click on that particular employee
     Examples:
-      | name    |
-      | Bhaskar |
-      | Basu    |
-      | Prajwal |
-      | Rahul   |
+      | name     |
+      | Bhaskar  |
+      | Yuvaraja |
+      | Prajwal  |
+      | Rahul    |
 
   @ui
     Scenario Outline: Verify the functionality of All Department dropdown
@@ -23,7 +23,7 @@ Feature: Employee Database
     Then the table gets filter based on the selected "<department>"
     Examples:
       | department |
-      | General    |
+      | SAP C4C    |
       | N/A        |
       | SAP        |
       | Testing    |
@@ -62,6 +62,30 @@ Feature: Employee Database
       | 2          |
       | Next       |
 
+  @ui
+    Scenario: Verify the functionality of Add employee button
+    Given the user clicks on employee database module in the sidebar
+    When the user click on add employee button
+    Then the a popup displays
+
+  @ui
+    Scenario: Verify the functionality of Import button
+    Given user clicks on employee database module in the sidebar
+    When the user click on import button
+    Then a popup appear
+
+  @ui
+    Scenario: Verify the functionality of export button
+    Given user click on employee data base module in the sidebar
+    When user click on export button
+    Then document download takes place
+
+  @ui
+    Scenario: Verify the functionality of edit profile button and back button
+    Given user click on employee data base module from the sidebar
+    When the user click on any one employee from the table
+    Then check the edit button and back button is enable or not
+
 
   @ui
   Scenario Outline: Verify the functionality of Employee Database
@@ -78,6 +102,7 @@ Feature: Employee Database
       Given user clicks on the edit profile button
       And a popup will appears
       When admin fills all the employment details like "<Employee name>", "<Gender>", "<Date of birth>", "<Blood group>", "<Phone number>", "<Personal Email>", "<Marital Status>", "<Emergency Contact Number>", "<Aadhar Number>", "<PAN Number>"
+      And user click on
       Examples:
         | Employee name | Gender | Date of birth | Blood group | Phone number | Personal Email       | Marital Status | Emergency Contact Number | Aadhar Number | PAN Number |
         | Yuvaraja      | Male   | 16-07-1999    | O+          | 9113576757   | gbyuvaraj1@gmail.com | Single         | 9113576757               | 332577889612  | DBCDE2234F |

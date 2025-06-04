@@ -230,6 +230,77 @@ public class AdminEmployeeDatabase {
         adminEmployeeDatabaseMainPage.clickEmployeeDashboardButton();
     }
 
+    @Given("the user clicks on employee database module in the sidebar")
+    public void theUserClicksOnEmployeeDatabaseModuleInTheSidebar() {
+        homePage.clickEmployeeDataManagement();
+
+    }
+
+    @When("the user click on add employee button")
+    public void theUserClickOnAddEmployeeButton() {
+        adminEmployeeDatabaseMainPage.checkAddEmployeeButton();
+
+    }
+
+    @Then("the a popup displays")
+    public void theAPopupDisplays() {
+        adminEmployeeDatabaseMainPage.addEmployeePopup();
+
+    }
+
+    @Given("user clicks on employee database module in the sidebar")
+    public void userClicksOnEmployeeDatabaseModuleInTheSidebar() {
+        homePage.clickEmployeeDataManagement();
+
+    }
+
+    @When("the user click on import button")
+    public void theUserClickOnImportButton() {
+        adminEmployeeDatabaseMainPage.checkImportButton();
+
+    }
+
+    @Then("a popup appear")
+    public void aPopupAppear() {
+        adminEmployeeDatabaseMainPage.importPopup();
+
+    }
+
+    @Given("user click on employee data base module in the sidebar")
+    public void userClickOnEmployeeDataBaseModuleInTheSidebar() {
+        homePage.clickEmployeeDataManagement();
+
+    }
+
+    @When("user click on export button")
+    public void userClickOnExportButton() {
+        adminEmployeeDatabaseMainPage.checkExportButton();
+
+
+    }
+
+    @Then("document download takes place")
+    public void documentDownloadTakesPlace() {
+    }
+
+    @Given("user click on employee data base module from the sidebar")
+    public void userClickOnEmployeeDataBaseModuleFromTheSidebar() {
+        homePage.clickEmployeeDataManagement();
+
+    }
+
+    @When("the user click on any one employee from the table")
+    public void theUserClickOnAnyOneEmployeeFromTheTable() {
+        adminEmployeeDatabaseMainPage.selectEmployee();
+
+    }
+
+    @Then("check the edit button and back button is enable or not")
+    public void checkTheEditButtonAndBackButtonIsEnableOrNot() {
+        adminEmployeeDatabaseMainPage.checkGoBackButton();
+        adminEmployeeDatabaseMainPage.checkEditProfileButton();
+        adminEmployeeDatabaseMainPage.editProfilePopup();
+    }
 
 
 //    @Given("the user is logged in and has access tokens and refresh tokens using {string}")

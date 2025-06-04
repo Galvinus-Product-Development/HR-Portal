@@ -11,7 +11,7 @@ Feature: Leave Management
     Examples:
       | Employee Name |
       | Bhaskar       |
-      | Bhaskar       |
+      | Mohd Saad     |
       | Rohan         |
 
   @ui
@@ -183,7 +183,7 @@ Scenario Outline: Verify the functionality of status dropdown
   When the user click on "<status>" dropdown
   Then the table changes according to selected status
   Examples:
-    | status    |  |
-    | Approved  |  |
-    | Pending   |  |
-    | No Status |  |
+    | status    |
+    | Approved  |
+    | Pending   |
+    | No Status |

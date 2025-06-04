@@ -2,6 +2,8 @@ package org.hrportal.pages;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.UnexpectedTagNameException;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
@@ -16,6 +18,10 @@ public class EmployeeAttendancePage {
     public static String Punch_In_Time = "//*[@id=\"root\"]/div/div/main/div/div/div/div/div[3]/div/form/div[3]/div/input";
     public static String Reason_Text_Field = "//*[@id=\"root\"]/div/div/main/div/div/div/div/div[3]/div/form/div[4]/textarea";
     public static String Submit_Button = "//button[text()='Submit']";
+    public static String Calendar_View_Button = "//*[@id=\"root\"]/div/div/main/div/div/div/div/div[4]/div[1]/div[2]/button[1]";
+    public static String List_View_Button = "//*[@id=\"root\"]/div/div/main/div/div/div/div/div[4]/div[1]/div[2]/button[2]";
+
+    public static String All_Status_Dropdown = "//*[@id=\"root\"]/div/div/main/div/div/div/div/div[2]/select";
 
 
 
@@ -250,6 +256,129 @@ public class EmployeeAttendancePage {
             System.out.println("General exception in clickPunchOutButton(): " + e.getMessage());
         }
     }
+
+    public void checkCalendarViewButton() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement isButtonEnable = null;
+
+
+            try {
+                isButtonEnable = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(Calendar_View_Button)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Calendar View button not visible in time. " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Calendar View button not found. " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while locating Calendar View button: " + e.getMessage());
+                return;
+            }
+
+
+            try {
+                if (isButtonEnable.isEnabled()) {
+                    System.out.println("Button is enabled and clickable.");
+                    isButtonEnable.click();
+                } else {
+                    System.out.println("Button is disabled and unclickable.");
+                }
+            } catch (ElementClickInterceptedException e) {
+                System.out.println("Click intercepted: " + e.getMessage());
+            } catch (ElementNotInteractableException e) {
+                System.out.println("Element not interactable: " + e.getMessage());
+            } catch (StaleElementReferenceException e) {
+                System.out.println("Stale element reference: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error during click operation: " + e.getMessage());
+            }
+
+        } catch (Exception e) {
+            System.out.println("General exception in checkCalendarViewButton(): " + e.getMessage());
+        }
+    }
+    public void checkListViewButton() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement isButtonEnable = null;
+
+
+            try {
+                isButtonEnable = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(List_View_Button)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: List View button not visible in time. " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("List View button not found. " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while locating List View button: " + e.getMessage());
+                return;
+            }
+
+
+            try {
+                if (isButtonEnable.isEnabled()) {
+                    System.out.println("List view button is enabled and clickable.");
+                    isButtonEnable.click();
+                } else {
+                    System.out.println("List view button is disabled and unclickable.");
+                }
+            } catch (ElementClickInterceptedException e) {
+                System.out.println("Click on List View button intercepted: " + e.getMessage());
+            } catch (ElementNotInteractableException e) {
+                System.out.println("List View button is not interactable: " + e.getMessage());
+            } catch (StaleElementReferenceException e) {
+                System.out.println("List View button is stale: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error during List View button click: " + e.getMessage());
+            }
+
+        } catch (Exception e) {
+            System.out.println("General exception in checkListViewButton(): " + e.getMessage());
+        }
+    }
+
+    public void allStatusDropdown(String status) {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement statusDropdown = null;
+
+
+            try {
+                statusDropdown = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(All_Status_Dropdown)));
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: Status dropdown not clickable in time. " + e.getMessage());
+                return;
+            } catch (NoSuchElementException e) {
+                System.out.println("Status dropdown element not found. " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Unexpected error while locating status dropdown: " + e.getMessage());
+                return;
+            }
+
+
+            try {
+                Select select = new Select(statusDropdown);
+                select.selectByVisibleText(status);
+                System.out.println("Status '" + status + "' selected successfully.");
+            } catch (UnexpectedTagNameException e) {
+                System.out.println("Element is not a <select> tag: " + e.getMessage());
+            } catch (NoSuchElementException e) {
+                System.out.println("Status '" + status + "' not found in the dropdown. " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error while selecting status: " + e.getMessage());
+            }
+
+        } catch (Exception e) {
+            System.out.println("General exception in allStatusDropdown(): " + e.getMessage());
+        }
+    }
+
+
+
 
 
 

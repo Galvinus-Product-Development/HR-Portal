@@ -196,6 +196,23 @@ Scenario: Verify the functionality of attendance module
        |                   | Testing |
        |20.00              |Testing  |
 
+   @ui
+   Scenario: Verify the functionality of Calendar view and list view button
+     Given user in the attendance dashboard page
+     When user click on calendar view button and list view button
+     Then table should change
+
+   @ui
+   Scenario Outline: Verify the functionality of All status dropdown
+     Given user in overtime page
+     When the user select "<status>" in the dropdown
+     Then table changes accordingly
+     Examples:
+       | status   |
+       | Pending  |
+       | Approved |
+       | Cancel   |
+
 
 
 

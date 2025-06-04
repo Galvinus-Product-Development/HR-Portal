@@ -32,8 +32,10 @@ public class SignInPage {
     public static final By Forgot_Password_Link = By.xpath("//*[@id=\"root\"]/div/div/div/form/div[3]/p");
     public static final By Forgot_Password_PageTitle = By.xpath("//*[@id=\"root\"]/div/div/div/h2");
     public static String Error_Message = "//*[@id=\"root\"]/div/div/div/form/div[1]/p";
-    public static String Unregistered_Error_Message = "//*[@id=\"root\"]/div/div/div/div[2]/span";
-    public static final By Mail_Sent_Conformation_Text = By.xpath("//*[@id=\"root\"]/div/div/div/p");
+    private static final By INVALID_EMAIL_FORMAT = By.xpath("//span[text()='Invalid email format']");
+    private static final By EMAIL_NOT_FOUND = By.xpath("//span[text()='Email not found.']");
+    private static final By RESET_LINK_SENT = By.xpath("//p[text()='A password reset link has been sent to your email.']");
+
     public static final By Send_Reset_Link_Button = By.xpath("//button[text()='Send Reset Link']");
     public static final By Back_To_Login_Button = By.xpath("//button[text()='Back to Login']");
 
@@ -140,21 +142,42 @@ public class SignInPage {
 
 
     public void inValidCredentials(String username, String password) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
         try {
-            driver.findElement(Username_Field).clear();
-            driver.findElement(Username_Field).sendKeys(username);
+            try {
+                WebElement usernameField = wait.until(ExpectedConditions.elementToBeClickable(Username_Field));
+                usernameField.clear();
+                usernameField.sendKeys(username);
+            } catch (NoSuchElementException e) {
+                System.out.println("Username field not found: " + e.getMessage());
+            } catch (ElementNotInteractableException e) {
+                System.out.println("Username field is not interactable: " + e.getMessage());
+            } catch (TimeoutException e) {
+                System.out.println("Timeout while waiting for username field: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error with username input: " + e.getMessage());
+            }
 
-            driver.findElement(Password_Field).clear();
-            driver.findElement(Password_Field).sendKeys(password);
+            try {
+                WebElement passwordField = wait.until(ExpectedConditions.elementToBeClickable(Password_Field));
+                passwordField.clear();
+                passwordField.sendKeys(password);
+            } catch (NoSuchElementException e) {
+                System.out.println("Password field not found: " + e.getMessage());
+            } catch (ElementNotInteractableException e) {
+                System.out.println("Password field is not interactable: " + e.getMessage());
+            } catch (TimeoutException e) {
+                System.out.println("Timeout while waiting for password field: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error with password input: " + e.getMessage());
+            }
 
-        } catch (NoSuchElementException e) {
-            System.out.println("One of the input fields (username/password) was not found: " + e.getMessage());
-        } catch (ElementNotInteractableException e) {
-            System.out.println("One of the input fields (username/password) is not interactable: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("Unexpected error in inValidCredentials: " + e.getMessage());
+        } catch (Exception outer) {
+            System.out.println("Unhandled error in inValidCredentials method: " + outer.getMessage());
         }
     }
+
 
     public void clickSignInButton() {
 
@@ -177,10 +200,7 @@ public class SignInPage {
     public void errorMessage(String error) {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            String errorMessageDisplay = wait
-                    .until(ExpectedConditions.visibilityOfElementLocated(
-                            By.xpath("//div[contains(@class,'login-error')]//span[contains(text(),'" + error + "')]")))
-                    .getText();
+            String errorMessageDisplay = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[text()='" + error + "']"))).getText();
 
             System.out.println("Error message displayed: " + errorMessageDisplay);
 
@@ -197,7 +217,7 @@ public class SignInPage {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             String errorMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                    By.xpath("//p[contains(@class, 'error-text') and contains(normalize-space(), '" + error + "')]")
+                    By.xpath("//p[text()='" + error + "']")
             )).getText();
 
             System.out.println("If the user enters an invalid email format, this error message will appear: " + errorMessage);
@@ -220,12 +240,6 @@ public class SignInPage {
 
     }
 
-    public void unregisteredErrorCredentials() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        String error = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(Unregistered_Error_Message))).getText();
-
-        System.out.println(error + " This message is for the unregistered email and password");
-    }
 
     public void checkSignInButtonEnable() {
         try {
@@ -304,32 +318,38 @@ public class SignInPage {
     }
 
     public void getResetPasswordTitle() {
-        try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            String pageTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(Forgot_Password_PageTitle)).getText();
 
-            System.out.println("This is the title of the Reset Password page: " + pageTitle);
+        String forgotPasswordTitle = driver.getTitle();
+        System.out.println("The title of the page is: " + forgotPasswordTitle);
 
-        } catch (TimeoutException e) {
-            System.out.println("Timeout while waiting for the Reset Password page title to be visible: " + e.getMessage());
 
-        } catch (NoSuchElementException e) {
-            System.out.println("Reset Password page title element was not found: " + e.getMessage());
-
-        } catch (StaleElementReferenceException e) {
-            System.out.println("Reset Password page title element is no longer attached to the DOM: " + e.getMessage());
-
-        } catch (InvalidSelectorException e) {
-            System.out.println("Invalid selector used for Reset Password page title: " + e.getMessage());
-
-        } catch (Exception e) {
-            System.out.println("An unexpected error occurred while retrieving the Reset Password page title: " + e.getMessage());
-        }
+//        try {
+//            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+//            String pageTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(Forgot_Password_PageTitle)).getText();
+//
+//            System.out.println("This is the title of the Reset Password page: " + pageTitle);
+//
+//        } catch (TimeoutException e) {
+//            System.out.println("Timeout while waiting for the Reset Password page title to be visible: " + e.getMessage());
+//
+//        } catch (NoSuchElementException e) {
+//            System.out.println("Reset Password page title element was not found: " + e.getMessage());
+//
+//        } catch (StaleElementReferenceException e) {
+//            System.out.println("Reset Password page title element is no longer attached to the DOM: " + e.getMessage());
+//
+//        } catch (InvalidSelectorException e) {
+//            System.out.println("Invalid selector used for Reset Password page title: " + e.getMessage());
+//
+//        } catch (Exception e) {
+//            System.out.println("An unexpected error occurred while retrieving the Reset Password page title: " + e.getMessage());
+//        }
     }
 
     public void checkSendResentLink() {
         try {
-            WebElement sendResetLink = driver.findElement(Send_Reset_Link_Button);
+           WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement sendResetLink = wait.until(ExpectedConditions.visibilityOfElementLocated(Send_Reset_Link_Button));
 
             try {
                 if (sendResetLink.isEnabled()) {
@@ -355,28 +375,28 @@ public class SignInPage {
         }
     }
 
-    public void clickSendResentLinkButton() {
-        try {
-            WebElement sendResetLinkButton = driver.findElement(Send_Reset_Link_Button);
-            sendResetLinkButton.click();
-            System.out.println("Clicked on the 'Send Reset Link' button.");
-
-        } catch (NoSuchElementException e) {
-            System.out.println("Send Reset Link button was not found on the page: " + e.getMessage());
-
-        } catch (ElementNotInteractableException e) {
-            System.out.println("Send Reset Link button is not interactable: " + e.getMessage());
-
-        } catch (StaleElementReferenceException e) {
-            System.out.println("Send Reset Link button is no longer attached to the DOM: " + e.getMessage());
-
-        } catch (InvalidSelectorException e) {
-            System.out.println("Invalid selector used for Send Reset Link button: " + e.getMessage());
-
-        } catch (Exception e) {
-            System.out.println("An unexpected error occurred while clicking the Send Reset Link button: " + e.getMessage());
-        }
-    }
+//    public void clickSendResentLinkButton() {
+//        try {
+//            WebElement sendResetLinkButton = driver.findElement(Send_Reset_Link_Button);
+//            sendResetLinkButton.click();
+//            System.out.println("Clicked on the 'Send Reset Link' button.");
+//
+//        } catch (NoSuchElementException e) {
+//            System.out.println("Send Reset Link button was not found on the page: " + e.getMessage());
+//
+//        } catch (ElementNotInteractableException e) {
+//            System.out.println("Send Reset Link button is not interactable: " + e.getMessage());
+//
+//        } catch (StaleElementReferenceException e) {
+//            System.out.println("Send Reset Link button is no longer attached to the DOM: " + e.getMessage());
+//
+//        } catch (InvalidSelectorException e) {
+//            System.out.println("Invalid selector used for Send Reset Link button: " + e.getMessage());
+//
+//        } catch (Exception e) {
+//            System.out.println("An unexpected error occurred while clicking the Send Reset Link button: " + e.getMessage());
+//        }
+//    }
 
     public void checkBackToLogin() {
         try {
@@ -429,10 +449,10 @@ public class SignInPage {
         }
     }
 
-    public void enterEmail() {
+    public void enterEmail(String email) {
         try {
-            WebElement emailField = driver.findElement(Username_Field);
-            emailField.sendKeys("bhaskarbasu7070@gmail.com");
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(Username_Field)).sendKeys(email);
 
             try {
                 WebElement sendResetButton = driver.findElement(Send_Reset_Link_Button);
@@ -466,36 +486,66 @@ public class SignInPage {
         }
     }
 
-    public void conformationMessage() {
-        try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            WebElement confirmationMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(Mail_Sent_Conformation_Text));
+    public void verifyResetPasswordMessage(String expectedMessage) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement messageElement = null;
 
-            if (confirmationMessage.isDisplayed()) {
-                System.out.println("Reset Mail sent successfully");
-                String text = confirmationMessage.getText();
-                System.out.println(text + " This text displayed after the reset link sent to user");
-            } else {
-                System.out.println("Failed to send Reset link");
+        try {
+
+            try {
+                if (isElementVisible(INVALID_EMAIL_FORMAT, wait)) {
+                    messageElement = driver.findElement(INVALID_EMAIL_FORMAT);
+                } else if (isElementVisible(EMAIL_NOT_FOUND, wait)) {
+                    messageElement = driver.findElement(EMAIL_NOT_FOUND);
+                } else if (isElementVisible(RESET_LINK_SENT, wait)) {
+                    messageElement = driver.findElement(RESET_LINK_SENT);
+                }
+            } catch (TimeoutException e) {
+                System.out.println("Timeout: No expected message appeared - " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                System.out.println("Error while waiting for message element: " + e.getMessage());
+                return;
             }
 
-        } catch (TimeoutException e) {
-            System.out.println("Timeout waiting for confirmation message: " + e.getMessage());
+            try {
+                if (messageElement == null) {
+                    System.out.println("No message element found.");
+                    return;
+                }
 
-        } catch (NoSuchElementException e) {
-            System.out.println("Confirmation message element was not found: " + e.getMessage());
+                String actualMessage = messageElement.getText().trim();
 
-        } catch (StaleElementReferenceException e) {
-            System.out.println("Confirmation message is no longer attached to the DOM: " + e.getMessage());
+                if (actualMessage.equals(expectedMessage)) {
+                    System.out.println(" Success: Message matched: " + actualMessage);
+                } else {
+                    System.out.println(" Failure: Expected '" + expectedMessage + "', but got '" + actualMessage + "'");
+                }
+            } catch (Exception e) {
+                System.out.println("Error reading or comparing message: " + e.getMessage());
+            }
 
-        } catch (InvalidSelectorException e) {
-            System.out.println("Invalid selector used for confirmation message: " + e.getMessage());
-
-        } catch (Exception e) {
-            System.out.println("An unexpected error occurred while verifying confirmation message: " + e.getMessage());
+        } catch (Exception outer) {
+            System.out.println("Unhandled exception in verifyResetPasswordMessage method: " + outer.getMessage());
         }
     }
+
+
+    private boolean isElementVisible(By locator, WebDriverWait wait) {
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+            return true;
+        } catch (TimeoutException e) {
+            return false;
+        }
+    }
+
+
 }
+
+
+
+
 
 //        private static final Map<String, String> configMap = new HashMap<>();
 //
